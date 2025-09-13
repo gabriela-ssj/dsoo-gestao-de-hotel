@@ -1,5 +1,9 @@
-class Pessoa:
-    def __init__(self, cpf:str, nome:str, idade:int, telefone:str, email:str):
+from abc import ABC, abstractmethod
+
+class Pessoa(ABC):
+
+    @abstractmethod 
+    def __init__(self, cpf: int, nome: str, idade: int, telefone: str, email: str):
       if isinstance(cpf, int):
          self.__cpf = cpf
       if isinstance(nome, str):
