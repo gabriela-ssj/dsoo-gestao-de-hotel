@@ -1,0 +1,34 @@
+# ======================
+# Python
+# ======================
+
+# Cache e compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambiente virtual
+venv/
+.env/
+.venv/
+
+# Logs
+*.log
+
+# Banco de dados local (se usar SQLite por exemplo)
+*.sqlite3
+
+# ======================
+# VS Code
+# ======================
+
+.vscode/
+.history/
+
+# ======================
+# Outros
+# ======================
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
