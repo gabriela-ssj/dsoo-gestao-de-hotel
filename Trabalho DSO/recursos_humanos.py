@@ -1,6 +1,6 @@
 
 from funcionario import Funcionario
-from typing import Funcionario
+from typing import List
 
 class Rh:
     def __init__(self, funcionarios: List[Funcionario] = []):
