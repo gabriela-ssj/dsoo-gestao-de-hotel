@@ -1,5 +1,5 @@
 class Pet:
-    def __init__(self, nome_pet: str, especie:str, quant_pet:int):
+    def __init__(self, nome_pet: str, especie: str, quant_pet:int):
         self.__nome_pet = nome_pet
         self.__especie = especie
         self.__quant_pet = quant_pet
@@ -36,3 +36,4 @@ class Pet:
     
     def __str__(self):
         return f"{self.quant_pet}X {self.especie}(s) chamado(s) {self.nome_pet}"
+    

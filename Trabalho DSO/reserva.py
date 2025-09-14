@@ -69,7 +69,7 @@ class Reserva:
         self.__status = "cancelada"
         print("Reserva cancelada")
     
-    def editar_reserva(self, nova_data_checkin:str = None, nova_darta_checkout:str = None, novos_quartos:list[Quarto]):
+    def editar_reserva(self, nova_data_checkin:str = None, nova_data_checkout:str = None, novo_quarto:list[Quarto] = None):
         pass
 
     def calcular_valor_total(self):
