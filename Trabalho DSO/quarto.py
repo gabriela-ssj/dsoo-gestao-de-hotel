@@ -57,7 +57,7 @@ class Quarto:
     def hospedes(self):
         return self.__hospedes
 
-    def alocar_hospedes(self, hspedes: List[Hospede]) -> bool:
+    def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.__capacidade_pessoas:
             print(f"Quarto {self.__numero} não suporta {len(hospedes)} pessoas(capacidade: {self.__capacidade_pessoas}) ")
             return False
