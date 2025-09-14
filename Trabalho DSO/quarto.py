@@ -66,7 +66,7 @@ class Quarto:
         print(f"{len(hospedes)} hóspedes alocados no quarto {self.__numero}.")
         return True
     
-    def contador_adutos_criancas(self) -> tuple[int, int]:
+    def contador_adultos_criancas(self) -> tuple[int, int]:
         adultos = sum(1 for hosp in self.__hospedes if hosp.is_adulto())
         criancas = sum(1 for hosp in self.__hospedes if hosp.is_crianca())
         return adultos, criancas
