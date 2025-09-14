@@ -4,7 +4,7 @@ from quarto import Quarto
 from typing import List
 
 class Reserva:
-    def __init__(self, hospedes: List[Hospede], quartos: list[Quarto], data_checkin:str, data_checkout: str, valor_total:float, status:str):
+    def __init__(self, hospedes: List[Hospede], quartos: List[Quarto], data_checkin: str, data_checkout: str, valor_total: float, status: str):
         if not isinstance(hospedes, list):
             raise TypeError("hospedes deve ser uma lista de objetos Hospede")
         if not isinstance(quartos, list):
@@ -46,10 +46,7 @@ class Reserva:
         self.__status = status
 
     def verifica_hospede(self) -> bool:
-        for hospede in self.__hospedes:
-            if hospede.is_adulto():
-                return True
-            return False
+        return any(h.is_adulto() for h in self.__hospedes)
 
     def fazer_reserva(self):
         for quarto in self.__quartos:
@@ -61,16 +58,41 @@ class Reserva:
         
         self.__status = "confirmada"
         self.calcular_valor_total()
-        print("Reserva realziada com sucesso.")
+        print("Reserva realizada com sucesso.")
 
     def cancelar_reserva(self):
         for quarto in self.__quartos:
             quarto.liberar_quarto()
         self.__status = "cancelada"
-        print("Reserva cancelada")
-    
-    def editar_reserva(self, nova_data_checkin:str = None, nova_data_checkout:str = None, novo_quarto:list[Quarto] = None):
-        pass
+        print("Reserva cancelada.")
+
+    def editar_reserva(self, nova_data_checkin: str = None, nova_data_checkout: str = None, novo_quarto: List[Quarto] = None):
+        if nova_data_checkin:
+            self.__data_checkin = nova_data_checkin
+        if nova_data_checkout:
+            self.__data_checkout = nova_data_checkout
+        if novo_quarto:
+            for quarto in self.__quartos:
+                quarto.liberar_quarto()
+            self.__quartos = novo_quarto
+            for quarto in self.__quartos:
+                quarto.reservar_quarto()
+        print("Reserva editada com sucesso.")
 
     def calcular_valor_total(self):
-        pass
+        dias = self.__calcular_dias()
+        total = 0.0
+        for quarto in self.__quartos:
+            adultos = sum(1 for h in self.__hospedes if h.is_adulto())
+            criancas = sum(1 for h in self.__hospedes if h.is_crianca())
+            valor_por_adulto = quarto.valor_diaria
+            total += adultos * valor_por_adulto * dias
+        self.__valor_total = total
+        print(f"Valor total da reserva: R$ {self.__valor_total:.2f}")
+
+    def __calcular_dias(self) -> int:
+        from datetime import datetime
+        formato = "%d/%m/%Y"
+        checkin = datetime.strptime(self.__data_checkin, formato)
+        checkout = datetime.strptime(self.__data_checkout, formato)
+        return (checkout - checkin).days
