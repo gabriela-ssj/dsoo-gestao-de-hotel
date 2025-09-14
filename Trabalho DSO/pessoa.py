@@ -60,14 +60,5 @@ class Pessoa(ABC):
     def email(self, email):
         self.__email = email    
 
-    def incluir(self):
-       pass
-
-    def excluir(self):
-       pass   
-
-    def alterar(self):
-       pass
-
-    def listar(self):
-       pass     
+    def exibir_dados(self):
+        pass  
