@@ -1,27 +1,29 @@
 
 from pessoa import Pessoa
+from pet import Pet
+from typing import Optional, List
 
 class Hospede(Pessoa):
-    def __init__(self, cpf:str, nome:str, idade:int, telefone:str, email:str, hosp_adulto:str, hosp_crianca:str ):
+    def __init__(self, cpf:str, nome:str, idade:int, telefone:str, email:str, pets:Optional[List[Pet]] = None):
         super().__init__(cpf, nome, idade, telefone, email)
-        self.__hosp_adulto = hosp_adulto
-        self.__hosp_crianca = hosp_crianca
-    
-    @property
-    def hosp_adulto(self):
-        return self.__hosp_adulto
-    
-    @hosp_adulto.setter
-    def hosp_adulto(self, hosp_adulto):
-        self.__hosp_adulto = hosp_adulto
+        if pets is None:
+            self.__pets = []
+        else:
+            self.__pets = pets
 
     @property
-    def hosp_crianca(self):
-        return self.__hosp_crianca
+    def pets(self):
+        return self.__pets
     
-    @hosp_crianca.setter
-    def hosp_crianca(self, hosp_crianca):
-        self.__hosp_crianca = hosp_crianca
+    def is_adulto(self) -> bool:
+        return self.idade > 18
 
-    def verifica_hospede(self):
-        pass
+    def is_crianca(self) -> bool:
+        return self.idade <= 18
+    
+    def adicionar_pet(self, pet):
+        self.__pets.append(pet)
+
+    def remover_pet(self, pet):
+        if pet in self.__pets:
+            self.__pets.remove(pet)
