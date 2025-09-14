@@ -1,21 +1,18 @@
-
 from hospede import Hospede
 from quarto import Quarto
+from servico_de_quarto import ServicoDeQuarto
 from typing import List
+from datetime import datetime
 
 class Reserva:
-    def __init__(self, hospedes: List[Hospede], quartos: List[Quarto], data_checkin: str, data_checkout: str, valor_total: float, status: str):
-        if not isinstance(hospedes, list):
-            raise TypeError("hospedes deve ser uma lista de objetos Hospede")
-        if not isinstance(quartos, list):
-            raise TypeError("quartos deve ser uma lista de objetos Quarto")
-        
+    def __init__(self, hospedes: List[Hospede], quartos: List[Quarto], data_checkin: str, data_checkout: str, status: str):
         self.__hospedes = hospedes
         self.__quartos = quartos
         self.__data_checkin = data_checkin
         self.__data_checkout = data_checkout
-        self.__valor_total = valor_total
         self.__status = status
+        self.__valor_total = 0.0
+        self.__servicos_quarto: List[ServicoDeQuarto] = []
 
     @property
     def hospedes(self):
@@ -34,19 +31,23 @@ class Reserva:
         return self.__data_checkout
 
     @property
-    def valor_total(self):
-        return self.__valor_total
-
-    @property
     def status(self):
         return self.__status
 
     @status.setter
-    def status(self, status: str):
-        self.__status = status
+    def status(self, novo_status: str):
+        self.__status = novo_status
 
-    def verifica_hospede(self) -> bool:
-        return any(h.is_adulto() for h in self.__hospedes)
+    @property
+    def valor_total(self):
+        return self.__valor_total
+
+    @property
+    def servicos_quarto(self):
+        return self.__servicos_quarto
+
+    def adicionar_servico_quarto(self, servico: ServicoDeQuarto):
+        self.__servicos_quarto.append(servico)
 
     def fazer_reserva(self):
         for quarto in self.__quartos:
@@ -55,7 +56,6 @@ class Reserva:
                 return
         for quarto in self.__quartos:
             quarto.reservar_quarto()
-        
         self.__status = "confirmada"
         self.calcular_valor_total()
         print("Reserva realizada com sucesso.")
@@ -83,16 +83,32 @@ class Reserva:
         dias = self.__calcular_dias()
         total = 0.0
         for quarto in self.__quartos:
-            adultos = sum(1 for h in self.__hospedes if h.is_adulto())
-            criancas = sum(1 for h in self.__hospedes if h.is_crianca())
-            valor_por_adulto = quarto.valor_diaria
-            total += adultos * valor_por_adulto * dias
+            for hospede in self.__hospedes:
+                if hospede.is_adulto():
+                    total += quarto.valor_diaria * dias
+        total += sum(servico.valor for servico in self.__servicos_quarto)
         self.__valor_total = total
         print(f"Valor total da reserva: R$ {self.__valor_total:.2f}")
 
     def __calcular_dias(self) -> int:
-        from datetime import datetime
         formato = "%d/%m/%Y"
         checkin = datetime.strptime(self.__data_checkin, formato)
         checkout = datetime.strptime(self.__data_checkout, formato)
         return (checkout - checkin).days
+
+    def relatorio_por_hospede(self):
+        relatorio = {}
+        for hospede in self.__hospedes:
+            nome = hospede.nome
+            relatorio[nome] = []
+            for servico in self.__servicos_quarto:
+                if hospede in servico.quarto.hospedes:
+                    relatorio[nome].append((servico.tipo_servico, servico.valor))
+        return relatorio
+
+    def relatorio_por_tipo_servico(self):
+        resumo = {}
+        for servico in self.__servicos_quarto:
+            tipo = servico.tipo_servico
+            resumo[tipo] = resumo.get(tipo, 0.0) + servico.valor
+        return resumo
