@@ -1,10 +1,11 @@
+
 from abc import ABC, abstractmethod
 
 class Pessoa(ABC):
 
     @abstractmethod 
-    def __init__(self, cpf: int, nome: str, idade: int, telefone: str, email: str):
-      if isinstance(cpf, int):
+    def __init__(self, cpf: str, nome: str, idade: int, telefone: str, email: str):
+      if isinstance(cpf, str):
          self.__cpf = cpf
       if isinstance(nome, str):
          self.__nome = nome
@@ -17,8 +18,8 @@ class Pessoa(ABC):
       return self.__cpf
   
     @cpf.setter
-    def cpf(self,cpf: int):
-       if isinstance(cpf, int):
+    def cpf(self,cpf: str):
+       if isinstance(cpf, str):
           self.__cpf = cpf
   
     @property
@@ -52,4 +53,16 @@ class Pessoa(ABC):
 
     @email.setter
     def email(self, email):
-        self.__email = email            
+        self.__email = email    
+
+    def incluir(self):
+       pass
+
+    def excluir(self):
+       pass   
+
+    def alterar(self):
+       pass
+
+    def listar(self):
+       pass     

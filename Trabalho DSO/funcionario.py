@@ -1,12 +1,8 @@
+
 from pessoa import Pessoa
-from pessoa import cpf
-from pessoa import nome
-from pessoa import idade
-from pessoa import telefone
-from pessoa import email
 
 class Funcionario(Pessoa):
-    def __init__(self, cargo: str, salario: float):
+    def __init__(self, cpf:str, nome:str, idade:int, telefone:str, email:str, cargo: str, salario: float):
         super().__init__(cpf, nome, idade, telefone, email)
         self.__cargo = cargo
         self.__salario = salario
@@ -27,3 +23,5 @@ class Funcionario(Pessoa):
     def salario(self, salario):
         self.__salario = salario 
     
+    def registrar_servico(self):
+        pass
