@@ -3,12 +3,17 @@ from abc import ABC, abstractmethod
 
 class Pessoa(ABC):
 
-    @abstractmethod 
+    #removi o @abstractmethod, pois implementamos o __init__
     def __init__(self, cpf: str, nome: str, idade: int, telefone: str, email: str):
-      if isinstance(cpf, str):
-         self.__cpf = cpf
-      if isinstance(nome, str):
-         self.__nome = nome
+      if not isinstance(cpf, str):
+            raise TypeError("CPF deve ser uma string")
+      if not isinstance(nome, str):
+            raise TypeError("Nome deve ser uma string")
+      if not isinstance(idade, int):
+            raise TypeError("Idade deve ser um inteiro")
+      
+      self.__cpf = cpf
+      self.__nome = nome
       self.__idade = idade
       self.__telefone = telefone
       self.__email = email
