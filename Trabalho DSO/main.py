@@ -8,8 +8,7 @@ from pagamento import Pagamento
 from cargo import Cargo
 from recursos_humanos import Rh
 
-# Inicialização
-hotel = Hotel(nome="Hotel Gabriela", recursos_humanos=Rh())
+hotel = Hotel(nome="Hotel Sun", recursos_humanos=Rh())
 pagamentos = []
 
 def menu():
