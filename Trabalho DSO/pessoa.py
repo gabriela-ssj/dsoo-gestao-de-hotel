@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Pessoa(ABC):
 
-    #removi o @abstractmethod, pois implementamos o __init__
+    @abstractmethod
     def __init__(self, cpf: str, nome: str, idade: int, telefone: str, email: str):
       if not isinstance(cpf, str):
             raise TypeError("CPF deve ser uma string")

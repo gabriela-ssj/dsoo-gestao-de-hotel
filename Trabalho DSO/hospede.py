@@ -27,3 +27,6 @@ class Hospede(Pessoa):
     def remover_pet(self, pet):
         if pet in self.__pets:
             self.__pets.remove(pet)
+
+    def exibir_dados(self):
+        pass 

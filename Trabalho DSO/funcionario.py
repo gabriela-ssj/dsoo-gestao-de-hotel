@@ -57,3 +57,6 @@ class Funcionario(Pessoa):
             f"Cargo: {self.cargo}\n"
             f"Salário Base: R$ {self.salario_base:.2f}"
         )
+
+    def exibir_dados(self):
+        pass 
