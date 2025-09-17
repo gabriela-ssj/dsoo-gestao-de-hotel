@@ -6,7 +6,12 @@ class SistemaHotel:
         self.__hoteis: List[Hotel] = []
 
     def incluir_hotel(self, hotel: Hotel):
-        self.__hoteis.append(hotel)
+        if any(h.nome == hotel.nome for h in self.__hoteis):
+        print(f"⚠️ Hotel '{hotel.nome}' já está cadastrado.")
+        return
+    self.__hoteis.append(hotel)
+    print(f"✅ Hotel '{hotel.nome}' incluído com sucesso.")
+
 
     def excluir_hotel(self, nome: str):
         self.__hoteis = [h for h in self.__hoteis if h.nome != nome]

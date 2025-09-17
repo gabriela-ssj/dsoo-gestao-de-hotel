@@ -13,8 +13,14 @@ class Rh:
     def funcionarios(self, funcionarios: List[Funcionario]):
         self.__funcionarios = funcionarios
 
-    def incluir_funcionario(self, funcionario: Funcionario):
-        self.__funcionarios.append(funcionario)
+    def adicionar_funcionario(self, funcionario: Funcionario):
+        if any(f.cpf == funcionario.cpf for f in self.__funcionarios):
+        print(f"⚠️ Funcionário com CPF {funcionario.cpf} já está cadastrado.")
+        return
+    self.__funcionarios.append(funcionario)
+    self.__recursos_humanos.incluir_funcionario(funcionario)
+    print("✅ Funcionário adicionado.")
+
 
     def excluir_funcionario(self, cpf: str):
         self.__funcionarios = [f for f in self.__funcionarios if f.cpf != cpf]

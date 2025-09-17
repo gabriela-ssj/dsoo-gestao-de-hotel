@@ -1,8 +1,6 @@
 from hospede import Hospede
-from funcionario import Funcionario
 from quarto import Quarto
 from reserva import Reserva
-from recursos_humanos import Rh
 from typing import List
 
 class Hotel:
@@ -10,7 +8,6 @@ class Hotel:
         self,
         nome: str,
         hospedes: List[Hospede] = None,
-        funcionarios: List[Funcionario] = None,
         quartos: List[Quarto] = None,
         reservas: List[Reserva] = None,
         recursos_humanos: Rh = None
@@ -20,7 +17,6 @@ class Hotel:
 
         self.__nome = nome
         self.__hospedes = hospedes if hospedes is not None else []
-        self.__funcionarios = funcionarios if funcionarios is not None else []
         self.__quartos = quartos if quartos is not None else []
         self.__reservas = reservas if reservas is not None else []
         self.__recursos_humanos = recursos_humanos
@@ -40,19 +36,27 @@ class Hotel:
         return self.__recursos_humanos
 
     def adicionar_hospede(self, hospede: Hospede):
-        self.__hospedes.append(hospede)
+        if any(h.cpf == hospede.cpf for h in self.__hospedes):
+        print(f"⚠️ Hóspede com CPF {hospede.cpf} já está cadastrado.")
+        return
+    self.__hospedes.append(hospede)
+    print("✅ Hóspede adicionado.")
+
 
     def excluir_hospede(self, cpf: str):
         self.__hospedes = [h for h in self.__hospedes if h.cpf != cpf]
 
     def listar_hospedes(self) -> List[str]:
         return [f"{h.nome} - CPF: {h.cpf}" for h in self.__hospedes]
-
-    def adicionar_funcionario(self, funcionario: Funcionario):
-        self.__funcionarios.append(funcionario)
+    
 
     def adicionar_quarto(self, quarto: Quarto):
-        self.__quartos.append(quarto)
+        if any(q.numero == quarto.numero for q in self.__quartos):
+        print(f"⚠️ Quarto número {quarto.numero} já está cadastrado.")
+        return
+    self.__quartos.append(quarto)
+    print("✅ Quarto adicionado.")
+
 
     def excluir_quarto(self, numero: int):
         self.__quartos = [q for q in self.__quartos if q.numero != numero]
