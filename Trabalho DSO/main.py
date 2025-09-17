@@ -7,13 +7,18 @@ from servico_de_quarto import ServicoDeQuarto
 from pagamento import Pagamento
 from cargo import Cargo
 from recursos_humanos import Rh
+from sistema_hotel import SistemaHotel  
 
-hotel = Hotel(nome="Hotel Sun", recursos_humanos=Rh())
+sistema = SistemaHotel()
+hotel_ativo = None
 pagamentos = []
 
 def menu():
+    global hotel_ativo
+
     while True:
-        print("\n--- MENU HOTEL ---")
+        print("\n--- MENU SISTEMA DE HOTÉIS ---")
+        print("0. Selecionar ou criar hotel")
         print("1. Adicionar hóspede")
         print("2. Listar hóspedes")
         print("3. Alterar hóspede")
@@ -38,19 +43,37 @@ def menu():
 
         opcao = input("Escolha uma opção: ")
 
-        if opcao == "1":
+        if opcao == "0":
+            print("\n--- HOTÉIS DISPONÍVEIS ---")
+            hoteis = sistema.listar_hoteis()
+            for h in hoteis:
+                print(h)
+            nome = input("Digite o nome do hotel para selecionar ou criar: ")
+            hotel = sistema.buscar_hotel(nome)
+            if hotel:
+                hotel_ativo = hotel
+                print(f"✅ Hotel '{nome}' selecionado.")
+            else:
+                hotel_ativo = Hotel(nome, recursos_humanos=Rh())
+                sistema.incluir_hotel(hotel_ativo)
+                print(f"✅ Hotel '{nome}' criado e selecionado.")
+
+        elif hotel_ativo is None:
+            print("⚠️ Nenhum hotel selecionado. Use a opção 0 para selecionar ou criar um hotel.")
+            continue
+
+        elif opcao == "1":
             nome = input("Nome: ")
             cpf = input("CPF: ")
             idade = int(input("Idade: "))
             telefone = input("Telefone: ")
             email = input("Email: ")
             hospede = Hospede(cpf, nome, idade, telefone, email)
-            hotel.adicionar_hospede(hospede)
+            hotel_ativo.adicionar_hospede(hospede)
             print("✅ Hóspede adicionado.")
 
         elif opcao == "2":
-            print("\n--- HÓSPEDES ---")
-            for h in hotel.listar_hospedes():
+            for h in hotel_ativo.listar_hospedes():
                 print(h)
 
         elif opcao == "3":
@@ -59,12 +82,12 @@ def menu():
             valor = input("Novo valor: ")
             if campo == "idade":
                 valor = int(valor)
-            hotel.alterar_hospede(cpf, {campo: valor})
+            hotel_ativo.alterar_hospede(cpf, {campo: valor})
             print("✅ Hóspede alterado.")
 
         elif opcao == "4":
             cpf = input("CPF do hóspede a excluir: ")
-            hotel.excluir_hospede(cpf)
+            hotel_ativo.excluir_hospede(cpf)
             print("✅ Hóspede excluído.")
 
         elif opcao == "5":
@@ -76,13 +99,12 @@ def menu():
             tipo_cargo = input("Cargo: ").lower()
             cargo = Cargo(tipo_cargo)
             funcionario = Funcionario(cpf, nome, idade, telefone, email, cargo)
-            hotel.adicionar_funcionario(funcionario)
-            hotel.recursos_humanos.incluir_funcionario(funcionario)
+            hotel_ativo.adicionar_funcionario(funcionario)
+            hotel_ativo.recursos_humanos.incluir_funcionario(funcionario)
             print("✅ Funcionário adicionado.")
 
         elif opcao == "6":
-            print("\n--- FUNCIONÁRIOS ---")
-            for f in hotel.recursos_humanos.listar_funcionarios():
+            for f in hotel_ativo.recursos_humanos.listar_funcionarios():
                 print(f)
 
         elif opcao == "7":
@@ -91,13 +113,13 @@ def menu():
             valor = input("Novo valor: ")
             if campo == "idade":
                 valor = int(valor)
-            hotel.alterar_funcionario(cpf, {campo: valor})
+            hotel_ativo.alterar_funcionario(cpf, {campo: valor})
             print("✅ Funcionário alterado.")
 
         elif opcao == "8":
             cpf = input("CPF do funcionário a excluir: ")
-            hotel.recursos_humanos.excluir_funcionario(cpf)
-            hotel.excluir_funcionario(cpf)
+            hotel_ativo.recursos_humanos.excluir_funcionario(cpf)
+            hotel_ativo.excluir_funcionario(cpf)
             print("✅ Funcionário excluído.")
 
         elif opcao == "9":
@@ -113,12 +135,11 @@ def menu():
             else:
                 print("Tipo inválido.")
                 continue
-            hotel.adicionar_quarto(quarto)
+            hotel_ativo.adicionar_quarto(quarto)
             print("✅ Quarto adicionado.")
 
         elif opcao == "10":
-            print("\n--- QUARTOS ---")
-            for q in hotel.listar_quartos():
+            for q in hotel_ativo.listar_quartos():
                 print(q)
 
         elif opcao == "11":
@@ -129,44 +150,43 @@ def menu():
                 valor = float(valor)
             elif campo == "disponibilidade":
                 valor = valor.lower() == "true"
-            hotel.alterar_quarto(numero, {campo: valor})
+            hotel_ativo.alterar_quarto(numero, {campo: valor})
             print("✅ Quarto alterado.")
 
         elif opcao == "12":
             numero = int(input("Número do quarto a excluir: "))
-            hotel.excluir_quarto(numero)
+            hotel_ativo.excluir_quarto(numero)
             print("✅ Quarto excluído.")
 
         elif opcao == "13":
             data_checkin = input("Data check-in (dd/mm/yyyy): ")
             data_checkout = input("Data check-out (dd/mm/yyyy): ")
-            hospedes = hotel._Hotel__hospedes
-            quartos = hotel._Hotel__quartos
+            hospedes = hotel_ativo._Hotel__hospedes
+            quartos = hotel_ativo._Hotel__quartos
             reserva = Reserva(hospedes, quartos, data_checkin, data_checkout, "pendente")
             reserva.fazer_reserva()
-            hotel.adicionar_reserva(reserva)
+            hotel_ativo.adicionar_reserva(reserva)
             print("✅ Reserva criada.")
 
         elif opcao == "14":
-            print("\n--- RESERVAS ---")
-            for r in hotel.listar_reservas():
+            for r in hotel_ativo.listar_reservas():
                 print(r)
 
         elif opcao == "15":
             numero = int(input("Número do quarto: "))
             tipo_servico = input("Tipo de serviço: ")
             valor = float(input("Valor do serviço: "))
-            funcionario = hotel._Hotel__funcionarios[0]
-            quarto = next((q for q in hotel._Hotel__quartos if q.numero == numero), None)
+            funcionario = hotel_ativo._Hotel__funcionarios[0]
+            quarto = next((q for q in hotel_ativo._Hotel__quartos if q.numero == numero), None)
             if quarto:
                 servico = ServicoDeQuarto(quarto, funcionario, tipo_servico, valor)
-                hotel._Hotel__reservas[-1].adicionar_servico_quarto(servico)
+                hotel_ativo._Hotel__reservas[-1].adicionar_servico_quarto(servico)
                 print("✅ Serviço adicionado à reserva.")
             else:
                 print("Quarto não encontrado.")
 
         elif opcao == "16":
-            reserva = hotel._Hotel__reservas[-1]
+            reserva = hotel_ativo._Hotel__reservas[-1]
             metodo = input("Método de pagamento: ")
             pagamento = Pagamento(reserva, metodo)
             valor = float(input("Valor pago: "))
@@ -181,7 +201,7 @@ def menu():
                 print("Nenhum pagamento registrado.")
 
         elif opcao == "18":
-            reserva = hotel._Hotel__reservas[-1]
+            reserva = hotel_ativo._Hotel__reservas[-1]
             relatorio = reserva.relatorio_por_hospede()
             for nome, servicos in relatorio.items():
                 print(f"{nome}:")
@@ -189,7 +209,7 @@ def menu():
                     print(f"  - {tipo}: R$ {valor:.2f}")
 
         elif opcao == "19":
-            reserva = hotel._Hotel__reservas[-1]
+            reserva = hotel_ativo._Hotel__reservas[-1]
             relatorio = reserva.relatorio_por_tipo_servico()
             for tipo, total in relatorio.items():
                 print(f"{tipo}: R$ {total:.2f}")
@@ -198,22 +218,16 @@ def menu():
             print("\n--- TESTE AUTOMÁTICO ---")
             h = Hospede("00011122233", "Teste", 35, "48999999999", "teste@email.com")
             q = Simples(999, 100.0, True)
-            hotel.adicionar_hospede(h)
-            hotel.adicionar_quarto(q)
+            hotel_ativo.adicionar_hospede(h)
+            hotel_ativo.adicionar_quarto(q)
             r = Reserva([h], [q], "01/10/2025", "03/10/2025", "pendente")
             r.fazer_reserva()
-            hotel.adicionar_reserva(r)
+            hotel_ativo.adicionar_reserva(r)
             p = Pagamento(r, "PIX")
             p.pagar(200.0)
             assert p.status == "confirmado", "Pagamento não foi confirmado corretamente"
             print("✅ Teste automático passou com sucesso.")
 
         elif opcao == "21":
-            print("Encerrando...")
+            print("Encerrando o sistema...")
             break
-
-        else:
-            print("Opção inválida.")
-
-if __name__ == "__main__":
-    menu()
