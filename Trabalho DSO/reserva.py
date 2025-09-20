@@ -50,21 +50,34 @@ class Reserva:
         self.__servicos_quarto.append(servico)
 
     def fazer_reserva(self):
+        try:
+            formato = "%d/%m/%Y"
+            checkin = datetime.strptime(self.__data_checkin, formato)
+            checkout = datetime.strptime(self.__data_checkout, formato)
+            if checkout <= checkin:
+                print("⚠️ Data de check-out deve ser posterior à data de check-in.")
+                return
+        except ValueError:
+            print("⚠️ Formato de data inválido. Use dd/mm/yyyy.")
+            return
+
         for quarto in self.__quartos:
             if not quarto.disponibilidade:
-                print(f"Quarto {quarto.numero} está ocupado. Reserva não concluída.")
+                print(f"⚠️ Quarto {quarto.numero} está ocupado. Reserva não concluída.")
                 return
+
         for quarto in self.__quartos:
             quarto.reservar_quarto()
+
         self.__status = "confirmada"
         self.calcular_valor_total()
-        print("Reserva realizada com sucesso.")
+        print("✅ Reserva realizada com sucesso.")
 
     def cancelar_reserva(self):
         for quarto in self.__quartos:
             quarto.liberar_quarto()
         self.__status = "cancelada"
-        print("Reserva cancelada.")
+        print("✅ Reserva cancelada.")
 
     def editar_reserva(self, nova_data_checkin: str = None, nova_data_checkout: str = None, novo_quarto: List[Quarto] = None):
         if nova_data_checkin:
@@ -77,7 +90,7 @@ class Reserva:
             self.__quartos = novo_quarto
             for quarto in self.__quartos:
                 quarto.reservar_quarto()
-        print("Reserva editada com sucesso.")
+        print("✅ Reserva editada com sucesso.")
 
     def calcular_valor_total(self):
         dias = self.__calcular_dias()
@@ -88,7 +101,7 @@ class Reserva:
                     total += quarto.valor_diaria * dias
         total += sum(servico.valor for servico in self.__servicos_quarto)
         self.__valor_total = total
-        print(f"Valor total da reserva: R$ {self.__valor_total:.2f}")
+        print(f"💰 Valor total da reserva: R$ {self.__valor_total:.2f}")
 
     def __calcular_dias(self) -> int:
         formato = "%d/%m/%Y"

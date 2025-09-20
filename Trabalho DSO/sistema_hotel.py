@@ -5,29 +5,44 @@ class SistemaHotel:
     def __init__(self):
         self.__hoteis: List[Hotel] = []
 
-    def incluir_hotel(self, hotel: Hotel):
-        if any(h.nome == hotel.nome for h in self.__hoteis):
-        print(f"⚠️ Hotel '{hotel.nome}' já está cadastrado.")
-        return
-    self.__hoteis.append(hotel)
-    print(f"✅ Hotel '{hotel.nome}' incluído com sucesso.")
+    @property
+    def hoteis(self):
+        return self.__hoteis
 
+    def incluir_hotel(self, nome: str):
+        duplicado = False
+        for h in self.__hoteis:
+            if h.nome == nome:
+                print(f"⚠️ Hotel '{nome}' já está cadastrado.")
+                duplicado = True
+        if not duplicado:
+            novo_hotel = Hotel(nome, hospedes=[], funcionarios=[], quartos=[], reservas=[], recursos_humanos=None)
+            self.__hoteis.append(novo_hotel)
+            print(f"✅ Hotel '{nome}' incluído com sucesso.")
 
     def excluir_hotel(self, nome: str):
-        self.__hoteis = [h for h in self.__hoteis if h.nome != nome]
+        for h in self.__hoteis:
+            if h.nome == nome:
+                self.__hoteis.remove(h)
+                print(f"✅ Hotel '{nome}' excluído.")
+                return
+        print(f"⚠️ Hotel '{nome}' não encontrado.")
 
     def alterar_hotel(self, nome: str, novos_dados: dict):
-        for hotel in self.__hoteis:
-            if hotel.nome == nome:
+        for h in self.__hoteis:
+            if h.nome == nome:
                 for chave, valor in novos_dados.items():
-                    if hasattr(hotel, chave):
-                        setattr(hotel, chave, valor)
+                    if hasattr(h, chave):
+                        setattr(h, chave, valor)
+                print(f"✅ Hotel '{nome}' alterado.")
+                return
+        print(f"⚠️ Hotel '{nome}' não encontrado.")
 
     def listar_hoteis(self) -> List[str]:
         return [f"{h.nome} - {len(h.quartos)} quartos - {len(h.hospedes)} hóspedes" for h in self.__hoteis]
 
     def buscar_hotel(self, nome: str) -> Hotel:
-        for hotel in self.__hoteis:
-            if hotel.nome == nome:
-                return hotel
+        for h in self.__hoteis:
+            if h.nome == nome:
+                return h
         return None
