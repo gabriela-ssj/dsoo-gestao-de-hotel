@@ -2,6 +2,8 @@ from hospede import Hospede
 from quarto import Quarto
 from reserva import Reserva
 from typing import List
+from recursos_humanos import Rh  
+
 
 class Hotel:
     def __init__(
@@ -9,7 +11,8 @@ class Hotel:
         nome: str,
         hospedes: List[Hospede] = None,
         quartos: List[Quarto] = None,
-        reservas: List[Reserva] = None
+        reservas: List[Reserva] = None,
+        recursos_humanos: Rh = None
     ):
         if not isinstance(nome, str):
             raise TypeError("O nome do hotel deve ser uma string")
@@ -18,6 +21,7 @@ class Hotel:
         self.__hospedes = hospedes if hospedes is not None else []
         self.__quartos = quartos if quartos is not None else []
         self.__reservas = reservas if reservas is not None else []
+        self.recursos_humanos = recursos_humanos or Rh()
 
     @property
     def nome(self):
