@@ -16,7 +16,7 @@ class SistemaHotel:
                 print(f"⚠️ Hotel '{nome}' já está cadastrado.")
                 duplicado = True
         if not duplicado:
-            novo_hotel = Hotel(nome, hospedes=[], quartos=[], reservas=[], recursos_humanos=None)
+            novo_hotel = Hotel(nome, hospedes=[], quartos=[], reservas=[])
             self.__hoteis.append(novo_hotel)
             print(f"✅ Hotel '{nome}' incluído com sucesso.")
 
