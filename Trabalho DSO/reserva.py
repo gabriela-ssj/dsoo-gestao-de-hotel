@@ -1,11 +1,12 @@
 from hospede import Hospede
 from quarto import Quarto
 from servico_de_quarto import ServicoDeQuarto
+from pet import Pet
 from typing import List
 from datetime import datetime
 
 class Reserva:
-    def __init__(self, hospedes: List[Hospede], quartos: List[Quarto], data_checkin: str, data_checkout: str, status: str):
+    def __init__(self, hospedes: List[Hospede], quartos: List[Quarto], data_checkin: str, data_checkout: str, status: str, pets: List[Pet] = None):
         self.__hospedes = hospedes
         self.__quartos = quartos
         self.__data_checkin = data_checkin
@@ -13,6 +14,7 @@ class Reserva:
         self.__status = status
         self.__valor_total = 0.0
         self.__servicos_quarto: List[ServicoDeQuarto] = []
+        self.__pets: List[Pet] = pets if pets else []
 
     @property
     def hospedes(self):
@@ -46,8 +48,17 @@ class Reserva:
     def servicos_quarto(self):
         return self.__servicos_quarto
 
+    @property
+    def pets(self):
+        return self.__pets
+
     def adicionar_servico_quarto(self, servico: ServicoDeQuarto):
         self.__servicos_quarto.append(servico)
+
+    def adicionar_pet(self, pet: Pet):
+        self.__pets.append(pet)
+        for quarto in self.__quartos:
+            quarto.adicionar_pet(pet)
 
     def fazer_reserva(self):
         try:
@@ -100,6 +111,7 @@ class Reserva:
                 if hospede.is_adulto():
                     total += quarto.valor_diaria * dias
         total += sum(servico.valor for servico in self.__servicos_quarto)
+        total += sum(pet.calcular_taxa_pet(50.0) for pet in self.__pets)  # taxa fixa por pet
         self.__valor_total = total
         print(f"💰 Valor total da reserva: R$ {self.__valor_total:.2f}")
 

@@ -55,9 +55,20 @@ class Pagamento:
             for servico in self.__reserva.servicos_quarto:
                 adicionais += servico.valor
 
-        return total + adicionais
+        taxa_pet = 0.0
+        if hasattr(self.__reserva, "pets"):
+            for pet in self.__reserva.pets:
+                taxa_pet += pet.calcular_taxa_pet(50.0)  # taxa fixa por animal
+
+        return total + adicionais + taxa_pet
 
     def comprovante_pagamento(self):
+        pets_info = ""
+        if hasattr(self.__reserva, "pets") and self.__reserva.pets:
+            pets_info = "\n🐾 Pets incluídos:\n" + "\n".join(str(pet) for pet in self.__reserva.pets)
+        else:
+            pets_info = "\n🐾 Nenhum pet incluído na reserva."
+
         return (
             f"Comprovante de Pagamento\n"
             f"Reserva: Quarto(s) {[q.numero for q in self.__reserva.quartos]}\n"
@@ -65,4 +76,5 @@ class Pagamento:
             f"Valor Calculado: R$ {self.__valor_calculado:.2f}\n"
             f"Valor Pago: R$ {self.__valor_pago:.2f}\n"
             f"Status: {self.__status}"
+            f"{pets_info}"
         )

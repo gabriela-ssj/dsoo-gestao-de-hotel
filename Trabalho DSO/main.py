@@ -7,6 +7,7 @@ from servico_de_quarto import ServicoDeQuarto
 from pagamento import Pagamento
 from cargo import Cargo
 from recursos_humanos import Rh
+from pet import Pet
 from sistema_hotel import SistemaHotel  
 
 sistema = SistemaHotel()
@@ -163,10 +164,22 @@ def menu():
             data_checkout = input("Data check-out (dd/mm/yyyy): ")
             hospedes = hotel_ativo._Hotel__hospedes
             quartos = hotel_ativo._Hotel__quartos
+
             reserva = Reserva(hospedes, quartos, data_checkin, data_checkout, "pendente")
+
+            adicionar_pet = input("Deseja incluir pet na reserva? (s/n): ").lower()
+            while adicionar_pet == "s":
+                nome_pet = input("Nome do pet: ")
+                especie = input("Espécie do pet: ")
+                quant_pet = int(input("Quantidade: "))
+                pet = Pet(nome_pet, especie, quant_pet)
+                reserva.adicionar_pet(pet)
+                adicionar_pet = input("Deseja adicionar outro pet? (s/n): ").lower()
+
             reserva.fazer_reserva()
             hotel_ativo.adicionar_reserva(reserva)
             print("✅ Reserva criada.")
+
 
         elif opcao == "14":
             for r in hotel_ativo.listar_reservas():
