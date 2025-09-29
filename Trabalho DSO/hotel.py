@@ -33,6 +33,14 @@ class Hotel:
             raise TypeError("O nome do hotel deve ser uma string")
         self.__nome = nome
 
+    @property
+    def quartos(self):
+        return self.__quartos
+
+    @property
+    def hospedes(self):
+        return self.__hospedes
+    
     def adicionar_hospede(self, hospede: Hospede):
         duplicado = False
         for h in self.__hospedes:
