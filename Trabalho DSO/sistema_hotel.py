@@ -9,16 +9,16 @@ class SistemaHotel:
     def hoteis(self):
         return self.__hoteis
 
-    def incluir_hotel(self, nome: str):
+    def incluir_hotel(self, novo_hotel):
         duplicado = False
         for h in self.__hoteis:
-            if h.nome == nome:
-                print(f"⚠️ Hotel '{nome}' já está cadastrado.")
+            if h.nome == novo_hotel.nome:
+                print(f"⚠️ Hotel '{novo_hotel.nome}' já está cadastrado.")
                 duplicado = True
+                break
         if not duplicado:
-            novo_hotel = Hotel(nome, hospedes=[], quartos=[], reservas=[])
-            self.__hoteis.append(novo_hotel)
-            print(f"✅ Hotel '{nome}' incluído com sucesso.")
+           self.__hoteis.append(novo_hotel)
+           print(f"✅ Hotel '{novo_hotel.nome}' incluído com sucesso.")
 
     def excluir_hotel(self, nome: str):
         for h in self.__hoteis:
