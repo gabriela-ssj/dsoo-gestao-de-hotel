@@ -1,7 +1,7 @@
 from hotel import Hotel
 from hospede import Hospede
 from funcionario import Funcionario
-from quarto import Suite, Duplo, Simples
+from quartos import Suite, Duplo, Simples
 from reserva import Reserva
 from servico_de_quarto import ServicoDeQuarto
 from pagamento import Pagamento
