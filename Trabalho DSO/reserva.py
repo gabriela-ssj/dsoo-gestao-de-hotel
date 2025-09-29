@@ -3,6 +3,7 @@ from quarto import Quarto
 from servico_de_quarto import ServicoDeQuarto
 from pet import Pet
 from typing import List
+from collections import defaultdict
 from datetime import datetime
 
 class Reserva:
@@ -122,18 +123,29 @@ class Reserva:
         return (checkout - checkin).days
 
     def relatorio_por_hospede(self):
-        relatorio = {}
-        for hospede in self.__hospedes:
-            nome = hospede.nome
-            relatorio[nome] = []
-            for servico in self.__servicos_quarto:
-                if hospede in servico.quarto.hospedes:
-                    relatorio[nome].append((servico.tipo_servico, servico.valor))
-        return relatorio
-
-    def relatorio_por_tipo_servico(self):
-        resumo = {}
+        relatorio = defaultdict(list)
         for servico in self.__servicos_quarto:
-            tipo = servico.tipo_servico
-            resumo[tipo] = resumo.get(tipo, 0.0) + servico.valor
-        return resumo
+            for hospede in self.__hospedes:
+                if hospede in servico.quarto.hospedes:
+                    relatorio[hospede.nome].append((servico.tipo_servico, servico.valor))
+                    return dict(relatorio)
+                
+    def exibir_relatorio_por_hospede(self):
+        relatorio = self.relatorio_por_hospede()
+        print("\n--- RELATÓRIO DE SERVIÇOS POR HÓSPEDE ---")
+        for nome, servicos in relatorio.items():
+            print(f"{nome}:")
+        for tipo, valor in servicos:
+            print(f"  - {tipo}: R$ {valor:.2f}")
+            
+    def relatorio_por_tipo_servico(self):
+        resumo = defaultdict(float)
+        for servico in self.__servicos_quarto:
+            resumo[servico.tipo_servico] += servico.valor
+        return dict(sorted(resumo.items(), key=lambda x: x[1], reverse=True))
+    
+    def exibir_relatorio_por_tipo_servico(self):
+        relatorio = self.relatorio_por_tipo_servico()
+        print("\n--- RELATÓRIO POR TIPO DE SERVIÇO ---")
+        for tipo, total in relatorio.items():
+            print(f"{tipo}: R$ {total:.2f}")
