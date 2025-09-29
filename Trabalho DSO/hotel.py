@@ -3,6 +3,7 @@ from quarto import Quarto
 from reserva import Reserva
 from typing import List
 from recursos_humanos import Rh  
+from collections import Counter
 
 
 class Hotel:
@@ -116,3 +117,16 @@ class Hotel:
             f"Reserva de {len(r.hospedes)} hóspede(s) - Check-in: {r.data_checkin} - Status: {r.status}"
             for r in self.__reservas
         ]
+    
+def relatorio_quartos_mais_reservados(self):
+    total_reservas = len(self.__reservas)
+    contador = Counter()
+
+    for reserva in self.__reservas:
+        for quarto in reserva.quartos:
+            contador[quarto.numero] += 1
+
+    print("\n--- RELATÓRIO DE USO DE QUARTOS ---")
+    for numero, total in contador.items():
+        porcentagem = (total / total_reservas) * 100 if total_reservas else 0
+        print(f"Quarto {numero}: {total} reservas ({porcentagem:.1f}%)")
