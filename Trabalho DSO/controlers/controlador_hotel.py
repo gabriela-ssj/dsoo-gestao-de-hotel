@@ -1,94 +1,55 @@
 from telas.tela_hotel import TelaHotel
 from entidades.hotel import Hotel
+from entidades.hospede import Hospede
+from entidades.quarto import Quarto
+from entidades.reserva import Reserva
+from collections import Counter
+from typing import List
 
-class ControladorHotel():
-
-    def __init__(self, controlador_sistema):
-    self.__hotel = []
-    self.__tela_hotel = TelaHotel()
-    self.__controlador_sistema = controlador_sistema
+class ControladorHotel:
+    def __init__(self, controlador_sistema, hotel: Hotel):
+        self.__hotel = hotel
+        self.__tela_hotel = TelaHotel()
+        self.__controlador_sistema = controlador_sistema
 
     def adicionar_hospede(self, hospede: Hospede):
         duplicado = False
-        for h in self.__hospedes:
+        for h in self.__hotel.hospedes:
             if h.cpf == hospede.cpf:
-                print(f"ATENÇAO: Hóspede com CPF {hospede.cpf} já está cadastrado.")
+                print(f"ATENÇÃO: Hóspede com CPF {hospede.cpf} já está cadastrado.")
                 duplicado = True
         if not duplicado:
-            self.__hospedes.append(hospede)
-            print("Hóspede adicionado com sucesso.")
+            self.__hotel.adicionar_hospede(hospede)
 
     def excluir_hospede(self, cpf: str):
-        for h in self.__hospedes:
-            if h.cpf == cpf:
-                self.__hospedes.remove(h)
-                print(f"✅ Hóspede com CPF {cpf} excluído.")
-                return
-        print(f"⚠️ Hóspede com CPF {cpf} não encontrado.")
+        self.__hotel.excluir_hospede(cpf)
 
     def listar_hospedes(self) -> List[str]:
-        return [f"{h.nome} - CPF: {h.cpf}" for h in self.__hospedes]
+        return self.__hotel.listar_hospedes()
 
     def adicionar_quarto(self, quarto: Quarto):
-        duplicado = False
-        for q in self.__quartos:
-            if q.numero == quarto.numero:
-                print(f"⚠️ Quarto número {quarto.numero} já está cadastrado.")
-                duplicado = True
-        if not duplicado:
-            self.__quartos.append(quarto)
-            print("✅ Quarto adicionado com sucesso.")
+        self.__hotel.adicionar_quarto(quarto)
 
     def excluir_quarto(self, numero: int):
-        for q in self.__quartos:
-            if q.numero == numero:
-                self.__quartos.remove(q)
-                print(f"✅ Quarto número {numero} excluído.")
-                return
-        print(f"⚠️ Quarto número {numero} não encontrado.")
+        self.__hotel.excluir_quarto(numero)
 
     def alterar_quarto(self, numero: int, novos_dados: dict):
-        for quarto in self.__quartos:
-            if quarto.numero == numero:
-                for chave, valor in novos_dados.items():
-                    if hasattr(quarto, chave):
-                        setattr(quarto, chave, valor)
-                print(f"✅ Quarto número {numero} alterado.")
-                return
-        print(f"⚠️ Quarto número {numero} não encontrado.")
+        self.__hotel.alterar_quarto(numero, novos_dados)
 
     def listar_quartos(self) -> List[str]:
-        return [
-            f"Quarto {q.numero} - Diária: R$ {q.valor_diaria:.2f} - Disponível: {q.disponibilidade}"
-            for q in self.__quartos
-        ]
+        return self.__hotel.listar_quartos()
 
     def adicionar_reserva(self, nova_reserva: Reserva):
-        duplicado = False
-        for reserva in self.__reservas:
-            for hospede_novo in nova_reserva.hospedes:
-                for hospede_existente in reserva.hospedes:
-                    if (
-                        hospede_novo.cpf == hospede_existente.cpf
-                        and reserva.data_checkin == nova_reserva.data_checkin
-                    ):
-                        print(f"⚠️ Hóspede {hospede_novo.nome} já possui reserva para {nova_reserva.data_checkin}.")
-                        duplicado = True
-        if not duplicado:
-            self.__reservas.append(nova_reserva)
-            print("✅ Reserva adicionada com sucesso.")
+        self.__hotel.adicionar_reserva(nova_reserva)
 
     def listar_reservas(self) -> List[str]:
-        return [
-            f"Reserva de {len(r.hospedes)} hóspede(s) - Check-in: {r.data_checkin} - Status: {r.status}"
-            for r in self.__reservas
-        ]
-    
+        return self.__hotel.listar_reservas()
+
     def relatorio_quartos_mais_reservados(self):
-        total_reservas = len(self.__reservas)
+        total_reservas = len(self.__hotel.reservas)
         contador = Counter()
 
-        for reserva in self.__reservas:
+        for reserva in self.__hotel.reservas:
             for quarto in reserva.quartos:
                 contador[quarto.numero] += 1
 
@@ -96,4 +57,3 @@ class ControladorHotel():
         for numero, total in contador.items():
             porcentagem = (total / total_reservas) * 100 if total_reservas else 0
             print(f"Quarto {numero}: {total} reservas ({porcentagem:.1f}%)")
-            
