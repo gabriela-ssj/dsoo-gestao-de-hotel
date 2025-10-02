@@ -1,8 +1,6 @@
-
 class TelaHotel:
     def tela_opcoes(self):
         print("-------- HOTEL ----------")
-        print("Escolha a opção")
         print("1 - Adicionar Hóspede")
         print("2 - Alterar Hóspede")
         print("3 - Listar Hóspedes")
@@ -18,7 +16,6 @@ class TelaHotel:
         return int(input("Escolha a opção: "))
 
     def pega_dados_hospede(self):
-        print("---- DADOS DO HÓSPEDE ----")
         nome = input("Nome: ")
         cpf = input("CPF: ")
         idade = int(input("Idade: "))
@@ -30,7 +27,6 @@ class TelaHotel:
         return input("Digite o CPF do hóspede: ")
 
     def pega_dados_quarto(self):
-        print("---- DADOS DO QUARTO ----")
         numero = int(input("Número do quarto: "))
         valor_diaria = float(input("Valor da diária: "))
         disponibilidade = input("Disponível (s/n): ").lower() == "s"
@@ -41,14 +37,14 @@ class TelaHotel:
         return int(input("Digite o número do quarto: "))
 
     def pega_dados_reserva(self):
-        print("---- DADOS DA RESERVA ----")
-        data_checkin = input("Data de check-in (dd/mm/yyyy): ")
-        data_checkout = input("Data de check-out (dd/mm/yyyy): ")
-        return {"checkin": data_checkin, "checkout": data_checkout}
+        checkin = input("Data de check-in (dd/mm/yyyy): ")
+        checkout = input("Data de check-out (dd/mm/yyyy): ")
+        return {"checkin": checkin, "checkout": checkout}
+
+    def mostra_lista(self, lista):
+        print("\n--- LISTA ---")
+        for item in lista:
+            print(item)
 
     def mostra_mensagem(self, msg):
         print(msg)
-
-    def mostra_lista(self, lista):
-        for item in lista:
-            print(item)
