@@ -1,7 +1,7 @@
-from hospede import Hospede
-from quarto import Quarto
-from servico_de_quarto import ServicoDeQuarto
-from pet import Pet
+from entidades.hospede import Hospede
+from entidades.quarto import Quarto
+from entidades.servico_de_quarto import ServicoDeQuarto
+from entidades.pet import Pet
 from typing import List
 from datetime import datetime
 
