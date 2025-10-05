@@ -1,4 +1,3 @@
-
 from entidades.pessoa import Pessoa
 from entidades.pet import Pet
 from typing import Optional, List

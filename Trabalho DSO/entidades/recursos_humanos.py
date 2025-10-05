@@ -1,4 +1,4 @@
-from funcionario import Funcionario
+from entidades.funcionario import Funcionario
 from typing import List
 
 class Rh:
