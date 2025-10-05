@@ -1,6 +1,6 @@
 
 from entidades.pessoa import Pessoa
-from pet import Pet
+from entidades.pet import Pet
 from typing import Optional, List
 
 class Hospede(Pessoa):
