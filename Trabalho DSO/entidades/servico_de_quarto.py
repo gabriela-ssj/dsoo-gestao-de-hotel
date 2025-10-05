@@ -1,5 +1,5 @@
-from funcionario import Funcionario
-from quartos import Quarto
+from entidades.funcionario import Funcionario
+from entidades.quartos import Quarto
 
 class ServicoDeQuarto:
     def __init__(self, quarto, funcionario, tipo_servico: str, valor: float):

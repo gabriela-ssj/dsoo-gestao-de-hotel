@@ -1,8 +1,8 @@
-from hospede import Hospede
-from quarto import Quarto
-from reserva import Reserva
+from entidades.hospede import Hospede
+from entidades.quarto import Quarto
+from entidades.reserva import Reserva
 from typing import List
-from recursos_humanos import Rh
+from entidades.recursos_humanos import Rh
 
 class Hotel:
     def __init__(

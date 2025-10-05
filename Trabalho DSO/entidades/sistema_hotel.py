@@ -1,4 +1,4 @@
-from hotel import Hotel
+from entidades.hotel import Hotel
 from typing import List, Optional
 
 class SistemaHotel:

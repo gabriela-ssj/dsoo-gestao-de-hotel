@@ -1,5 +1,5 @@
 
-from pessoa import Pessoa
+from entidades.pessoa import Pessoa
 from pet import Pet
 from typing import Optional, List
 

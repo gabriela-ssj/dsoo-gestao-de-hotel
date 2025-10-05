@@ -1,4 +1,4 @@
-from reserva import Reserva
+from entidades.reserva import Reserva
 
 class Pagamento:
     def __init__(self, reserva: Reserva, metodo_pagamento: str, status: str = "pendente"):

@@ -1,5 +1,5 @@
-from hospede import Hospede
-from pet import Pet
+from entidades.hospede import Hospede
+from entidades.pet import Pet
 from typing import List
 
 class Quarto:
