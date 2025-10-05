@@ -1,7 +1,4 @@
 from entidades.hotel import Hotel
-from entidades.hospede import Hospede
-from entidades.quarto import Quarto
-from entidades.reserva import Reserva
 from telas.tela_hotel import TelaHotel
 from collections import Counter
 
@@ -10,71 +7,11 @@ class ControladorHotel:
         self.__hotel = hotel
         self.__tela = TelaHotel()
         self.__controlador_sistema = controlador_sistema
-
-    def incluir_hospede(self):
-        dados = self.__tela.pega_dados_hospede()
-        hospede = Hospede(**dados)
-        self.__hotel.adicionar_hospede(hospede)
-
-    def alterar_hospede(self):
-        cpf = self.__tela.seleciona_hospede()
-        novos_dados = self.__tela.pega_dados_hospede()
-        for h in self.__hotel.hospedes:
-            if h.cpf == cpf:
-                h.nome = novos_dados["nome"]
-                h.idade = novos_dados["idade"]
-                h.telefone = novos_dados["telefone"]
-                h.email = novos_dados["email"]
-                self.__tela.mostra_mensagem("✅ Hóspede alterado.")
-                return
-        self.__tela.mostra_mensagem("⚠️ Hóspede não encontrado.")
-
-    def listar_hospedes(self):
-        lista = self.__hotel.listar_hospedes()
-        self.__tela.mostra_lista(lista)
-
-    def excluir_hospede(self):
-        cpf = self.__tela.seleciona_hospede()
-        self.__hotel.excluir_hospede(cpf)
-
-    def incluir_quarto(self):
-        dados = self.__tela.pega_dados_quarto()
-        tipo = dados.pop("tipo")
-        if tipo == "suite":
-            from entidades.quarto import Suite
-            quarto = Suite(**dados)
-        elif tipo == "duplo":
-            from entidades.quarto import Duplo
-            quarto = Duplo(**dados)
-        elif tipo == "simples":
-            from entidades.quarto import Simples
-            quarto = Simples(**dados)
-        else:
-            self.__tela.mostra_mensagem("⚠️ Tipo de quarto inválido.")
-            return
-        self.__hotel.adicionar_quarto(quarto)
-
-    def alterar_quarto(self):
-        numero = self.__tela.seleciona_quarto()
-        novos_dados = self.__tela.pega_dados_quarto()
-        self.__hotel.alterar_quarto(numero, novos_dados)
-
-    def listar_quartos(self):
-        lista = self.__hotel.listar_quartos()
-        self.__tela.mostra_lista(lista)
-
-    def excluir_quarto(self):
-        numero = self.__tela.seleciona_quarto()
-        self.__hotel.excluir_quarto(numero)
-
-    def incluir_reserva(self):
-        dados = self.__tela.pega_dados_reserva()
-        reserva = Reserva([], [], dados["checkin"], dados["checkout"], "pendente")
-        self.__hotel.adicionar_reserva(reserva)
-
-    def listar_reservas(self):
-        lista = self.__hotel.listar_reservas()
-        self.__tela.mostra_lista(lista)
+        self.__controlador_hospede = controlador_sistema.controlador_hospede
+        self.__controlador_quarto = controlador_sistema.controlador_quarto
+        self.__controlador_reserva = controlador_sistema.controlador_reserva
+        self.__controlador_pagamento = controlador_sistema.controlador_pagamento
+        self.__controlador_rh = controlador_sistema.controlador_recursos_humanos
 
     def relatorio_quartos_mais_reservados(self):
         total_reservas = len(self.__hotel._Hotel__reservas)
@@ -93,17 +30,12 @@ class ControladorHotel:
 
     def abre_tela(self):
         opcoes = {
-            1: self.incluir_hospede,
-            2: self.alterar_hospede,
-            3: self.listar_hospedes,
-            4: self.excluir_hospede,
-            5: self.incluir_quarto,
-            6: self.alterar_quarto,
-            7: self.listar_quartos,
-            8: self.excluir_quarto,
-            9: self.incluir_reserva,
-            10: self.listar_reservas,
-            11: self.relatorio_quartos_mais_reservados,
+            1: self.__controlador_hospede.abre_tela,
+            2: self.__controlador_quarto.abre_tela,
+            3: self.__controlador_reserva.abre_tela,
+            4: self.__controlador_pagamento.abre_tela,
+            5: self.__controlador_rh.abre_tela,
+            6: self.relatorio_quartos_mais_reservados,
             0: self.retornar
         }
         while True:
