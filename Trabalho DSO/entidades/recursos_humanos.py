@@ -1,4 +1,4 @@
-from funcionario import Funcionario  
+from funcionario import Funcionario
 from typing import List
 
 class Rh:
@@ -6,7 +6,7 @@ class Rh:
         self.__funcionarios = funcionarios if funcionarios is not None else []
 
     @property
-    def funcionarios(self):
+    def funcionarios(self) -> List[Funcionario]:
         return self.__funcionarios
 
     @funcionarios.setter
@@ -14,22 +14,10 @@ class Rh:
         self.__funcionarios = funcionarios
 
     def adicionar_funcionario(self, funcionario: Funcionario):
-        duplicado = False
-        for f in self.__funcionarios:
-            if f.cpf == funcionario.cpf:
-                print(f"⚠️ Funcionário com CPF {funcionario.cpf} já está cadastrado.")
-                duplicado = True
-        if not duplicado:
-            self.__funcionarios.append(funcionario)
-            print("✅ Funcionário adicionado com sucesso.")
+        self.__funcionarios.append(funcionario)
 
     def excluir_funcionario(self, cpf: str):
-        for f in self.__funcionarios:
-            if f.cpf == cpf:
-                self.__funcionarios.remove(f)
-                print(f"✅ Funcionário com CPF {cpf} excluído.")
-                return
-        print(f"⚠️ Funcionário com CPF {cpf} não encontrado.")
+        self.__funcionarios = [f for f in self.__funcionarios if f.cpf != cpf]
 
     def alterar_funcionario(self, cpf: str, dados: dict):
         for f in self.__funcionarios:
@@ -37,27 +25,9 @@ class Rh:
                 for chave, valor in dados.items():
                     if hasattr(f, chave):
                         setattr(f, chave, valor)
-                print(f"✅ Funcionário com CPF {cpf} alterado.")
-                return
-        print(f"⚠️ Funcionário com CPF {cpf} não encontrado.")
 
-    def listar_funcionarios(self) -> List[str]:
-        return [
-            f"{func.nome} - {func.cargo.tipo_cargo} - R$ {func.cargo.salario_base:.2f}"
-            for func in self.__funcionarios
-        ]
-
-    def realizar_pagamento(self, cpf: str, metodo: str) -> str:
+    def buscar_funcionario(self, cpf: str) -> Funcionario | None:
         for f in self.__funcionarios:
             if f.cpf == cpf:
-                cargo = f.cargo.tipo_cargo
-                salario = f.cargo.salario_base
-                bonus = f.cargo.calcular_bonus()
-                total = salario + bonus
-                return (
-                    f"Pagamento realizado para {f.nome} ({cargo}) via {metodo}.\n"
-                    f"Salário base: R$ {salario:.2f}\n"
-                    f"Bônus: R$ {bonus:.2f}\n"
-                    f"Total: R$ {total:.2f}"
-                )
-        return f"⚠️ Funcionário com CPF {cpf} não encontrado."
+                return f
+        return None
