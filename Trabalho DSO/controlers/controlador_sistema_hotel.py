@@ -1,7 +1,7 @@
 from entidades.sistema_hotel import SistemaHotel
 from entidades.hotel import Hotel
-from controle.controlador_hotel import ControladorHotel
-from telas.tela_sistema_hotel import TelaSistemaHotel
+from controlers.controlador_hotel import ControladorHotel
+from telas.tela_sistemahotel import TelaSistemaHotel
 
 class ControladorSistemaHotel:
     def __init__(self, controlador_principal):
