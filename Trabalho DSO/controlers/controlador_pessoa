@@ -1,4 +1,0 @@
-from entidades.pessoa import Pessoa:
-
-class ControladorPessoa():
-    pass
