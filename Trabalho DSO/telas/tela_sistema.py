@@ -1,2 +1,3 @@
 
 class TelaSistema():
+    pass

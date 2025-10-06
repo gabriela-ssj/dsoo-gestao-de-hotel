@@ -38,7 +38,7 @@ class ControladorSistemaHotel:
         nome = self.__tela.seleciona_hotel()
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
-            controlador_hotel = ControladorHotel(self.__controlador_principal, hotel)
+            controlador_hotel = ControladorHotel(hotel, self.__controlador_principal)
             controlador_hotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
