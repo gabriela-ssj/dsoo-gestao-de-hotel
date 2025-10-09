@@ -4,10 +4,10 @@ from entidades.cargo import Cargo
 from telas.tela_recursos_humanos import TelaRh
 
 class ControladorRh:
-    def __init__(self, rh: Rh, controlador_sistema):
-        self.__rh = rh
+    def __init__(self):
+        #self.__rh = rh
         self.__tela = TelaRh()
-        self.__controlador_sistema = controlador_sistema
+        #self.__controlador_sistema = controlador_sistema
 
     def incluir_funcionario(self):
         dados = self.__tela.pega_dados_funcionario()

@@ -2,10 +2,10 @@ from entidades.pagamento import Pagamento
 from telas.tela_pagamento import TelaPagamento
 
 class ControladorPagamento:
-    def __init__(self, pagamento: Pagamento, controlador_sistema):
-        self.__pagamento = pagamento
+    def __init__(self):
+        #self.__pagamento = pagamento
         self.__tela = TelaPagamento()
-        self.__controlador_sistema = controlador_sistema
+        #self.__controlador_sistema = controlador_sistema
 
     def realizar_pagamento(self):
         valor = self.__tela.pega_valor_pagamento()

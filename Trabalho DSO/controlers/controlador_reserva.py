@@ -4,10 +4,9 @@ from entidades.pet import Pet
 from telas.tela_reserva import TelaReserva
 
 class ControladorReserva:
-    def __init__(self, reserva: Reserva, controlador_sistema):
-        self.__reserva = reserva
+    def __init__(self):
+        #self.__reserva = reserva
         self.__tela = TelaReserva()
-        self.__controlador_sistema = controlador_sistema
 
     def fazer_reserva(self):
         self.__reserva.fazer_reserva()
