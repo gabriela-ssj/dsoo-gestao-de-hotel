@@ -38,15 +38,16 @@ class ControladorSistemaHotel:
         nome = self.__tela.seleciona_hotel()
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
-            controlador_hotel = ControladorHotel(hotel, self.__controlador_principal)
+            controlador_hotel = ControladorHotel(hotel)
             controlador_hotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
     def retornar(self):
-        self.__controlador_principal.abre_tela()
+        self.tela_aberta =False
 
     def abre_tela(self):
+        self.tela_aberta = True
         opcoes = {
             1: self.incluir_hotel,
             2: self.alterar_hotel,
@@ -55,7 +56,7 @@ class ControladorSistemaHotel:
             5: self.acessar_hotel,
             0: self.retornar
         }
-        while True:
+        while self.tela_aberta:
             opcao = self.__tela.tela_opcoes()
             if opcao in opcoes:
                 opcoes[opcao]()

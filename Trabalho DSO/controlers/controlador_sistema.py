@@ -1,18 +1,10 @@
 from telas.tela_sistema import TelaSistema
 from controlers.controlador_sistema_hotel import ControladorSistemaHotel
-from controlers.controlador_hospede import ControladorHospede
-from controlers.controlador_pet import ControladorPet
-from controlers.controlador_funcionario import ControladorFuncionario
-from controlers.controlador_cargo import ControladorCargo
+
 
 class ControladorSistema:
     def __init__(self):
         self.__tela = TelaSistema()
-
-        self.controlador_hospede = ControladorHospede()
-        self.controlador_pet = ControladorPet(self.controlador_hospede)
-        self.controlador_cargo = ControladorCargo()
-        self.controlador_funcionario = ControladorFuncionario()
         self.__controlador_sistema_hotel = ControladorSistemaHotel(self)
 
     def inicializa_sistema(self):

@@ -29,7 +29,10 @@ class ControladorHospede:
     # Métodos adaptados para usar a tela
     def cadastrar_hospede_via_tela(self):
         dados = self.__tela.pega_dados_hospede()
-        self.cadastrar_hospede(**dados)
+        self.cadastrar_hospede(Hospede(**dados))
+
+    def cadastrar_hospede(self,hospede):
+        self.__hospedes.append(hospede)
 
     def listar_hospedes_via_tela(self):
         if not self.__hospedes:
@@ -40,7 +43,16 @@ class ControladorHospede:
 
     def excluir_hospede_via_tela(self):
         cpf = self.__tela.seleciona_hospede()
-        self.excluir_hospede(cpf)
+        self.excluir_hospede(self.busca_hospede(cpf))
+
+    def busca_hospede(self,cpf):
+        for hospede in self.__hospedes:
+            if (hospede.cpf == cpf):
+                return hospede
+
+    def excluir_hospede(self,hospede):
+        if hospede:
+            self.__hospedes.remove(hospede)
 
     def gerenciar_pets_via_tela(self):
         if self.__controlador_pet:
