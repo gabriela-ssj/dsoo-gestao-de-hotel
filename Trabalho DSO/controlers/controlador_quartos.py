@@ -1,6 +1,7 @@
 from entidades.quarto import Quarto
 from entidades.quartos import Suite, Duplo, Simples
 from telas.tela_quarto import TelaQuarto
+from controlers.controlador_hotel import ControladorHotel
 
 class ControladorQuarto:
     def __init__(self):
@@ -25,7 +26,7 @@ class ControladorQuarto:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        ControladorHotel().abre_tela()
 
     def cadastrar_quarto(self):
         dados = self.__tela.pega_dados_quarto()
