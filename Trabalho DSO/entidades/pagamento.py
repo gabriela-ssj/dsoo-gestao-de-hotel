@@ -33,8 +33,17 @@ class Pagamento:
         return self.__valor_pago
 
     def pagar(self, valor: float):
+        if valor <= 0:
+            raise ValueError("O valor do pagamento deve ser positivo.")
         self.__valor_pago += valor
         self.__validar_pagamento()
+
+    def cancelar_pagamento(self):
+        if self.__status != "confirmado":
+            raise ValueError("Não é possível cancelar um pagamento que ainda está pendente.")
+        self.__valor_pago = 0.0
+        self.__status = "cancelado"
+        self.__reserva.status = "cancelada"
 
     def __validar_pagamento(self):
         if self.__valor_pago >= self.__valor_calculado:
