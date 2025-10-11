@@ -1,8 +1,8 @@
-#from entidades.recursos_humanos import Rh
+from entidades.recursos_humanos import Rh
 from telas.tela_recursos_humanos import TelaRh
-
 from controlers.controlador_cargo import ControladorCargo
 from controlers.controlador_funcionario import ControladorFuncionario
+from controlers.controlador_hotel import ControladorHotel
 
 
 class ControladorRh:
@@ -21,7 +21,7 @@ class ControladorRh:
         self.__controlador_funcionario.abre_tela()
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retorando...")
+        ControladorHotel().abre_tela()
 
     def abre_tela(self):
         opcoes = {
