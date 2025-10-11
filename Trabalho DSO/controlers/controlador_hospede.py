@@ -14,6 +14,9 @@ class ControladorHospede:
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando...")    
 
+    def retornar(self):
+        ControladorHotel().abre_tela()  
+
     def abre_tela(self):
         opcoes = {
             1: self.cadastrar_hospede_via_tela,

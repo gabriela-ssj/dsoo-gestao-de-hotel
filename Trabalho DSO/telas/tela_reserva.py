@@ -1,4 +1,6 @@
-class TelaReserva:
+from telas.tela_abstrata import TelaAbstrata
+
+class TelaReserva(TelaAbstrata):
     def tela_opcoes(self):
         print("\n-------- MENU RESERVA ----------")
         print("1 - Fazer Reserva")
@@ -9,8 +11,9 @@ class TelaReserva:
         print("6 - Calcular Valor Total")
         print("7 - Relatório por Hóspede")
         print("8 - Relatório por Tipo de Serviço")
+        print("9 - Listar Reservas")
         print("0 - Retornar")
-        return int(input("Escolha a opção: "))
+        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
     def pega_dados_edicao(self):
         checkin = input("Nova data de check-in (dd/mm/yyyy) ou Enter para manter: ")
@@ -18,14 +21,14 @@ class TelaReserva:
         return {
             "checkin": checkin if checkin else None,
             "checkout": checkout if checkout else None,
-            "quartos": None  # Aqui você pode adaptar para selecionar novos quartos
+            "quartos": None
         }
 
     def pega_dados_servico(self):
-        tipo = input("Tipo de serviço: ")
+        tipo = self.le_string("Tipo de serviço: ")
         valor = float(input("Valor do serviço: "))
-        funcionario = None  # Adapte conforme necessário
-        quarto = None       # Adapte conforme necessário
+        funcionario = None
+        quarto = None
         return {"tipo_servico": tipo, "valor": valor, "funcionario": funcionario, "quarto": quarto}
 
     def pega_dados_pet(self):

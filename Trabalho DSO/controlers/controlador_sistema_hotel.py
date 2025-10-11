@@ -2,6 +2,7 @@ from entidades.sistema_hotel import SistemaHotel
 from entidades.hotel import Hotel
 from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
+from controlers.controlador_sistema import ControladorSistema
 
 class ControladorSistemaHotel:
     def __init__(self):
@@ -56,7 +57,7 @@ class ControladorSistemaHotel:
         return None
 
     def retornar(self):
-        self.tela_aberta =False
+        ControladorSistema().abre_tela()
 
     def abre_tela(self):
         self.tela_aberta = True

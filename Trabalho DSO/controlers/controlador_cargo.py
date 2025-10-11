@@ -85,6 +85,28 @@ class ControladorCargo:
         else:
             self.__tela.mostra_mensagem("⚠️ Cargo não encontrado.")
 
+    def alterar_cargo_via_tela(self):
+        nome_atual = self.__tela.seleciona_cargo()
+        cargo = self.buscar_cargo(nome_atual)
+        if cargo:
+            novo_nome = self.__tela.pega_dados_cargo()
+            if self.buscar_cargo(novo_nome):
+                self.__tela.mostra_mensagem(f"⚠️ Cargo '{novo_nome}' já existe.")
+            else:
+                cargo.tipo_cargo = novo_nome
+                self.__tela.mostra_mensagem(f"✅ Cargo alterado para '{novo_nome}'.")
+        else:
+            self.__tela.mostra_mensagem("⚠️ Cargo não encontrado.")
+
+    def excluir_cargo_via_tela(self):
+        nome = self.__tela.seleciona_cargo()
+        cargo = self.buscar_cargo(nome)
+        if cargo:
+            self.__cargos.remove(cargo)
+            self.__tela.mostra_mensagem(f"✅ Cargo '{nome}' excluído.")
+        else:
+            self.__tela.mostra_mensagem("⚠️ Cargo não encontrado.")
+
     def buscar_cargo(self, tipo_cargo: str):
         for cargo in self.__cargos:
             if cargo._tipo_cargo == tipo_cargo.lower():

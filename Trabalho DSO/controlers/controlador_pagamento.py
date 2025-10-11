@@ -23,6 +23,13 @@ class ControladorPagamento:
         comprovante = self.__pagamento.comprovante_pagamento()
         self.__tela.mostra_mensagem(comprovante)
 
+    def cancelar_pagamento(self):
+        try:
+            self.__pagamento.cancelar()
+            self.__tela.mostra_mensagem("✅ Pagamento cancelado com sucesso.")
+        except ValueError as e:
+            self.__tela.mostra_mensagem(f"⚠️ Erro ao cancelar: {str(e)}")
+
     def retornar(self):
         self.tela_aberta = False
 
@@ -32,11 +39,14 @@ class ControladorPagamento:
             1: self.realizar_pagamento,
             2: self.alterar_metodo_pagamento,
             3: self.exibir_comprovante,
+            4: self.cancelar_pagamento,
             0: self.retornar
         }
         while self.tela_aberta:
             opcao = self.__tela.tela_opcoes()
             if opcao in opcoes:
                 opcoes[opcao]()
+                if opcao == 0:
+                    break
             else:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")

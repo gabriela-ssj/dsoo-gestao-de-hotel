@@ -1,6 +1,7 @@
 from entidades.pet import Pet
 from typing import List
 from telas.tela_pet import TelaPet
+from controlers.controlador_hospede import ControladorHospede
 
 class ControladorPet:
     def __init__(self, controlador_hospede):
