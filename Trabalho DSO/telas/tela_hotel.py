@@ -1,3 +1,5 @@
+from telas.tela_abstrata import TelaAbstrata
+
 class TelaHotel(TelaAbstrata):
     def tela_opcoes(self):
         print("-------- MENU DO HOTEL --------")

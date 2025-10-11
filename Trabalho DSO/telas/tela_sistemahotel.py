@@ -1,3 +1,5 @@
+from telas.tela_abstrata import TelaAbstrata
+
 class TelaSistemaHotel(TelaAbstrata):
     def tela_opcoes(self):
         print("\n-------- SISTEMA DE HOTÉIS ----------")

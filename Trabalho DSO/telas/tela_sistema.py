@@ -1,3 +1,5 @@
+from telas.tela_abstrata import TelaAbstrata
+
 class TelaSistema(TelaAbstrata):
     def tela_opcoes(self):
         print("-------- MENU PRINCIPAL DO SISTEMA DE HOTÉIS ---------")
