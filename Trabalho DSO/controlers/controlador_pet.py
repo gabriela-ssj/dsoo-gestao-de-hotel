@@ -1,6 +1,7 @@
 from entidades.pet import Pet
 from typing import List
 from telas.tela_pet import TelaPet
+from controlers.controlador_hospede import ControladorHospede
 
 class ControladorPet:
     def __init__(self, controlador_hospede):
@@ -87,4 +88,4 @@ class ControladorPet:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        ControladorHospede().abre_tela()  
