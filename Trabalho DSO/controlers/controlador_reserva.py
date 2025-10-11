@@ -1,9 +1,9 @@
 from entidades.reserva import Reserva
-from entidades.servico_de_quarto import ServicoDeQuarto
-from entidades.pet import Pet
+from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
+from controlers.controlador_pet import ControladorPet
 from telas.tela_reserva import TelaReserva
 from datetime import datetime
-from controlers.controlador_sistema_hotel import ControladorSistemaHotel
+from controlers.controlador_hotel import ControladorHotel
 from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
 
 class ControladorReserva:
@@ -152,4 +152,4 @@ class ControladorReserva:
         self.__tela.mostra_lista(lista)
 
     def retornar(self):
-        ControladorSistemaHotel().abre_tela()
+        ControladorHotel().abre_tela()
