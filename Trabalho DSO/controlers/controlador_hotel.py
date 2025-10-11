@@ -2,6 +2,9 @@ from entidades.hotel import Hotel
 from telas.tela_hotel import TelaHotel
 from collections import Counter
 from controlers.controlador_hospede import ControladorHospede
+from controlers.controlador_pet import ControladorPet
+from controlers.controlador_funcionario import ControladorFuncionario
+from controlers.controlador_cargo import ControladorCargo
 from controlers.controlador_quartos import ControladorQuarto
 from controlers.controlador_reserva import ControladorReserva
 from controlers.controlador_pagamento import ControladorPagamento
@@ -14,14 +17,10 @@ class ControladorHotel:
         self.__hotel = hotel
         self.__tela = TelaHotel()
         self.__controlador_hospede = ControladorHospede()
-        self.__controlador_quarto = ControladorQuarto()
-        self.__controlador_reserva = ControladorReserva()
-        self.__controlador_pagamento = ControladorPagamento()
-        self.__controlador_rh = ControladorRh()
-        self.__controlador_servico_quarto = ControladorServicoDeQuarto(
-            controlador_quarto=self.__controlador_quarto,
-            controlador_funcionario=self.__controlador_rh
-        )
+        self.__controlador_quarto =     ControladorQuarto()
+        self.__controlador_reserva =    ControladorReserva()
+        self.__controlador_pagamento =  ControladorPagamento()
+        self.__controlador_rh =         ControladorRh()
 
     def relatorio_quartos_mais_reservados(self):
         total_reservas = len(self.__hotel._Hotel__reservas)

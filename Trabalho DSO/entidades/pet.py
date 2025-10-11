@@ -1,8 +1,7 @@
 class Pet:
-    def __init__(self, nome_pet: str, especie: str, quant_pet:int):
+    def __init__(self, nome_pet: str, especie: str):
         self.__nome_pet = nome_pet
         self.__especie = especie
-        self.__quant_pet = quant_pet
     
     @property
     def nome_pet(self):
@@ -19,14 +18,6 @@ class Pet:
     @especie.setter
     def especie(self, especie):
         self.__especie = especie
-
-    @property
-    def quant_pet(self):
-        return self.__quant_pet
-    
-    @quant_pet.setter
-    def quant_pet(self, quant_pet):
-        self.__quant_pet = quant_pet
 
     def exibir_infos_pet(self):
         print(f"Nome: {self.nome_pet};\n Espécie: {self.especie};\n Quantidade: {self.quant_pet}")

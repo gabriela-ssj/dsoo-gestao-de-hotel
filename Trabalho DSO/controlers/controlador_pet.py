@@ -14,8 +14,8 @@ class ControladorPet:
         return self.__pets
 
     def cadastrar_pet(self):
-        cpf_hospede, dados_pet = self.__tela.pega_dados_pet()
-        hospede = self.__controlador_hospede.buscar_hospede(cpf_hospede)
+        dados_pet = self.__tela.pega_dados_pet()
+        hospede = self.__controlador_hospede.busca_hospede()
 
         if not hospede:
             self.__tela.mostra_mensagem(f"Hóspede com CPF {cpf_hospede} não encontrado.")
@@ -31,12 +31,12 @@ class ControladorPet:
             self.__tela.mostra_mensagem("Nenhum pet cadastrado.")
             return
 
-        lista = [f"{p.nome_pet} | Espécie: {p.especie} | Quantidade: {p.quant_pet}" for p in self.__pets]
+        lista = [f"{p.nome_pet} | Espécie: {p.especie}" for p in self.__pets]
         self.__tela.mostra_lista(lista)
 
     def remover_pet(self):
         cpf_hospede, nome_pet = self.__tela.seleciona_pet()
-        hospede = self.__controlador_hospede.buscar_hospede(cpf_hospede)
+        hospede = self.__controlador_hospede.busca_hospede(cpf_hospede)
 
         if not hospede:
             self.__tela.mostra_mensagem(f"Hóspede com CPF {cpf_hospede} não encontrado.")
@@ -53,7 +53,7 @@ class ControladorPet:
 
     def alterar_pet(self):
         cpf_hospede, nome_pet = self.__tela.seleciona_pet()
-        hospede = self.__controlador_hospede.buscar_hospede(cpf_hospede)
+        hospede = self.__controlador_hospede.busca_hospede(cpf_hospede)
 
         if not hospede:
             self.__tela.mostra_mensagem(f"Hóspede com CPF {cpf_hospede} não encontrado.")
@@ -61,10 +61,9 @@ class ControladorPet:
 
         pet_encontrado = next((p for p in hospede.pets if p.nome_pet == nome_pet), None)
         if pet_encontrado:
-            _, novos_dados = self.__tela.pega_dados_pet()
+            novos_dados = self.__tela.pega_dados_pet()
             pet_encontrado.nome_pet = novos_dados["nome_pet"]
             pet_encontrado.especie = novos_dados["especie"]
-            pet_encontrado.quant_pet = novos_dados["quant_pet"]
             self.__tela.mostra_mensagem(f"✅ Pet '{nome_pet}' alterado com sucesso.")
         else:
             self.__tela.mostra_mensagem(f"⚠️ Pet '{nome_pet}' não encontrado para este hóspede.")
@@ -88,4 +87,4 @@ class ControladorPet:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        ControladorHospede().abre_tela()  
+        self.__tela.mostra_mensagem("Retornando ao menu anterior...")

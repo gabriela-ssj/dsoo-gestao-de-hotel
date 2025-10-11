@@ -35,3 +35,12 @@ class ServicoDeQuarto:
         if novo_status not in estados_validos:
             raise ValueError(f"Status inválido: '{novo_status}'.")
         self.__status = novo_status
+
+    def iniciar_servico(self):
+        self.status = "em andamento"
+
+    def concluir_servico(self):
+        self.status = "concluído"
+
+    def interromper_servico(self):
+        self.status = "interrompido"
