@@ -1,5 +1,6 @@
 from entidades.pagamento import Pagamento
 from telas.tela_pagamento import TelaPagamento
+from controlers.controlador_hotel import ControladorHotel
 
 class ControladorPagamento:
     def __init__(self):
@@ -31,7 +32,7 @@ class ControladorPagamento:
             self.__tela.mostra_mensagem(f"⚠️ Erro ao cancelar: {str(e)}")
 
     def retornar(self):
-        self.tela_aberta = False
+        ControladorHotel().abre_tela()
 
     def abre_tela(self):
         self.tela_aberta = True
