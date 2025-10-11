@@ -8,7 +8,7 @@ class ControladorSistemaHotel:
     def __init__(self, controlador_principal):
         self.__sistema_hotel = SistemaHotel()
         self.__tela = TelaSistemaHotel()
-        self.__controlador_sistema = ControladorSistema()
+        self.__controlador_principal = controlador_principal()
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
