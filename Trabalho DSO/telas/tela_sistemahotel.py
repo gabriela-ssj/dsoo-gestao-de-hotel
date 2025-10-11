@@ -1,4 +1,6 @@
-class TelaSistemaHotel:
+from telas.tela_abstrata import TelaAbstrata
+
+class TelaSistemaHotel(TelaAbstrata):
     def tela_opcoes(self):
         print("\n-------- SISTEMA DE HOTÉIS ----------")
         print("1 - Incluir Hotel")
@@ -7,7 +9,7 @@ class TelaSistemaHotel:
         print("4 - Excluir Hotel")
         print("5 - Acessar Hotel")
         print("0 - Retornar")
-        return int(input("Escolha a opção: "))
+        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5])
 
     def pega_dados_hotel(self):
         nome = input("Nome do hotel: ")

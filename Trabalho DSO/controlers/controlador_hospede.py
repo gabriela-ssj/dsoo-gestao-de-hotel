@@ -1,21 +1,27 @@
-from entidades.hospede import Hospede
-from entidades.pet import Pet
 from typing import List, Optional
+
+from entidades.hospede import Hospede
 from telas.tela_hospede import TelaHospede
+from controlers.controlador_pet import ControladorPet
+
 
 class ControladorHospede:
-    def __init__(self, controlador_pet=None):
+    def __init__(self):
         self.__hospedes: List[Hospede] = []
-        self.__controlador_pet = controlador_pet
         self.__tela = TelaHospede()
+        self.__controlador_pet = ControladorPet(self)
+
+    def retornar(self):
+        self.__tela.mostra_mensagem("Retornando...")    
 
     def abre_tela(self):
         opcoes = {
             1: self.cadastrar_hospede_via_tela,
             2: self.listar_hospedes_via_tela,
             3: self.excluir_hospede_via_tela,
-            4: self.gerenciar_pets_via_tela,
-            0: lambda: print("Retornando...")
+            4: self.alterar_hospede_via_tela,
+            5: self.gerenciar_pets_via_tela,
+            0: self.retornar
         }
         while True:
             opcao = self.__tela.tela_opcoes()
@@ -24,12 +30,39 @@ class ControladorHospede:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("Opção inválida.")
+                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     # Métodos adaptados para usar a tela
     def cadastrar_hospede_via_tela(self):
         dados = self.__tela.pega_dados_hospede()
-        self.cadastrar_hospede(Hospede(**dados))
+        nome = dados["nome"]
+        cpf = dados["cpf"]
+        telefone = dados["telefone"]
+        idade = int(dados["idade"])
+        email = dados["email"]
+        hospede = Hospede(
+            nome=nome,
+            cpf=cpf,
+            telefone=telefone,
+            idade=idade,
+            email=email
+        )
+        self.cadastrar_hospede(hospede)
+
+    def alterar_hospede_via_tela(self):
+        hospede = self.busca_hospede()
+        if hospede:
+            novos_dados = self.__tela.pega_dados_hospede()
+
+            hospede.cpf = novos_dados["cpf"]
+            hospede.nome = novos_dados["nome"]
+            hospede.idade = novos_dados["idade"]
+            hospede.telefone = novos_dados["telefone"]
+            hospede.email = novos_dados["email"]
+
+            self.__tela.mostra_mensagem("✅ hospede alterado com sucesso.")
+        else:
+            self.__tela.mostra_mensagem("⚠️ hospede não encontrado.")
 
     def cadastrar_hospede(self,hospede):
         self.__hospedes.append(hospede)
@@ -45,7 +78,9 @@ class ControladorHospede:
         cpf = self.__tela.seleciona_hospede()
         self.excluir_hospede(self.busca_hospede(cpf))
 
-    def busca_hospede(self,cpf):
+    def busca_hospede(self,cpf = None):
+        if not cpf:
+            cpf = self.__tela.seleciona_hospede()
         for hospede in self.__hospedes:
             if (hospede.cpf == cpf):
                 return hospede
@@ -55,10 +90,4 @@ class ControladorHospede:
             self.__hospedes.remove(hospede)
 
     def gerenciar_pets_via_tela(self):
-        if self.__controlador_pet:
-            cpf = self.__tela.seleciona_hospede()
-            hospede = self.buscar_hospede(cpf)
-            if hospede:
-                self.__controlador_pet.abre_tela(hospede)
-            else:
-                self.__tela.mostra_mensagem("Hóspede não encontrado.")
+        self.__controlador_pet.abre_tela()

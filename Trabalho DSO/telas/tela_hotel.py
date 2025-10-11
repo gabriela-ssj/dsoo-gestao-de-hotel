@@ -1,4 +1,6 @@
-class TelaHotel:
+from telas.tela_abstrata import TelaAbstrata
+
+class TelaHotel(TelaAbstrata):
     def tela_opcoes(self):
         print("-------- MENU DO HOTEL --------")
         print("1 - Cadastro de Hóspede")
@@ -8,7 +10,7 @@ class TelaHotel:
         print("5 - Recursos Humanos")
         print("6 - Relatório: Quartos mais reservados")
         print("0 - Retornar ao menu anterior")
-        return int(input("Escolha a opção: "))
+        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5, 6])
 
     def mostra_lista(self, lista):
         print("\n--- LISTA ---")

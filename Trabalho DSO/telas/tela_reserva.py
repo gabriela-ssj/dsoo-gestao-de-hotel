@@ -31,8 +31,7 @@ class TelaReserva:
     def pega_dados_pet(self):
         nome = input("Nome do pet: ")
         especie = input("Espécie: ")
-        quant_pet = int(input("Quantidade: "))
-        return {"nome": nome, "especie": especie, "quant_pet": quant_pet}
+        return {"nome": nome, "especie": especie}
 
     def mostra_mensagem(self, msg):
         print(msg)

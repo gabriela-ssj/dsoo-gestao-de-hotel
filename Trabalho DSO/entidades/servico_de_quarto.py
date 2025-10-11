@@ -1,13 +1,29 @@
 from entidades.funcionario import Funcionario
-from entidades.quartos import Quarto
+from entidades.quarto import Quarto
 
 class ServicoDeQuarto:
-    def __init__(self, quarto, funcionario, tipo_servico: str, valor: float):
+    def __init__(self, quarto: Quarto, funcionario: Funcionario, tipo_servico: str, valor: float):
         self.__quarto = quarto
         self.__funcionario = funcionario
         self.__tipo_servico = tipo_servico
         self.__valor = valor
         self.__status = "solicitado"
+
+    @property
+    def quarto(self):
+        return self.__quarto
+
+    @property
+    def funcionario(self):
+        return self.__funcionario
+
+    @property
+    def tipo_servico(self):
+        return self.__tipo_servico
+
+    @property
+    def valor(self):
+        return self.__valor
 
     @property
     def status(self):
@@ -20,14 +36,11 @@ class ServicoDeQuarto:
             raise ValueError(f"Status inválido: '{novo_status}'.")
         self.__status = novo_status
 
-    def solicitar_servico(self):
+    def iniciar_servico(self):
         self.status = "em andamento"
-        return f"Serviço '{self.tipo_servico}' iniciado no quarto {self.quarto.numero} por {self.funcionario.nome}."
 
     def concluir_servico(self):
         self.status = "concluído"
-        return f"Serviço '{self.tipo_servico}' concluído por {self.funcionario.nome} no quarto {self.quarto.numero}."
 
-    def parada_servico(self):
+    def interromper_servico(self):
         self.status = "interrompido"
-        return f"Serviço '{self.tipo_servico}' foi interrompido no quarto {self.quarto.numero}."

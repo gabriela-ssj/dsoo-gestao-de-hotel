@@ -4,7 +4,7 @@ from typing import Optional, List
 
 class Hospede(Pessoa):
     def __init__(self, cpf:str, nome:str, idade:int, telefone:str, email:str, pets:Optional[List[Pet]] = None):
-        super().__init__(cpf, nome, idade, telefone, email)
+        super().__init__(cpf = cpf,nome = nome,idade = idade, telefone = telefone, email = email)
         if pets is None:
             self.__pets = []
         else:

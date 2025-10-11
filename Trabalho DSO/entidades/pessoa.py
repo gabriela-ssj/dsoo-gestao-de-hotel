@@ -9,7 +9,7 @@ class Pessoa(ABC):
       if not isinstance(nome, str):
             raise TypeError("Nome deve ser uma string")
       if not isinstance(idade, int):
-            raise TypeError("Idade deve ser um inteiro")
+            raise TypeError(f"Idade deve ser um inteiro, obteve:{type(idade)}")
       
       self.__cpf = cpf
       self.__nome = nome

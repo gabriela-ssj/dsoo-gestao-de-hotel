@@ -4,10 +4,10 @@ from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
 
 class ControladorSistemaHotel:
-    def __init__(self, controlador_principal):
+    def __init__(self):
+        self.__controladorasHoteis : ControladorHotel = []
         self.__sistema_hotel = SistemaHotel()
         self.__tela = TelaSistemaHotel()
-        self.__controlador_principal = controlador_principal
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
@@ -38,10 +38,22 @@ class ControladorSistemaHotel:
         nome = self.__tela.seleciona_hotel()
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
-            controlador_hotel = ControladorHotel(hotel)
-            controlador_hotel.abre_tela()
+            controladorHotel = self.buscaControladora(hotel)
+            if controladorHotel:
+                self.__controladorasHoteis.append(controladorHotel)
+                controladorHotel.abre_tela()
+            else:
+                controladorHotel = ControladorHotel(hotel)
+                self.__controladorasHoteis.append(controladorHotel)
+                controladorHotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
+
+    def buscaControladora(self,hotel : Hotel):
+        for controladorhotel in self.__controladorasHoteis:
+            if controladorhotel.__hotel == hotel:
+                return controladorhotel
+        return None
 
     def retornar(self):
         self.tela_aberta =False
