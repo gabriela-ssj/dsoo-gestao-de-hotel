@@ -9,13 +9,17 @@ class ControladorHospede:
         self.__controlador_pet = controlador_pet
         self.__tela = TelaHospede()
 
+    def retornar(self):
+        self.__tela.mostra_mensagem("Retornando...")    
+
     def abre_tela(self):
         opcoes = {
             1: self.cadastrar_hospede_via_tela,
             2: self.listar_hospedes_via_tela,
             3: self.excluir_hospede_via_tela,
-            4: self.gerenciar_pets_via_tela,
-            0: lambda: print("Retornando...")
+            4: self.alterar_hospede_via_tela,
+            5: self.gerenciar_pets_via_tela,
+            0: self.retornar
         }
         while True:
             opcao = self.__tela.tela_opcoes()
@@ -24,7 +28,7 @@ class ControladorHospede:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("Opção inválida.")
+                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     # Métodos adaptados para usar a tela
     def cadastrar_hospede_via_tela(self):

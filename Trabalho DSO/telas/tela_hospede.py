@@ -4,13 +4,10 @@ class TelaHospede:
         print("1 - Cadastrar Hóspede")
         print("2 - Listar Hóspedes")
         print("3 - Excluir Hóspede")
-        print("4 - Gerenciar Pets do Hóspede")
+        print("4 - Alterar Hóspede")
+        print("5 - Gerenciar Pets do Hóspede")
         print("0 - Retornar")
-        try:
-            return int(input("Escolha a opção: "))
-        except ValueError:
-            self.mostra_mensagem("⚠️ Valor inválido!")
-            return -1
+        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5])
 
     def pega_dados_hospede(self):
         print("\n--- DADOS DO HÓSPEDE ---")
