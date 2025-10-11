@@ -1,5 +1,6 @@
 from entidades.servico_de_quarto import ServicoDeQuarto
 from telas.tela_servicodequarto import TelaServicoDeQuarto
+from controlers.controlador_hotel import ControladorHotel
 
 class ControladorServicoDeQuarto:
     def __init__(self, controlador_quarto, controlador_funcionario):
@@ -25,7 +26,7 @@ class ControladorServicoDeQuarto:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        ControladorHotel().abre_tela()
 
     def solicitar_servico(self):
         dados = self.__tela.pega_dados_servico()
