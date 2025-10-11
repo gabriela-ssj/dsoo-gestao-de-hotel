@@ -18,6 +18,13 @@ class TelaAbstrata(ABC):
         valor = input(mensagem)
         return valor.strip().lower()
 
+    def valida_cpf(self, mensagem="Digite o CPF (11 dígitos): "):
+        while True:
+            cpf = input(mensagem).strip()
+            if cpf.isdigit() and len(cpf) == 11:
+                return cpf
+            print("⚠️ CPF inválido! Deve conter exatamente 11 números.")
+
     def mostra_mensagem(self, mensagem: str):
         print(mensagem)
 

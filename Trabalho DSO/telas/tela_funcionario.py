@@ -13,7 +13,7 @@ class TelaFuncionario(TelaAbstrata):
     def pega_dados_funcionario(self):
         print("\n--- DADOS DO FUNCIONÁRIO ---")
         nome = input("Nome: ")
-        cpf = input("CPF: ")
+        cpf = self.valida_cpf()
         idade = int(input("Idade: "))
         telefone = input("Telefone: ")
         email = input("Email: ")

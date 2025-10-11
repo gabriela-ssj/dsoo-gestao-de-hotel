@@ -1,4 +1,6 @@
-class TelaHospede:
+from telas.tela_abstrata import TelaAbstrata
+
+class TelaHospede(TelaAbstrata):
     def tela_opcoes(self):
         print("\n-------- MENU HÓSPEDES ----------")
         print("1 - Cadastrar Hóspede")
@@ -11,7 +13,7 @@ class TelaHospede:
 
     def pega_dados_hospede(self):
         print("\n--- DADOS DO HÓSPEDE ---")
-        cpf = input("CPF: ")
+        cpf = self.valida_cpf()
         nome = input("Nome: ")
         try:
             idade = int(input("Idade: "))
