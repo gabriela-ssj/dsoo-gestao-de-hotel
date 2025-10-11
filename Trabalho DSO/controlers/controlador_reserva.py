@@ -1,10 +1,7 @@
 from entidades.reserva import Reserva
 from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
-from controlers.controlador_pet import ControladorPet
 from telas.tela_reserva import TelaReserva
 from datetime import datetime
-from controlers.controlador_hotel import ControladorHotel
-from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
 
 class ControladorReserva:
     def __init__(self, controlador_hospede, controlador_quarto, controlador_pet, controlador_funcionario):
@@ -14,6 +11,10 @@ class ControladorReserva:
         self.__controlador_quarto = controlador_quarto
         self.__controlador_pet = controlador_pet
         self.__controlador_funcionario = controlador_funcionario
+        self.__retorno_callback = None  
+
+    def set_retorno_callback(self, callback):
+        self.__retorno_callback = callback
 
     def fazer_reserva(self):
         try:
@@ -152,4 +153,7 @@ class ControladorReserva:
         self.__tela.mostra_lista(lista)
 
     def retornar(self):
-        ControladorHotel().abre_tela()
+        if self.__retorno_callback:
+            self.__retorno_callback()
+        else:
+            self.__tela.mostra_mensagem("Retornando ao menu anterior...")

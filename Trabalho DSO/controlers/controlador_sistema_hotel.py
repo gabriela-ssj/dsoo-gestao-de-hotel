@@ -2,18 +2,22 @@ from entidades.sistema_hotel import SistemaHotel
 from entidades.hotel import Hotel
 from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
-from controlers.controlador_sistema import ControladorSistema
 
 class ControladorSistemaHotel:
     def __init__(self):
-        self.__controladorasHoteis : ControladorHotel = []
+        self.__controladorasHoteis: list[ControladorHotel] = []
         self.__sistema_hotel = SistemaHotel()
         self.__tela = TelaSistemaHotel()
+        self.__retorno_callback = None  
+
+    def set_retorno_callback(self, callback):
+        self.__retorno_callback = callback
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
         hotel = Hotel(dados["nome"])
         self.__sistema_hotel.incluir_hotel(hotel)
+        self.__tela.mostra_mensagem(f"✅ Hotel '{hotel.nome}' incluído com sucesso.")
 
     def excluir_hotel(self):
         nome = self.__tela.seleciona_hotel()
@@ -25,6 +29,7 @@ class ControladorSistemaHotel:
         if hotel:
             novos_dados = self.__tela.pega_dados_hotel()
             self.__sistema_hotel.alterar_hotel(nome, novos_dados)
+            self.__tela.mostra_mensagem("✅ Hotel alterado com sucesso.")
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
@@ -40,24 +45,25 @@ class ControladorSistemaHotel:
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
             controladorHotel = self.buscaControlador(hotel)
-            if controladorHotel:
-                self.__controladorasHoteis.append(controladorHotel)
-                controladorHotel.abre_tela()
-            else:
+            if not controladorHotel:
                 controladorHotel = ControladorHotel(hotel)
+                controladorHotel.set_retorno_callback(self.abre_tela)
                 self.__controladorasHoteis.append(controladorHotel)
-                controladorHotel.abre_tela()
+            controladorHotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
-    def buscaControlador(self,hotel : Hotel):
+    def buscaControlador(self, hotel: Hotel):
         for controladorhotel in self.__controladorasHoteis:
-            if controladorhotel.__hotel == hotel:
+            if controladorhotel._ControladorHotel__hotel == hotel:
                 return controladorhotel
         return None
 
     def retornar(self):
-        ControladorSistema().abre_tela()
+        if self.__retorno_callback:
+            self.__retorno_callback()
+        else:
+            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
     def abre_tela(self):
         self.tela_aberta = True
@@ -73,5 +79,7 @@ class ControladorSistemaHotel:
             opcao = self.__tela.tela_opcoes()
             if opcao in opcoes:
                 opcoes[opcao]()
+                if opcao == 0:
+                    break
             else:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")

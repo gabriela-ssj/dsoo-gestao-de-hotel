@@ -1,12 +1,15 @@
 from entidades.quarto import Quarto
 from entidades.quartos import Suite, Duplo, Simples
 from telas.tela_quarto import TelaQuarto
-from controlers.controlador_hotel import ControladorHotel
 
 class ControladorQuarto:
     def __init__(self):
         self.__quartos: list[Quarto] = []
         self.__tela = TelaQuarto()
+        self.__retorno_callback = None  
+
+    def set_retorno_callback(self, callback):
+        self.__retorno_callback = callback
 
     def abre_tela(self):
         opcoes = {
@@ -26,7 +29,10 @@ class ControladorQuarto:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        ControladorHotel().abre_tela()
+        if self.__retorno_callback:
+            self.__retorno_callback()
+        else:
+            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
     def cadastrar_quarto(self):
         dados = self.__tela.pega_dados_quarto()

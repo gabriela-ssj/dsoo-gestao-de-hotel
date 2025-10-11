@@ -1,11 +1,15 @@
 from entidades.pagamento import Pagamento
 from telas.tela_pagamento import TelaPagamento
-from controlers.controlador_hotel import ControladorHotel
 
 class ControladorPagamento:
     def __init__(self):
         self.__tela = TelaPagamento()
+        self.__pagamento = Pagamento()
+        self.__retorno_callback = None
         self.tela_aberta = True
+
+    def set_retorno_callback(self, callback):
+        self.__retorno_callback = callback
 
     def realizar_pagamento(self):
         valor = self.__tela.pega_valor_pagamento()
@@ -32,10 +36,12 @@ class ControladorPagamento:
             self.__tela.mostra_mensagem(f"⚠️ Erro ao cancelar: {str(e)}")
 
     def retornar(self):
-        ControladorHotel().abre_tela()
+        if self.__retorno_callback:
+            self.__retorno_callback()
+        else:
+            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
     def abre_tela(self):
-        self.tela_aberta = True
         opcoes = {
             1: self.realizar_pagamento,
             2: self.alterar_metodo_pagamento,

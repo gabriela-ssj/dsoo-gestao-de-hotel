@@ -1,11 +1,11 @@
 from telas.tela_sistema import TelaSistema
 from controlers.controlador_sistema_hotel import ControladorSistemaHotel
 
-
 class ControladorSistema:
     def __init__(self):
         self.__tela = TelaSistema()
         self.__controlador_sistema_hotel = ControladorSistemaHotel()
+        self.__controlador_sistema_hotel.set_retorno_callback(self.abre_tela)
 
     def inicializa_sistema(self):
         self.abre_tela()
