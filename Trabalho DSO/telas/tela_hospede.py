@@ -15,11 +15,12 @@ class TelaHospede(TelaAbstrata):
         print("\n--- DADOS DO HÓSPEDE ---")
         cpf = self.valida_cpf()
         nome = input("Nome: ")
-        try:
-            idade = int(input("Idade: "))
-        except ValueError:
-            self.mostra_mensagem("⚠️ Idade inválida!")
-            return None
+        idade = None
+        while not idade:
+            try:
+                idade = int(input("Idade: "))
+            except ValueError:
+                self.mostra_mensagem("⚠️ Idade inválida!")
         telefone = input("Telefone: ")
         email = input("Email: ")
         return {"cpf": cpf, "nome": nome, "idade": idade, "telefone": telefone, "email": email}

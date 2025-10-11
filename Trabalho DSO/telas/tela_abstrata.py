@@ -18,6 +18,15 @@ class TelaAbstrata(ABC):
         valor = input(mensagem)
         return valor.strip().lower()
 
+    def le_float(self, mensagem=""):
+        valor = input(mensagem)
+        try:
+            return float(valor)
+        except:
+            print("Valores válidos:",valor)
+            return None
+
+
     def valida_cpf(self, mensagem="Digite o CPF (11 dígitos): "):
         while True:
             cpf = input(mensagem).strip()

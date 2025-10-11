@@ -3,8 +3,8 @@ from telas.tela_pagamento import TelaPagamento
 
 class ControladorPagamento:
     def __init__(self):
-        self.__pagamento = Pagamento()
         self.__tela = TelaPagamento()
+        self.tela_aberta = True
 
     def realizar_pagamento(self):
         valor = self.__tela.pega_valor_pagamento()
@@ -31,9 +31,10 @@ class ControladorPagamento:
             self.__tela.mostra_mensagem(f"⚠️ Erro ao cancelar: {str(e)}")
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando ao menu anterior...")    
+        self.tela_aberta = False
 
     def abre_tela(self):
+        self.tela_aberta = True
         opcoes = {
             1: self.realizar_pagamento,
             2: self.alterar_metodo_pagamento,
@@ -41,7 +42,7 @@ class ControladorPagamento:
             4: self.cancelar_pagamento,
             0: self.retornar
         }
-        while True:
+        while self.tela_aberta:
             opcao = self.__tela.tela_opcoes()
             if opcao in opcoes:
                 opcoes[opcao]()

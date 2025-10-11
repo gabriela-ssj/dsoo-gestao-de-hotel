@@ -5,7 +5,7 @@ from controlers.controlador_sistema_hotel import ControladorSistemaHotel
 class ControladorSistema:
     def __init__(self):
         self.__tela = TelaSistema()
-        self.__controlador_sistema_hotel = ControladorSistemaHotel(self)
+        self.__controlador_sistema_hotel = ControladorSistemaHotel()
 
     def inicializa_sistema(self):
         self.abre_tela()

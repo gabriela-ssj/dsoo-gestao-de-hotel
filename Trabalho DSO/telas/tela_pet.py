@@ -12,15 +12,13 @@ class TelaPet(TelaAbstrata):
 
     def pega_dados_pet(self):
         print("\n--- DADOS DO PET ---")
-        cpf_hospede = self.valida_cpf()
         nome_pet = self.le_string("Nome do pet: ")
         especie = self.le_string("Espécie: ")
-        quant_pet = self.le_num_inteiro("Quantidade: ")
-        dados_pet = {"nome_pet": nome_pet, "especie": especie, "quant_pet": quant_pet}
-        return cpf_hospede, dados_pet
+        dados_pet = {"nome_pet": nome_pet, "especie": especie}
+        return dados_pet
 
     def seleciona_pet(self):
-        cpf_hospede = self.valida_cpf("CPF do hóspede: ")
+        cpf_hospede = self.valida_cpf("CPF do tutor: ")
         nome_pet = self.le_string("Nome do pet: ")
         return cpf_hospede, nome_pet
 

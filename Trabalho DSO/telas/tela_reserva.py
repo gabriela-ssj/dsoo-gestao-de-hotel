@@ -32,7 +32,9 @@ class TelaReserva(TelaAbstrata):
         return {"tipo_servico": tipo, "valor": valor, "funcionario": funcionario, "quarto": quarto}
 
     def pega_dados_pet(self):
-        nome = self.le_string("Nome do pet: ")
-        especie = self.le_string("Espécie: ")
-        quant_pet = self.le_num_inteiro("Quantidade: ")
-        return {"nome": nome, "especie": especie, "quant_pet": quant_pet}
+        nome = input("Nome do pet: ")
+        especie = input("Espécie: ")
+        return {"nome": nome, "especie": especie}
+
+    def mostra_mensagem(self, msg):
+        print(msg)
