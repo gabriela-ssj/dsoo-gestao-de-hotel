@@ -39,7 +39,7 @@ class ControladorSistemaHotel:
         nome = self.__tela.seleciona_hotel()
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
-            controladorHotel = self.buscaControladora(hotel)
+            controladorHotel = self.buscaControlador(hotel)
             if controladorHotel:
                 self.__controladorasHoteis.append(controladorHotel)
                 controladorHotel.abre_tela()
@@ -50,7 +50,7 @@ class ControladorSistemaHotel:
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
-    def buscaControladora(self,hotel : Hotel):
+    def buscaControlador(self,hotel : Hotel):
         for controladorhotel in self.__controladorasHoteis:
             if controladorhotel.__hotel == hotel:
                 return controladorhotel
