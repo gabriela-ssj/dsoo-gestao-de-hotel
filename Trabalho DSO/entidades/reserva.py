@@ -99,6 +99,12 @@ class Reserva:
 
     def __calcular_dias(self) -> int:
         formato = "%d/%m/%Y"
-        checkin = datetime.strptime(self.__data_checkin, formato)
-        checkout = datetime.strptime(self.__data_checkout, formato)
-        return (checkout - checkin).days
+        try:
+            checkin = datetime.strptime(self.__data_checkin, formato)
+            checkout = datetime.strptime(self.__data_checkout, formato)
+            dias = (checkout - checkin).days
+            if dias <= 0:
+                raise ValueError("Data de check-out deve ser posterior ao check-in.")
+            return dias
+        except ValueError as e:
+            raise ValueError(f"Erro ao calcular dias da reserva: {e}")
