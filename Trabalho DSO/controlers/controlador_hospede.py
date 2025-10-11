@@ -2,6 +2,7 @@ from entidades.hospede import Hospede
 from entidades.pet import Pet
 from typing import List, Optional
 from telas.tela_hospede import TelaHospede
+from controlers.controlador_hotel import ControladorHotel
 
 class ControladorHospede:
     def __init__(self, controlador_pet=None):
@@ -10,7 +11,7 @@ class ControladorHospede:
         self.__tela = TelaHospede()
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando...")    
+        ControladorHotel().abre_tela()  
 
     def abre_tela(self):
         opcoes = {
