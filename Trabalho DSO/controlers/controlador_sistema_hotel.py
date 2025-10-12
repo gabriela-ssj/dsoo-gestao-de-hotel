@@ -2,8 +2,8 @@ from entidades.sistema_hotel import SistemaHotel
 from entidades.hotel import Hotel
 from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
-
 from typing import Dict
+
 class ControladorSistemaHotel:
     def __init__(self):
         self.__controladorasHoteis: Dict[str, ControladorHotel] = {}
@@ -13,19 +13,28 @@ class ControladorSistemaHotel:
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
-        hotel = Hotel(dados["nome"])
-        self.__sistema_hotel.incluir_hotel(hotel)
+        nome_normalizado = dados["nome"].strip().lower()
+        hotel = Hotel(nome_normalizado)
+        if self.__sistema_hotel.incluir_hotel(hotel):
+            self.__tela.mostra_mensagem("✅ Hotel incluído com sucesso.")
+        else:
+            self.__tela.mostra_mensagem("⚠️ Já existe um hotel com esse nome.")
 
     def excluir_hotel(self):
-        nome = self.__tela.seleciona_hotel()
-        self.__sistema_hotel.excluir_hotel(nome)
+        nome = self.__tela.seleciona_hotel().strip().lower()
+        if self.__sistema_hotel.excluir_hotel(nome):
+            self.__tela.mostra_mensagem("✅ Hotel excluído com sucesso.")
+        else:
+            self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
     def alterar_hotel(self):
-        nome = self.__tela.seleciona_hotel()
+        nome = self.__tela.seleciona_hotel().strip().lower()
         hotel = self.__sistema_hotel.buscar_hotel(nome)
         if hotel:
             novos_dados = self.__tela.pega_dados_hotel()
+            novos_dados["nome"] = novos_dados["nome"].strip().lower()
             self.__sistema_hotel.alterar_hotel(nome, novos_dados)
+            self.__tela.mostra_mensagem("✅ Hotel alterado com sucesso.")
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
@@ -35,8 +44,9 @@ class ControladorSistemaHotel:
             self.__tela.mostra_lista(lista)
         else:
             self.__tela.mostra_mensagem("⚠️ Nenhum hotel cadastrado.")
+
     def acessar_hotel(self):
-        nome_hotel = self.__tela.seleciona_hotel()
+        nome_hotel = self.__tela.seleciona_hotel().strip().lower()
         hotel_entidade = self.__sistema_hotel.buscar_hotel(nome_hotel)
 
         if hotel_entidade:
@@ -57,7 +67,6 @@ class ControladorSistemaHotel:
                 novo_controlador_hotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
-
 
     def retornar(self):
         self.tela_aberta = False

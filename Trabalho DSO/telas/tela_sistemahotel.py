@@ -12,7 +12,7 @@ class TelaSistemaHotel(TelaAbstrata):
         return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5])
 
     def pega_dados_hotel(self):
-        nome = input("Nome do hotel: ")
+        nome = self.le_string("Nome do hotel: ")
         return {"nome": nome}
 
     def seleciona_hotel(self):
