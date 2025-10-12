@@ -7,18 +7,20 @@ class ControladorRh:
     def __init__(self):
         self.__tela = TelaRh()
         self.__controlador_cargo = ControladorCargo()
-        self.__controlador_funcionario = ControladorFuncionario()
+        self.__controlador_funcionario = ControladorFuncionario(self.__controlador_cargo)
         self.__retorno_callback = None  
 
     def set_retorno_callback(self, callback):
         self.__retorno_callback = callback
+        self.__controlador_funcionario.set_retorno_callback(self.abre_tela)
+        self.__controlador_cargo.set_retorno_callback(self.abre_tela)
 
     def menu_cargos(self):
         self.__controlador_cargo.abre_tela()
 
     def menu_funcionarios(self):
         if not self.__controlador_cargo.get_quantidade_cargos():
-            self.__tela.mostra_mensagem("Nenhum cargo cadastrado. Cadastre um cargo antes de incluir funcionários.")
+            self.__tela.mostra_mensagem("⚠️ Nenhum cargo cadastrado. Cadastre um cargo antes de incluir funcionários.")
             return
         self.__controlador_funcionario.abre_tela()
 
