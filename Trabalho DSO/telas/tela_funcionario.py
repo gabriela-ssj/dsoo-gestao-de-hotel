@@ -12,12 +12,12 @@ class TelaFuncionario(TelaAbstrata):
 
     def pega_dados_funcionario(self):
         print("\n--- DADOS DO FUNCIONÁRIO ---")
-        nome = self.le_string("Nome: ")
+        nome = input("Nome: ")
         cpf = self.valida_cpf()
-        idade = self.le_num_inteiro("Idade: ")
-        telefone = self.le_string("Telefone: ")
-        email = self.le_string("Email: ")
-        tipo_cargo = self.le_string("Cargo: ")
+        idade = int(input("Idade: "))
+        telefone = input("Telefone: ")
+        email = input("Email: ")
+        tipo_cargo = input("Cargo: ")
         return {
             "nome": nome,
             "cpf": cpf,
@@ -28,12 +28,12 @@ class TelaFuncionario(TelaAbstrata):
         }
 
     def seleciona_funcionario(self):
-        return self.le_string("Digite o CPF do funcionário: ")
+        return input("Digite o CPF do funcionário: ")
 
-    def mostra_lista(self, lista: list):
+    def mostra_lista(self, lista):
         print("\n--- FUNCIONÁRIOS CADASTRADOS ---")
         for item in lista:
             print(item)
 
-    def mostra_mensagem(self, msg: str):
+    def mostra_mensagem(self, msg):
         print(msg)

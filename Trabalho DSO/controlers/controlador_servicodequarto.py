@@ -7,10 +7,6 @@ class ControladorServicoDeQuarto:
         self.__tela = TelaServicoDeQuarto()
         self.__controlador_quarto = controlador_quarto
         self.__controlador_funcionario = controlador_funcionario
-        self.__retorno_callback = None  
-
-    def set_retorno_callback(self, callback):
-        self.__retorno_callback = callback
 
     def abre_tela(self):
         opcoes = {
@@ -29,10 +25,7 @@ class ControladorServicoDeQuarto:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        if self.__retorno_callback:
-            self.__retorno_callback()
-        else:
-            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
     def solicitar_servico(self):
         dados = self.__tela.pega_dados_servico()

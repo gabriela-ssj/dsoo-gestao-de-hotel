@@ -1,18 +1,20 @@
-from abc import ABC, abstractmethod
+# entidades\quarto.py
 from entidades.hospede import Hospede
-from typing import List, Tuple
+from entidades.pet import Pet
+from typing import List
 
-class Quarto(ABC):
-    @abstractmethod
+
+class Quarto:
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool, capacidade_pessoas: int):
         self.__numero = numero
         self.__valor_diaria = valor_diaria
         self.__disponibilidade = disponibilidade
         self.__capacidade_pessoas = capacidade_pessoas
-        self.__hospedes: List[Hospede] = []
+        self._hospedes: List[Hospede] = []
+        self._pets: List[Pet] = []
 
     @property
-    def numero(self) -> int:
+    def numero(self):
         return self.__numero
 
     @numero.setter
@@ -20,15 +22,17 @@ class Quarto(ABC):
         self.__numero = numero
 
     @property
-    def valor_diaria(self) -> float:
+    def valor_diaria(self):
         return self.__valor_diaria
 
     @valor_diaria.setter
     def valor_diaria(self, valor_diaria: float):
+        if not isinstance(valor_diaria, (int, float)) or valor_diaria <= 0:
+            raise ValueError("Valor da diária deve ser um número positivo.")
         self.__valor_diaria = valor_diaria
 
     @property
-    def disponibilidade(self) -> bool:
+    def disponibilidade(self):
         return self.__disponibilidade
 
     @disponibilidade.setter
@@ -36,31 +40,55 @@ class Quarto(ABC):
         self.__disponibilidade = disponibilidade
 
     @property
-    def capacidade_pessoas(self) -> int:
+    def capacidade_pessoas(self):
         return self.__capacidade_pessoas
 
     @capacidade_pessoas.setter
     def capacidade_pessoas(self, capacidade_pessoas: int):
+        if not isinstance(capacidade_pessoas, int) or capacidade_pessoas <= 0:
+            raise ValueError("Capacidade de pessoas deve ser um inteiro positivo.")
         self.__capacidade_pessoas = capacidade_pessoas
 
     @property
     def hospedes(self) -> List[Hospede]:
-        return self.__hospedes
+        return self._hospedes
 
-    def reservar_quarto(self):
-        self.__disponibilidade = False
+    @property
+    def pets(self) -> List[Pet]:
+        return self._pets
 
-    def liberar_quarto(self):
+    def reservar_quarto(self) -> bool:
+        if self.__disponibilidade:
+            self.__disponibilidade = False
+            return True  # Sucesso na reserva
+        return False  # Quarto já ocupado
+
+    def liberar_quarto(self) -> bool:
         self.__disponibilidade = True
-        self.__hospedes.clear()
+        self._hospedes.clear()
+        self._pets.clear()
+        return True
 
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.__capacidade_pessoas:
             return False
-        self.__hospedes = hospedes
+        self._hospedes = hospedes
         return True
 
-    def contador_adultos_criancas(self) -> Tuple[int, int]:
-        adultos = sum(1 for h in self.__hospedes if h.is_adulto())
-        criancas = sum(1 for h in self.__hospedes if h.is_crianca())
+    def adicionar_pet(self, pet: Pet) -> bool:
+        self._pets.append(pet)
+        return True
+
+    def listar_pets(self) -> List[str]:
+        return [str(pet) for pet in self._pets]
+
+    def contador_adultos_criancas(self) -> tuple[int, int]:
+        adultos = sum(1 for hosp in self._hospedes if hosp.is_adulto())
+        criancas = sum(1 for hosp in self._hospedes if hosp.is_crianca())
         return adultos, criancas
+
+    def _set_hospedes(self, hospedes: List[Hospede]):
+        self._hospedes = hospedes
+
+    def _set_pets(self, pets: List[Pet]):
+        self._pets = pets

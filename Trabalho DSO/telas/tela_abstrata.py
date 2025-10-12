@@ -1,4 +1,6 @@
+# telas\tela_abstrata.py
 from abc import ABC, abstractmethod
+
 
 class TelaAbstrata(ABC):
     def le_num_inteiro(self, mensagem=" ", ints_validos=None):
@@ -15,17 +17,16 @@ class TelaAbstrata(ABC):
                     print("Valores válidos:", ints_validos)
 
     def le_string(self, mensagem=" "):
-        valor = input(mensagem)
-        return valor.strip().lower()
+        return input(mensagem).strip().lower()
 
     def le_float(self, mensagem=""):
         valor = input(mensagem)
         try:
             return float(valor)
-        except:
-            print("Valores válidos:",valor)
-            return None
-
+        except ValueError:
+            print("Valor inválido! Por favor, digite um número.")
+        except Exception:
+            print("Ocorreu um erro inesperado. Tente novamente.")
 
     def valida_cpf(self, mensagem="Digite o CPF (11 dígitos): "):
         while True:
@@ -39,8 +40,12 @@ class TelaAbstrata(ABC):
 
     def mostra_lista(self, lista: list):
         print("\n--- LISTA ---")
+        if not lista:
+            print("Nenhum item para exibir.")
+            return
         for item in lista:
             print(item)
+        print()
 
     @abstractmethod
     def tela_opcoes(self):

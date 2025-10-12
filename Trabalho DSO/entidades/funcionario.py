@@ -3,33 +3,37 @@ from entidades.cargo import Cargo
 
 class Funcionario(Pessoa):
     def __init__(self, nome: str, cpf: str, telefone: str, idade: int, email: str, cargo: Cargo):
-        super().__init__(nome=nome, cpf=cpf, telefone=telefone, idade=idade, email=email)
+        super().__init__(nome=nome,cpf= cpf,telefone= telefone,idade= idade,email=email)
         self._cargo = cargo
-        self._salario_base = cargo.salario_base  
+
+    def _definir_salario_base(self, cargo):
+        return tabela[cargo]
 
     @property
-    def cargo(self) -> Cargo:
+    def cargo(self):
         return self._cargo
 
     @cargo.setter
-    def cargo(self, novo_cargo: Cargo):
-        self._cargo = novo_cargo
-        self._salario_base = novo_cargo.salario_base  
+    def cargo(self, cargo : Cargo):
+        self._cargo = cargo
 
     @property
-    def salario_base(self) -> float:
+    def salario_base(self):
         return self._salario_base
 
-    def registrar_servico(self) -> str:
-        return f"{self.nome} registrou um serviço como {self.cargo.nome}."
+    def registrar_servico(self):
+        return f"{self.nome} registrou um serviço como {self.cargo}."
 
-    def exibir_dados(self) -> str:
+    def exibir_dados(self):
         return (
             f"Nome: {self.nome}\n"
             f"CPF: {self.cpf}\n"
             f"Telefone: {self.telefone}\n"
             f"Idade: {self.idade}\n"
             f"Email: {self.email}\n"
-            f"Cargo: {self.cargo.nome}\n"
+            f"Cargo: {self.cargo}\n"
             f"Salário Base: R$ {self.salario_base:.2f}"
         )
+
+    def exibir_dados(self):
+        pass 

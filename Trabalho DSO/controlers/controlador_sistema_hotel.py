@@ -3,21 +3,18 @@ from entidades.hotel import Hotel
 from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
 
+from typing import Dict
 class ControladorSistemaHotel:
     def __init__(self):
-        self.__controladorasHoteis: list[ControladorHotel] = []
+        self.__controladorasHoteis: Dict[str, ControladorHotel] = {}
         self.__sistema_hotel = SistemaHotel()
         self.__tela = TelaSistemaHotel()
-        self.__retorno_callback = None  
-
-    def set_retorno_callback(self, callback):
-        self.__retorno_callback = callback
+        self.tela_aberta = False
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
         hotel = Hotel(dados["nome"])
         self.__sistema_hotel.incluir_hotel(hotel)
-        self.__tela.mostra_mensagem(f"✅ Hotel '{hotel.nome}' incluído com sucesso.")
 
     def excluir_hotel(self):
         nome = self.__tela.seleciona_hotel()
@@ -29,7 +26,6 @@ class ControladorSistemaHotel:
         if hotel:
             novos_dados = self.__tela.pega_dados_hotel()
             self.__sistema_hotel.alterar_hotel(nome, novos_dados)
-            self.__tela.mostra_mensagem("✅ Hotel alterado com sucesso.")
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
@@ -39,31 +35,32 @@ class ControladorSistemaHotel:
             self.__tela.mostra_lista(lista)
         else:
             self.__tela.mostra_mensagem("⚠️ Nenhum hotel cadastrado.")
-
     def acessar_hotel(self):
-        nome = self.__tela.seleciona_hotel()
-        hotel = self.__sistema_hotel.buscar_hotel(nome)
-        if hotel:
-            controladorHotel = self.buscaControlador(hotel)
-            if not controladorHotel:
-                controladorHotel = ControladorHotel(hotel)
-                controladorHotel.set_retorno_callback(self.abre_tela)
-                self.__controladorasHoteis.append(controladorHotel)
-            controladorHotel.abre_tela()
+        nome_hotel = self.__tela.seleciona_hotel()
+        hotel_entidade = self.__sistema_hotel.buscar_hotel(nome_hotel)
+
+        if hotel_entidade:
+            if nome_hotel in self.__controladorasHoteis:
+                controlador_hotel_existente = self.__controladorasHoteis[nome_hotel]
+                if controlador_hotel_existente._ControladorHotel__hotel is hotel_entidade:
+                    print(f"DEBUG: Reutilizando controlador para '{nome_hotel}' (ID: {id(controlador_hotel_existente)})")
+                    controlador_hotel_existente.abre_tela()
+                else:
+                    print(f"DEBUG: Entidade Hotel para '{nome_hotel}' mudou, recriando controlador.")
+                    novo_controlador_hotel = ControladorHotel(hotel_entidade)
+                    self.__controladorasHoteis[nome_hotel] = novo_controlador_hotel
+                    novo_controlador_hotel.abre_tela()
+            else:
+                novo_controlador_hotel = ControladorHotel(hotel_entidade)
+                self.__controladorasHoteis[nome_hotel] = novo_controlador_hotel
+                print(f"DEBUG: Criando novo controlador para '{nome_hotel}' (ID: {id(novo_controlador_hotel)})")
+                novo_controlador_hotel.abre_tela()
         else:
             self.__tela.mostra_mensagem("⚠️ Hotel não encontrado.")
 
-    def buscaControlador(self, hotel: Hotel):
-        for controladorhotel in self.__controladorasHoteis:
-            if controladorhotel._ControladorHotel__hotel == hotel:
-                return controladorhotel
-        return None
 
     def retornar(self):
-        if self.__retorno_callback:
-            self.__retorno_callback()
-        else:
-            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        self.tela_aberta = False
 
     def abre_tela(self):
         self.tela_aberta = True
@@ -79,7 +76,5 @@ class ControladorSistemaHotel:
             opcao = self.__tela.tela_opcoes()
             if opcao in opcoes:
                 opcoes[opcao]()
-                if opcao == 0:
-                    break
             else:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
