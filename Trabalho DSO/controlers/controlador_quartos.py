@@ -1,17 +1,15 @@
-# controlers\controlador_quartos.py
+from entidades.quartos import Suite, Duplo, Simples
 from entidades.quarto import Quarto
-from entidades.quartos import Suite, Duplo, Simples  # Importa os tipos específicos
 from telas.tela_quarto import TelaQuarto
-
 
 class ControladorQuarto:
     def __init__(self):
         self.__quartos: list[Quarto] = []
         self.__tela = TelaQuarto()
-        self.__tipo_quartos_map = {
-            "suite": {"class": Suite, "prefix": "S"},
-            "duplo": {"class": Duplo, "prefix": "D"},
-            "simples": {"class": Simples, "prefix": "Q"},
+        self.__mapa_tipos = {
+            "suite": Suite,
+            "duplo": Duplo,
+            "simples": Simples
         }
 
     def abre_tela(self):
@@ -36,33 +34,27 @@ class ControladorQuarto:
 
     def cadastrar_quarto(self):
         dados = self.__tela.pega_dados_quarto()
-        if not dados:  # Verifica se a tela retornou dados (ex: usuário cancelou)
+        if not dados:
             return
 
-        tipo_quarto_info = self.__tipo_quartos_map.get(dados["tipo"])
-        if not tipo_quarto_info:  # Validação redundante, mas segura caso a tela não valide
+        if self.buscar_quarto(dados["numero"]):
+            self.__tela.mostra_mensagem("⚠️ Quarto já cadastrado.")
+            return
+
+        ClasseQuarto = self.__mapa_tipos.get(dados["tipo"])
+        if not ClasseQuarto:
             self.__tela.mostra_mensagem("⚠️ Tipo de quarto inválido.")
             return
 
-        numero_base = dados["numero"]
-
-        if self.buscar_quarto(numero_base):
-            self.__tela.mostra_mensagem(f"⚠️ Quarto {numero_base} já está cadastrado.")
-            return
-
-        QuartoClass = tipo_quarto_info["class"]
         try:
             if dados["tipo"] == "suite":
-                quarto = QuartoClass(numero_base, dados["valor_diaria"], dados["disponibilidade"], dados["hidro"])
+                quarto = ClasseQuarto(dados["numero"], dados["valor_diaria"], dados["disponibilidade"], dados["hidro"])
             else:
-                quarto = QuartoClass(numero_base, dados["valor_diaria"], dados["disponibilidade"])
-
+                quarto = ClasseQuarto(dados["numero"], dados["valor_diaria"], dados["disponibilidade"])
             self.__quartos.append(quarto)
             self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} cadastrado com sucesso.")
-        except ValueError as e:
-            self.__tela.mostra_mensagem(f"Erro ao cadastrar quarto: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
+            self.__tela.mostra_mensagem(f"Erro: {e}")
 
     def listar_quartos(self):
         if not self.__quartos:
@@ -73,56 +65,32 @@ class ControladorQuarto:
         for q in self.__quartos:
             tipo = type(q).__name__
             status = "Disponível" if q.disponibilidade else "Ocupado"
-            hidro_info = ""
-            if isinstance(q, Suite):
-                hidro_info = f" | Hidro: {'Sim' if q.hidro else 'Não'}"
-
-            lista.append(f"{tipo} nº {q.numero} | Diária: R${q.valor_diaria:.2f} | {status}{hidro_info}")
+            hidro = f" | Hidro: {'Sim' if isinstance(q, Suite) and q.hidro else 'Não'}"
+            lista.append(f"{tipo} nº {q.numero} | Diária: R${q.valor_diaria:.2f} | {status}{hidro if isinstance(q, Suite) else ''}")
         self.__tela.mostra_lista(lista)
 
     def alterar_quarto(self):
         numero = self.__tela.seleciona_quarto()
         quarto = self.buscar_quarto(numero)
         if not quarto:
-            self.__tela.mostra_mensagem(f"⚠️ Quarto {numero} não encontrado.")
+            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
             return
 
         novos_dados = self.__tela.pega_dados_quarto("alt")
-        if not novos_dados:
-            return
-        #if novos_dados["tipo"].lower() != type(quarto).__name__.lower():
-        #    self.__tela.mostra_mensagem("⚠️ Não é possível alterar o tipo de um quarto existente.")
-        #    return
-
         try:
             quarto.valor_diaria = novos_dados["valor_diaria"]
             quarto.disponibilidade = novos_dados["disponibilidade"]
-
             if isinstance(quarto, Suite):
-                if "hidro" in novos_dados:
-                    quarto.hidro = novos_dados["hidro"]
-                else:
-                    hidro_str = self.__tela.le_string("Possui hidromassagem (sim/nao): ")
-                    quarto.hidro = True if hidro_str.lower() == "sim" else False
-
-            self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} alterado com sucesso.")
-
-        except ValueError as e:
-            self.__tela.mostra_mensagem(f"Erro ao alterar quarto: {e}")
+                quarto.hidro = novos_dados.get("hidro", False)
+            self.__tela.mostra_mensagem("✅ Quarto alterado com sucesso.")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
+            self.__tela.mostra_mensagem(f"Erro: {e}")
 
     def excluir_quarto(self):
         numero = self.__tela.seleciona_quarto()
         quarto = self.buscar_quarto(numero)
         if quarto:
             self.__quartos.remove(quarto)
-            self.__tela.mostra_mensagem(f"✅ Quarto {numero} excluído.")
+            self.__tela.mostra_mensagem("✅ Quarto excluído.")
         else:
-            self.__tela.mostra_mensagem(f"⚠️ Quarto {numero} não encontrado.")
-
-    def buscar_quarto(self, numero: int) -> Quarto:
-        for q in self.__quartos:
-            if q.numero == numero:
-                return q
-        return None
+            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
