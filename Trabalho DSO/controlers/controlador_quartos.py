@@ -32,6 +32,12 @@ class ControladorQuarto:
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
+    def buscar_quarto(self, numero: int) -> Quarto | None:
+        for quarto in self.__quartos:
+            if quarto.numero == numero:
+                return quarto
+            return None    
+
     def cadastrar_quarto(self):
         dados = self.__tela.pega_dados_quarto()
         if not dados:
