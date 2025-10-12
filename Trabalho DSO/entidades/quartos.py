@@ -1,4 +1,3 @@
-# entidades\quartos.py
 from entidades.quarto import Quarto
 from entidades.hospede import Hospede
 from entidades.pet import Pet

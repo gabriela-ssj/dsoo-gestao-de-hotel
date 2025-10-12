@@ -1,10 +1,11 @@
-# entidades\quarto.py
+from abc import ABC, abstractmethod
 from entidades.hospede import Hospede
 from entidades.pet import Pet
 from typing import List
 
+class Quarto(ABC):
 
-class Quarto:
+    @abstractmethod
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool, capacidade_pessoas: int):
         self.__numero = numero
         self.__valor_diaria = valor_diaria
