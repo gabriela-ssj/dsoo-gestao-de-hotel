@@ -11,6 +11,11 @@ class ControladorQuarto:
             "duplo": Duplo,
             "simples": Simples
         }
+        self.__valores_diaria = {
+        "suite": 300.0,
+        "duplo": 180.0,
+        "simples": 100.0
+    }
 
     def abre_tela(self):
         opcoes = {
@@ -42,21 +47,25 @@ class ControladorQuarto:
         dados = self.__tela.pega_dados_quarto()
         if not dados:
             return
-
+        
         if self.buscar_quarto(dados["numero"]):
             self.__tela.mostra_mensagem("⚠️ Quarto já cadastrado.")
             return
-
-        ClasseQuarto = self.__mapa_tipos.get(dados["tipo"])
+        
+        tipo = dados["tipo"]
+        ClasseQuarto = self.__mapa_tipos.get(tipo)
         if not ClasseQuarto:
             self.__tela.mostra_mensagem("⚠️ Tipo de quarto inválido.")
             return
-
+        
+        valor_diaria = self.__valores_diaria.get(tipo)
+        self.__tela.mostra_mensagem(f"ℹ️ Valor da diária para tipo '{tipo}': R$ {valor_diaria:.2f}")
+        
         try:
-            if dados["tipo"] == "suite":
-                quarto = ClasseQuarto(dados["numero"], dados["valor_diaria"], dados["disponibilidade"], dados["hidro"])
+            if tipo == "suite":
+                quarto = ClasseQuarto(dados["numero"], valor_diaria, dados["disponibilidade"], dados["hidro"])
             else:
-                quarto = ClasseQuarto(dados["numero"], dados["valor_diaria"], dados["disponibilidade"])
+                quarto = ClasseQuarto(dados["numero"], valor_diaria, dados["disponibilidade"])
             self.__quartos.append(quarto)
             self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} cadastrado com sucesso.")
         except Exception as e:
@@ -81,10 +90,9 @@ class ControladorQuarto:
         if not quarto:
             self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
             return
-
+        
         novos_dados = self.__tela.pega_dados_quarto("alt")
         try:
-            quarto.valor_diaria = novos_dados["valor_diaria"]
             quarto.disponibilidade = novos_dados["disponibilidade"]
             if isinstance(quarto, Suite):
                 quarto.hidro = novos_dados.get("hidro", False)

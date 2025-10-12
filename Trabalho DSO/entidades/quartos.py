@@ -3,10 +3,11 @@ from entidades.hospede import Hospede
 from entidades.pet import Pet
 from typing import List
 
-
 class Suite(Quarto):
-    def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool, hidro: bool = False):
-        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=4)
+    VALOR_FIXO_DIARIA = 300.0
+
+    def __init__(self, numero: int, disponibilidade: bool, hidro: bool = False):
+        super().__init__(numero, Suite.VALOR_FIXO_DIARIA, disponibilidade, capacidade_pessoas=4)
         self.__hidro = hidro
 
     @property
@@ -29,8 +30,10 @@ class Suite(Quarto):
 
 
 class Duplo(Quarto):
-    def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool):
-        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=2)
+    VALOR_FIXO_DIARIA = 180.0
+
+    def __init__(self, numero: int, disponibilidade: bool):
+        super().__init__(numero, Duplo.VALOR_FIXO_DIARIA, disponibilidade, capacidade_pessoas=2)
 
     def adicionar_pet(self, pet: Pet) -> bool:
         if pet.especie.lower() not in ["cachorro", "gato"]:
@@ -46,8 +49,10 @@ class Duplo(Quarto):
 
 
 class Simples(Quarto):
-    def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool):
-        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=1)
+    VALOR_FIXO_DIARIA = 100.0
+
+    def __init__(self, numero: int, disponibilidade: bool):
+        super().__init__(numero, Simples.VALOR_FIXO_DIARIA, disponibilidade, capacidade_pessoas=1)
 
     def adicionar_pet(self, pet: Pet) -> bool:
         return False
