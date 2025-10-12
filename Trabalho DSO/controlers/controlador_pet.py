@@ -1,4 +1,5 @@
 from entidades.pet import Pet
+from entidades.hospede import Hospede
 from typing import List
 from telas.tela_pet import TelaPet
 
@@ -7,18 +8,14 @@ class ControladorPet:
         self.__pets: List[Pet] = []
         self.__tela = TelaPet()
         self.__controlador_hospede = controlador_hospede
-        self.__retorno_callback = None  
 
     @property
     def pets(self):
         return self.__pets
 
-    def set_retorno_callback(self, callback):
-        self.__retorno_callback = callback
-
     def cadastrar_pet(self):
-        cpf_hospede, dados_pet = self.__tela.pega_dados_pet()
-        hospede = self.__controlador_hospede.busca_hospede(cpf_hospede)
+        dados_pet = self.__tela.pega_dados_pet()
+        hospede = self.__controlador_hospede.busca_hospede()
 
         if not hospede:
             self.__tela.mostra_mensagem(f"Hóspede com CPF {cpf_hospede} não encontrado.")
@@ -34,7 +31,7 @@ class ControladorPet:
             self.__tela.mostra_mensagem("Nenhum pet cadastrado.")
             return
 
-        lista = [f"{p.nome_pet} | Espécie: {p.especie} | Quantidade: {p.quant_pet}" for p in self.__pets]
+        lista = [f"{p.nome_pet} | Espécie: {p.especie}" for p in self.__pets]
         self.__tela.mostra_lista(lista)
 
     def remover_pet(self):
@@ -64,10 +61,9 @@ class ControladorPet:
 
         pet_encontrado = next((p for p in hospede.pets if p.nome_pet == nome_pet), None)
         if pet_encontrado:
-            _, novos_dados = self.__tela.pega_dados_pet()
+            novos_dados = self.__tela.pega_dados_pet()
             pet_encontrado.nome_pet = novos_dados["nome_pet"]
             pet_encontrado.especie = novos_dados["especie"]
-            pet_encontrado.quant_pet = novos_dados["quant_pet"]
             self.__tela.mostra_mensagem(f"✅ Pet '{nome_pet}' alterado com sucesso.")
         else:
             self.__tela.mostra_mensagem(f"⚠️ Pet '{nome_pet}' não encontrado para este hóspede.")
@@ -91,7 +87,5 @@ class ControladorPet:
                 self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        if self.__retorno_callback:
-            self.__retorno_callback()
-        else:
-            self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+        self.__tela.mostra_mensagem("Retornando ao menu anterior...")
+

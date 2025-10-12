@@ -1,87 +1,88 @@
+# entidades\quartos.py
 from entidades.quarto import Quarto
 from entidades.hospede import Hospede
 from entidades.pet import Pet
 from typing import List
 
+
 class Suite(Quarto):
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool, hidro: bool = False):
-        numero_formatado = f"S{numero}"
-        super().__init__(numero_formatado, valor_diaria, disponibilidade, capacidade_pessoas=4)
+        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=4)
         self.__hidro = hidro
-        self.__pets: List[Pet] = []
 
     @property
-    def hidro(self) -> bool:
+    def hidro(self):
         return self.__hidro
 
     @hidro.setter
     def hidro(self, hidro: bool):
         self.__hidro = hidro
 
-    @property
-    def pets(self) -> List[Pet]:
-        return self.__pets.copy()
-
     def adicionar_pet(self, pet: Pet) -> bool:
-        total_pets = sum(p.quant_pet for p in self.__pets)
-        if total_pets + pet.quant_pet > 2:
+        total_pets = len(self.pets)
+        if total_pets + 1 > 2:
+            print(f"⚠️ Suite {self.numero} aceita no máximo 2 pets.")
             return False
-        self.__pets.append(pet)
-        return True
+        return super().adicionar_pet(pet)
 
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.capacidade_pessoas:
+            print(f"Suite {self.numero} excede capacidade de 4 pessoas.")
             return False
-        adultos = sum(h.is_adulto() for h in hospedes)
-        criancas = sum(h.is_crianca() for h in hospedes)
+
+        adultos = sum(1 for h in hospedes if h.is_adulto())
+        criancas = sum(1 for h in hospedes if h.is_crianca())
+
         if adultos > 2 or criancas > 2:
+            print(f"Suite {self.numero} permite no máximo 2 adultos e 2 crianças.")
             return False
-        self._Quarto__hospedes = hospedes
-        return True
+
+        return super().alocar_hospedes(hospedes)
 
 
 class Duplo(Quarto):
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool):
-        numero_formatado = f"D{numero}"
-        super().__init__(numero_formatado, valor_diaria, disponibilidade, capacidade_pessoas=2)
-        self.__pets: List[Pet] = []
-
-    @property
-    def pets(self) -> List[Pet]:
-        return self.__pets.copy()
+        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=2)
 
     def adicionar_pet(self, pet: Pet) -> bool:
         if pet.especie.lower() not in ["cachorro", "gato"]:
+            print(f"⚠️ Quarto Duplo {self.numero} só aceita cachorro ou gato.")
             return False
-        if len(self.__pets) >= 1:
-            return False
-        self.__pets.append(pet)
-        return True
+
+        current_pet_count = len(self.pets)
+        if current_pet_count + 1 > 1:
+            print(f"⚠️ Quarto Duplo {self.numero} aceita apenas 1 pet.")
+        return super().adicionar_pet(pet)  # Chama o método da classe base
 
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.capacidade_pessoas:
+            print(f"Quarto Duplo {self.numero} excede capacidade de 2 pessoas.")
             return False
-        adultos = sum(h.is_adulto() for h in hospedes)
-        criancas = sum(h.is_crianca() for h in hospedes)
+
+        adultos = sum(1 for h in hospedes if h.is_adulto())
+        criancas = sum(1 for h in hospedes if h.is_crianca())
+
         if adultos == 2 or (adultos == 1 and criancas == 1):
-            self._Quarto__hospedes = hospedes
-            return True
+            return super().alocar_hospedes(hospedes)
         return False
 
 
 class Simples(Quarto):
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool):
-        numero_formatado = f"Q{numero}"
-        super().__init__(numero_formatado, valor_diaria, disponibilidade, capacidade_pessoas=1)
+        super().__init__(numero, valor_diaria, disponibilidade, capacidade_pessoas=1)
 
     def adicionar_pet(self, pet: Pet) -> bool:
-        return False  
+        print(f"⚠️ Quarto Simples {self.numero} não aceita pets.")
+        return False
 
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) != 1:
+            print(f"Quarto Simples {self.numero} aceita apenas 1 hóspede.")
             return False
+
         hospede = hospedes[0]
         if hospede.is_crianca():
+            print(f"Quarto Simples {self.numero} não aceita crianças.")
             return False
-        self._Quarto__hospedes = hospedes
-        return True
+
+        return super().alocar_hospedes(hospedes)
