@@ -1,6 +1,4 @@
-# telas\tela_abstrata.py
 from abc import ABC, abstractmethod
-
 
 class TelaAbstrata(ABC):
     def le_num_inteiro(self, mensagem=" ", ints_validos=None):
