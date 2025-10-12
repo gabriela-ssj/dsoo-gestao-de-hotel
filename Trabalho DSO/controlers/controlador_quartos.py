@@ -63,9 +63,10 @@ class ControladorQuarto:
         
         try:
             if tipo == "suite":
-                quarto = ClasseQuarto(dados["numero"], valor_diaria, dados["disponibilidade"], dados["hidro"])
+                quarto = ClasseQuarto(dados["numero"], dados["disponibilidade"], dados["hidro"])
             else:
-                quarto = ClasseQuarto(dados["numero"], valor_diaria, dados["disponibilidade"])
+                quarto = ClasseQuarto(dados["numero"], dados["disponibilidade"])
+
             self.__quartos.append(quarto)
             self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} cadastrado com sucesso.")
         except Exception as e:
