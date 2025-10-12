@@ -2,7 +2,7 @@ from entidades.hospede import Hospede
 from entidades.quarto import Quarto
 from entidades.servico_de_quarto import ServicoDeQuarto
 from entidades.pet import Pet
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class Reserva:
@@ -13,7 +13,7 @@ class Reserva:
         data_checkin: str,
         data_checkout: str,
         status: str,
-        pets: List[Pet] = None
+        pets: Optional[List[Pet]] = None
     ):
         self.__hospedes = hospedes
         self.__quartos = quartos
@@ -25,23 +25,23 @@ class Reserva:
         self.__pets: List[Pet] = pets if pets else []
 
     @property
-    def hospedes(self):
-        return self.__hospedes
+    def hospedes(self) -> List[Hospede]:
+        return self.__hospedes.copy()
 
     @property
-    def quartos(self):
-        return self.__quartos
+    def quartos(self) -> List[Quarto]:
+        return self.__quartos.copy()
 
     @property
-    def data_checkin(self):
+    def data_checkin(self) -> str:
         return self.__data_checkin
 
     @property
-    def data_checkout(self):
+    def data_checkout(self) -> str:
         return self.__data_checkout
 
     @property
-    def status(self):
+    def status(self) -> str:
         return self.__status
 
     @status.setter
@@ -49,34 +49,39 @@ class Reserva:
         self.__status = novo_status
 
     @property
-    def valor_total(self):
+    def valor_total(self) -> float:
         return self.__valor_total
 
     @property
-    def servicos_quarto(self):
-        return self.__servicos_quarto
+    def servicos_quarto(self) -> List[ServicoDeQuarto]:
+        return self.__servicos_quarto.copy()
 
     @property
-    def pets(self):
-        return self.__pets
+    def pets(self) -> List[Pet]:
+        return self.__pets.copy()
 
-    def adicionar_servico_quarto(self, servico: ServicoDeQuarto):
+    def adicionar_servico_quarto(self, servico: ServicoDeQuarto) -> None:
         self.__servicos_quarto.append(servico)
 
-    def adicionar_pet(self, pet: Pet):
+    def adicionar_pet(self, pet: Pet) -> None:
         self.__pets.append(pet)
         for quarto in self.__quartos:
             quarto.adicionar_pet(pet)
 
-    def reservar_quartos(self):
+    def reservar_quartos(self) -> None:
         for quarto in self.__quartos:
             quarto.reservar_quarto()
 
-    def liberar_quartos(self):
+    def liberar_quartos(self) -> None:
         for quarto in self.__quartos:
             quarto.liberar_quarto()
 
-    def editar_reserva(self, nova_data_checkin: str = None, nova_data_checkout: str = None, novo_quarto: List[Quarto] = None):
+    def editar_reserva(
+        self,
+        nova_data_checkin: Optional[str] = None,
+        nova_data_checkout: Optional[str] = None,
+        novo_quarto: Optional[List[Quarto]] = None
+    ) -> None:
         if nova_data_checkin:
             self.__data_checkin = nova_data_checkin
         if nova_data_checkout:
@@ -86,7 +91,7 @@ class Reserva:
             self.__quartos = novo_quarto
             self.reservar_quartos()
 
-    def calcular_valor_total(self):
+    def calcular_valor_total(self) -> None:
         dias = self.__calcular_dias()
         total = 0.0
         for quarto in self.__quartos:

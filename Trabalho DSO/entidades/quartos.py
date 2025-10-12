@@ -20,7 +20,7 @@ class Suite(Quarto):
 
     @property
     def pets(self) -> List[Pet]:
-        return self.__pets
+        return self.__pets.copy()
 
     def adicionar_pet(self, pet: Pet) -> bool:
         total_pets = sum(p.quant_pet for p in self.__pets)
@@ -32,16 +32,13 @@ class Suite(Quarto):
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.capacidade_pessoas:
             return False
-
-        adultos = sum(1 for h in hospedes if h.is_adulto())
-        criancas = sum(1 for h in hospedes if h.is_crianca())
-
+        adultos = sum(h.is_adulto() for h in hospedes)
+        criancas = sum(h.is_crianca() for h in hospedes)
         if adultos > 2 or criancas > 2:
             return False
-
         self._Quarto__hospedes = hospedes
         return True
- 
+
 
 class Duplo(Quarto):
     def __init__(self, numero: int, valor_diaria: float, disponibilidade: bool):
@@ -51,7 +48,7 @@ class Duplo(Quarto):
 
     @property
     def pets(self) -> List[Pet]:
-        return self.__pets
+        return self.__pets.copy()
 
     def adicionar_pet(self, pet: Pet) -> bool:
         if pet.especie.lower() not in ["cachorro", "gato"]:
@@ -64,8 +61,8 @@ class Duplo(Quarto):
     def alocar_hospedes(self, hospedes: List[Hospede]) -> bool:
         if len(hospedes) > self.capacidade_pessoas:
             return False
-        adultos = sum(1 for h in hospedes if h.is_adulto())
-        criancas = sum(1 for h in hospedes if h.is_crianca())
+        adultos = sum(h.is_adulto() for h in hospedes)
+        criancas = sum(h.is_crianca() for h in hospedes)
         if adultos == 2 or (adultos == 1 and criancas == 1):
             self._Quarto__hospedes = hospedes
             return True

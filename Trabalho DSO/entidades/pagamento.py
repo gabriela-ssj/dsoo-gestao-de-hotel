@@ -9,11 +9,11 @@ class Pagamento:
         self.__valor_pago = 0.0
 
     @property
-    def reserva(self):
+    def reserva(self) -> Reserva:
         return self.__reserva
 
     @property
-    def metodo_pagamento(self):
+    def metodo_pagamento(self) -> str:
         return self.__metodo_pagamento
 
     @metodo_pagamento.setter
@@ -21,31 +21,31 @@ class Pagamento:
         self.__metodo_pagamento = metodo
 
     @property
-    def status(self):
+    def status(self) -> str:
         return self.__status
 
     @property
-    def valor_calculado(self):
+    def valor_calculado(self) -> float:
         return self.__valor_calculado
 
     @property
-    def valor_pago(self):
+    def valor_pago(self) -> float:
         return self.__valor_pago
 
-    def pagar(self, valor: float):
+    def pagar(self, valor: float) -> None:
         if valor <= 0:
             raise ValueError("O valor do pagamento deve ser positivo.")
         self.__valor_pago += valor
         self.__validar_pagamento()
 
-    def cancelar_pagamento(self):
+    def cancelar_pagamento(self) -> None:
         if self.__status != "confirmado":
             raise ValueError("Não é possível cancelar um pagamento que ainda está pendente.")
         self.__valor_pago = 0.0
         self.__status = "cancelado"
         self.__reserva.status = "cancelada"
 
-    def __validar_pagamento(self):
+    def __validar_pagamento(self) -> None:
         if self.__valor_pago >= self.__valor_calculado:
             self.__status = "confirmado"
             self.__reserva.status = "paga"
@@ -70,8 +70,8 @@ class Pagamento:
         return {
             "quartos": [q.numero for q in self.__reserva.quartos],
             "metodo": self.__metodo_pagamento,
-            "valor_calculado": self.__valor_calculado,
-            "valor_pago": self.__valor_pago,
+            "valor_calculado": round(self.__valor_calculado, 2),
+            "valor_pago": round(self.__valor_pago, 2),
             "status": self.__status,
             "pets": [str(pet) for pet in self.__reserva.pets]
         }
