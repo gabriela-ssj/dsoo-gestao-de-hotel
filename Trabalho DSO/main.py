@@ -48,9 +48,21 @@ def teste_automatico():
 
     # Criar reservas automáticas
     print("📅 Criando reservas de teste...")
-    r1 = Reserva([h1], [q1], datetime.now(), datetime.now() + timedelta(days=2))
-    r2 = Reserva([h2], [q1, q2], datetime.now(), datetime.now() + timedelta(days=1))
+    r1 = Reserva(
+    [h1],
+    [q1],
+    datetime.now().strftime("%d/%m/%Y"),
+    (datetime.now() + timedelta(days=2)).strftime("%d/%m/%Y")
+)
+    r2 = Reserva(
+    [h2],
+    [q1, q2],
+    datetime.now().strftime("%d/%m/%Y"),
+    (datetime.now() + timedelta(days=1)).strftime("%d/%m/%Y")
+)
+
     ctrl_reserva._ControladorReserva__reservas.extend([r1, r2])
+
 
     # Gerar relatório de quartos mais reservados
     print("\n📊 Gerando relatório de quartos mais reservados...\n")
