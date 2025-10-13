@@ -116,11 +116,6 @@ class ControladorHospede:
             self.__tela.mostra_mensagem("⚠️ Hóspede não encontrado para exclusão.")
 
     def busca_hospede(self, cpf: str = None) -> Optional[Hospede]:
-        """
-        Busca um hóspede pelo CPF.
-        Se nenhum CPF for fornecido, solicita um à tela e continua pedindo até encontrar ou o usuário cancelar.
-        Retorna o objeto Hospede se encontrado, caso contrário, retorna None.
-        """
         hospede_encontrado = None
         cpf_para_buscar = cpf
 

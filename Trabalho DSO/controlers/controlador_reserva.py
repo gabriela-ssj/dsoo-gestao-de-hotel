@@ -48,8 +48,7 @@ class ControladorReserva:
         if not dados_reserva:
             self.__tela.mostra_mensagem("Criação de reserva cancelada.")
             return
-
-        # 1. Buscar Hóspedes
+            
         hospedes_encontrados = []
         for cpf in dados_reserva["cpfs_hospedes"]:
             hospede = self.__controlador_hospede.busca_hospede(cpf)
