@@ -22,7 +22,7 @@ class TelaReserva(TelaAbstrata):
         data_checkout = self.le_string("Data de Check-out (dd/mm/yyyy): ")
 
         cpfs_hospedes_str = self.le_string("CPFs dos hóspedes (separados por vírgula): ")
-        numeros_quartos_str = self.le_string("Números dos quartos (separados por vírgula, ex: S101,D203): ")
+        numeros_quartos_str = self.le_string("Números dos quartos (separados por vírgula, ex: 101,102,..): ")
 
         return {
             "data_checkin": data_checkin,
