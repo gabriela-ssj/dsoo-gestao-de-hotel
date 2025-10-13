@@ -33,8 +33,8 @@ def teste_automatico():
 
     # Cadastrar hóspedes
     print("🏨 Cadastrando hóspedes...")
-    h1 = Hospede("Gabriela", "123", "99999", 28, "gabi@email.com")
-    h2 = Hospede("Marcos", "124", "88888", 32, "marcos@email.com")
+    h1 = Hospede(cpf="123", nome="Gabriela", idade=28, telefone="99999", email="gabi@email.com")
+    h2 = Hospede(cpf="124", nome="Marcos", idade=32, telefone="88888", email="marcos@email.com")
     ctrl_hospede.cadastrar_hospede(h1)
     ctrl_hospede.cadastrar_hospede(h2)
 
