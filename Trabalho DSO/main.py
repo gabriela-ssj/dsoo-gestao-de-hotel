@@ -40,9 +40,10 @@ def teste_automatico():
 
     # Cadastrar quartos
     print("🛏️  Cadastrando quartos...")
-    q1 = Simples(101, 100.0, True)
-    q2 = Duplo(102, 180.0, True)
-    q3 = Suite(201, 300.0, True, True)
+    q1 = Simples(101, True)
+    q2 = Duplo(102, True)
+    q3 = Suite(201, True)
+
     ctrl_quarto._ControladorQuarto__quartos.extend([q1, q2, q3])
 
     # Criar reservas automáticas
