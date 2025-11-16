@@ -1,3 +1,4 @@
+
 from entidades.cargo import Cargo
 from telas.tela_cargo import TelaCargo
 from typing import List, Optional
@@ -89,8 +90,6 @@ class ControladorCargo:
         """
         if not isinstance(tipo_cargo, str) or not tipo_cargo.strip():
             raise ValidacaoException("Tipo de cargo deve ser uma string não vazia.")
-        if not isinstance(salario, (int, float)) or salario <= 0:
-            raise ValidacaoException("Salário deve ser um número positivo.")
 
         if self.buscar_cargo(tipo_cargo):
             raise ValidacaoException(f"Cargo '{tipo_cargo.capitalize()}' já existe.")
@@ -99,7 +98,7 @@ class ControladorCargo:
             novo_cargo = Cargo(tipo_cargo=tipo_cargo, salario_base=salario)
             self.__cargos.append(novo_cargo)
             return novo_cargo
-        except ValidacaoException as e:
+        except ValueError as e:
             raise ValidacaoException(f"Erro de validação na entidade Cargo: {e}") from e
         except Exception as e:
             raise ValidacaoException(f"Erro inesperado ao criar cargo internamente: {e}") from e
@@ -109,7 +108,8 @@ class ControladorCargo:
         Retorna o salário base padrão para um determinado tipo de cargo.
         Se não encontrar, retorna um valor padrão (ex: 2000.0).
         """
-        salario = Cargo._salarios_por_cargo_map.get(tipo_cargo.lower(), 2000.0)
+        salario = Cargo._salarios_por_cargo.get(tipo_cargo.lower(), 2000.0)
+        
         if salario <= 0:
             return 2000.0
         return salario
@@ -143,10 +143,16 @@ class ControladorCargo:
                 if novo_nome.lower() != cargo_encontrado.tipo_cargo.lower():
                     if self.buscar_cargo(novo_nome):
                         raise ValidacaoException(f"Já existe um cargo com o nome '{novo_nome.capitalize()}'.")
+                    
+                    cargo_encontrado.tipo_cargo = novo_nome 
 
-                cargo_encontrado.tipo_cargo = novo_nome 
-                cargo_encontrado.salario_base = novo_salario 
-                self.__tela.mostra_mensagem(f"Cargo alterado para '{novo_nome.capitalize()}'.")
+                if cargo_encontrado.salario_base != novo_salario:
+                     cargo_encontrado.salario_base = novo_salario
+                
+                self.__tela.mostra_mensagem(f"Cargo alterado para '{cargo_encontrado.tipo_cargo.capitalize()}' (Salário: R${cargo_encontrado.salario_base:.2f}).")
+
+            except ValueError as e:
+                self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
             except ValidacaoException as e:
                 self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
             except Exception as e:
@@ -199,7 +205,7 @@ class ControladorCargo:
             ("camareira", 2200.0),
             ("cozinheira", 2300.0),
             ("limpeza", 2000.0),
-            ("servicosgerais", 2100.0),
+            ("serviços gerais", 2100.0),
         ]
         for nome, salario in cargos_iniciais:
             self._adicionar_cargo_diretamente(nome, salario)
