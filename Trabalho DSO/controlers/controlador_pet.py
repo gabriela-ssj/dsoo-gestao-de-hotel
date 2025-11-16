@@ -24,7 +24,7 @@ class ControladorPet:
         pet = Pet(**dados_pet)
         hospede.adicionar_pet(pet)
         self.__pets.append(pet)
-        self.__tela.mostra_mensagem(f"✅ Pet '{pet.nome_pet}' cadastrado para o hóspede '{hospede.nome}'.")
+        self.__tela.mostra_mensagem(f"Pet '{pet.nome_pet}' cadastrado para o hóspede '{hospede.nome}'.")
 
     def listar_pets(self):
         if not self.__pets:
@@ -47,9 +47,9 @@ class ControladorPet:
             hospede.remover_pet(pet_encontrado)
             if pet_encontrado in self.__pets:
                 self.__pets.remove(pet_encontrado)
-            self.__tela.mostra_mensagem(f"✅ Pet '{nome_pet}' removido do hóspede '{hospede.nome}'.")
+            self.__tela.mostra_mensagem(f"Pet '{nome_pet}' removido do hóspede '{hospede.nome}'.")
         else:
-            self.__tela.mostra_mensagem(f"⚠️ Pet '{nome_pet}' não encontrado para este hóspede.")
+            self.__tela.mostra_mensagem(f"Pet '{nome_pet}' não encontrado para este hóspede.")
 
     def alterar_pet(self):
         cpf_hospede, nome_pet = self.__tela.seleciona_pet()
@@ -64,9 +64,9 @@ class ControladorPet:
             novos_dados = self.__tela.pega_dados_pet()
             pet_encontrado.nome_pet = novos_dados["nome_pet"]
             pet_encontrado.especie = novos_dados["especie"]
-            self.__tela.mostra_mensagem(f"✅ Pet '{nome_pet}' alterado com sucesso.")
+            self.__tela.mostra_mensagem(f"Pet '{nome_pet}' alterado com sucesso.")
         else:
-            self.__tela.mostra_mensagem(f"⚠️ Pet '{nome_pet}' não encontrado para este hóspede.")
+            self.__tela.mostra_mensagem(f"Pet '{nome_pet}' não encontrado para este hóspede.")
 
     def abre_tela(self):
         opcoes = {
@@ -84,8 +84,7 @@ class ControladorPet:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
-

@@ -76,12 +76,8 @@ class Pagamento:
         return False
 
     def gerar_comprovante(self) -> dict:
-        self.reserva.calcular_valor_total()  # Garante que a reserva tem o valor total atualizado
+        self.reserva.calcular_valor_total()
 
-        # Ajuste para garantir que o valor total da reserva é o valor atual
-        # Isso pode variar se serviços/pets forem adicionados após o pagamento inicial
-        # Recomenda-se que o valor_total_reserva do Pagamento seja o valor da reserva *no momento do pagamento*
-        # Para um comprovante, pode ser útil mostrar o valor *atual* da reserva e quanto foi pago.
         valor_atual_reserva = self.reserva.valor_total
 
         return {

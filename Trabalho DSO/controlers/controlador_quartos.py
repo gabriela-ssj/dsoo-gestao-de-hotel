@@ -32,7 +32,7 @@ class ControladorQuarto:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
@@ -41,7 +41,7 @@ class ControladorQuarto:
         for quarto in self.__quartos:
             if quarto.numero == numero:
                 return quarto
-            return None    
+        return None 
 
     def cadastrar_quarto(self):
         dados = self.__tela.pega_dados_quarto()
@@ -49,17 +49,17 @@ class ControladorQuarto:
             return
         
         if self.buscar_quarto(dados["numero"]):
-            self.__tela.mostra_mensagem("⚠️ Quarto já cadastrado.")
+            self.__tela.mostra_mensagem("Quarto já cadastrado.")
             return
         
         tipo = dados["tipo"]
         ClasseQuarto = self.__mapa_tipos.get(tipo)
         if not ClasseQuarto:
-            self.__tela.mostra_mensagem("⚠️ Tipo de quarto inválido.")
+            self.__tela.mostra_mensagem("Tipo de quarto inválido.")
             return
         
         valor_diaria = self.__valores_diaria.get(tipo)
-        self.__tela.mostra_mensagem(f"ℹ️ Valor da diária para tipo '{tipo}': R$ {valor_diaria:.2f}")
+        self.__tela.mostra_mensagem(f"Valor da diária para tipo '{tipo}': R$ {valor_diaria:.2f}")
         
         try:
             if tipo == "suite":
@@ -68,7 +68,7 @@ class ControladorQuarto:
                 quarto = ClasseQuarto(dados["numero"], dados["disponibilidade"])
 
             self.__quartos.append(quarto)
-            self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} cadastrado com sucesso.")
+            self.__tela.mostra_mensagem(f"Quarto {quarto.numero} cadastrado com sucesso.")
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
 
@@ -89,7 +89,7 @@ class ControladorQuarto:
         numero = self.__tela.seleciona_quarto()
         quarto = self.buscar_quarto(numero)
         if not quarto:
-            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
+            self.__tela.mostra_mensagem("Quarto não encontrado.")
             return
         
         novos_dados = self.__tela.pega_dados_quarto("alt")
@@ -97,7 +97,7 @@ class ControladorQuarto:
             quarto.disponibilidade = novos_dados["disponibilidade"]
             if isinstance(quarto, Suite):
                 quarto.hidro = novos_dados.get("hidro", False)
-            self.__tela.mostra_mensagem("✅ Quarto alterado com sucesso.")
+            self.__tela.mostra_mensagem("Quarto alterado com sucesso.")
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
 
@@ -106,6 +106,6 @@ class ControladorQuarto:
         quarto = self.buscar_quarto(numero)
         if quarto:
             self.__quartos.remove(quarto)
-            self.__tela.mostra_mensagem("✅ Quarto excluído.")
+            self.__tela.mostra_mensagem("Quarto excluído.")
         else:
-            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
+            self.__tela.mostra_mensagem("Quarto não encontrado.")

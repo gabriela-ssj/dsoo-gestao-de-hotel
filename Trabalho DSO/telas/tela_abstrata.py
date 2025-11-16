@@ -31,7 +31,7 @@ class TelaAbstrata(ABC):
             cpf = input(mensagem).strip()
             if cpf.isdigit() and len(cpf) == 11:
                 return cpf
-            print("⚠️ CPF inválido! Deve conter exatamente 11 números.")
+            print("CPF inválido! Deve conter exatamente 11 números.")
 
     def mostra_mensagem(self, mensagem: str):
         print(mensagem)

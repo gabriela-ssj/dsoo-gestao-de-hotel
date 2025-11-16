@@ -25,7 +25,7 @@ class ControladorPagamento:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando...")
@@ -43,13 +43,13 @@ class ControladorPagamento:
 
         reserva: Optional[Reserva] = self.__controlador_reserva._selecionar_reserva(reserva_id)
         if not reserva:
-            self.__tela.mostra_mensagem(f"⚠️ Reserva com ID {reserva_id} não encontrada.")
+            self.__tela.mostra_mensagem(f"Reserva com ID {reserva_id} não encontrada.")
             return
 
         pagamento_existente = self._buscar_pagamento_por_reserva(reserva_id)
 
         if pagamento_existente and pagamento_existente.status == "confirmado":
-            self.__tela.mostra_mensagem(f"✅ Pagamento para Reserva ID {reserva_id} já está confirmado.")
+            self.__tela.mostra_mensagem(f"Pagamento para Reserva ID {reserva_id} já está confirmado.")
             return
 
         if not pagamento_existente:
@@ -61,7 +61,7 @@ class ControladorPagamento:
                 novo_pagamento = Pagamento(reserva, metodo)
                 self.__pagamentos.append(novo_pagamento)
                 pagamento_existente = novo_pagamento
-                self.__tela.mostra_mensagem(f"✅ Novo registro de pagamento criado para Reserva ID {reserva_id}.")
+                self.__tela.mostra_mensagem(f"Novo registro de pagamento criado para Reserva ID {reserva_id}.")
             except (TypeError, ValueError) as e:
                 self.__tela.mostra_mensagem(f"Erro ao criar pagamento: {e}")
                 return
@@ -75,15 +75,15 @@ class ControladorPagamento:
             try:
                 pagamento_confirmado = pagamento_existente.pagar(valor_a_pagar)
                 self.__tela.mostra_mensagem(
-                    f"✅ Valor de R\$ {valor_a_pagar:.2f} recebido para Reserva ID {reserva_id}.")
+                    f"Valor de R\$ {valor_a_pagar:.2f} recebido para Reserva ID {reserva_id}.")
 
                 if pagamento_confirmado:
                     reserva.status = "paga"
                     self.__tela.mostra_mensagem(
-                        f"✅ Pagamento para Reserva ID {reserva_id} confirmado! Status da reserva atualizado para 'paga'.")
+                        f"Pagamento para Reserva ID {reserva_id} confirmado! Status da reserva atualizado para 'paga'.")
                 else:
                     self.__tela.mostra_mensagem(
-                        f"⚠️ Pagamento parcial para Reserva ID {reserva_id}. Restante a pagar: R\$ {max(0, pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago):.2f}")
+                        f"Pagamento parcial para Reserva ID {reserva_id}. Restante a pagar: R\$ {max(0, pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago):.2f}")
             except ValueError as e:
                 self.__tela.mostra_mensagem(f"Erro ao processar pagamento: {e}")
             except Exception as e:
@@ -99,12 +99,12 @@ class ControladorPagamento:
 
         pagamento_alvo = self._buscar_pagamento_por_reserva(reserva_id)
         if not pagamento_alvo:
-            self.__tela.mostra_mensagem(f"⚠️ Nenhum registro de pagamento encontrado para Reserva ID {reserva_id}.")
+            self.__tela.mostra_mensagem(f"Nenhum registro de pagamento encontrado para Reserva ID {reserva_id}.")
             return
 
         if pagamento_alvo.status == "confirmado":
             self.__tela.mostra_mensagem(
-                "⚠️ Não é possível alterar o método de pagamento de um pagamento já confirmado.")
+                "Não é possível alterar o método de pagamento de um pagamento já confirmado.")
             return
 
         novo_metodo = self.__tela.pega_metodo_pagamento()
@@ -115,7 +115,7 @@ class ControladorPagamento:
         try:
             pagamento_alvo.metodo_pagamento = novo_metodo
             self.__tela.mostra_mensagem(
-                f"✅ Método de pagamento da Reserva ID {reserva_id} alterado para '{novo_metodo}'.")
+                f"Método de pagamento da Reserva ID {reserva_id} alterado para '{novo_metodo}'.")
         except ValueError as e:
             self.__tela.mostra_mensagem(f"Erro ao alterar método de pagamento: {e}")
         except Exception as e:
@@ -128,7 +128,7 @@ class ControladorPagamento:
 
         pagamento_alvo = self._buscar_pagamento_por_reserva(reserva_id)
         if not pagamento_alvo:
-            self.__tela.mostra_mensagem(f"⚠️ Nenhum registro de pagamento encontrado para Reserva ID {reserva_id}.")
+            self.__tela.mostra_mensagem(f"Nenhum registro de pagamento encontrado para Reserva ID {reserva_id}.")
             return
 
         comprovante = pagamento_alvo.gerar_comprovante()

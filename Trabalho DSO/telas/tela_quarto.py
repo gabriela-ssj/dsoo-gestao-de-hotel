@@ -18,17 +18,16 @@ class TelaQuarto(TelaAbstrata):
         if modo != "alt":
             tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
             while tipo not in ["suite", "duplo", "simples"]:
-                self.mostra_mensagem("⚠️ Tipo inválido! Escolha entre 'suite', 'duplo' ou 'simples'.")
+                self.mostra_mensagem("Tipo inválido! Escolha entre 'suite', 'duplo' ou 'simples'.")
                 tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
 
-            # Informar valor fixo da diária
             valores_fixos = {
                 "suite": 300.0,
                 "duplo": 180.0,
                 "simples": 100.0
             }
             valor_diaria = valores_fixos[tipo]
-            self.mostra_mensagem(f"ℹ️ Valor da diária para '{tipo}': R$ {valor_diaria:.2f}")
+            self.mostra_mensagem(f"Valor da diária para '{tipo}': R$ {valor_diaria:.2f}")
 
         numero = self.le_num_inteiro("Número base do quarto (ex: 101): ")
         disponibilidade_str = self.le_string("Disponível? (sim/nao): ").lower()

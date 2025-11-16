@@ -1,39 +1,41 @@
-from entidades.pessoa import Pessoa
 from entidades.cargo import Cargo
+from entidades.pessoa import Pessoa
+from typing import Optional
 
 class Funcionario(Pessoa):
-    def __init__(self, nome: str, cpf: str, telefone: str, idade: int, email: str, cargo: Cargo):
-        super().__init__(nome=nome,cpf= cpf,telefone= telefone,idade= idade,email=email)
-        self._cargo = cargo
+    def __init__(self, cpf: str,nome: str, idade: int, telefone: str, email: str, cargo: Cargo, salario: float):
+        
+        super().__init__(cpf, nome, idade, telefone, email)
 
-    def _definir_salario_base(self, cargo):
-        return tabela[cargo]
+        if not isinstance(cargo, Cargo):
+            raise TypeError("Cargo deve ser um objeto da classe Cargo.")
+        if not isinstance(salario, (int, float)) or salario < 0:
+            raise ValueError("Salário deve ser um número positivo.")
+
+        self._cargo = cargo
+        self._salario = float(salario)
 
     @property
-    def cargo(self):
+    def cargo(self) -> Cargo:
         return self._cargo
 
     @cargo.setter
-    def cargo(self, cargo : Cargo):
+    def cargo(self, cargo: Cargo):
+        if not isinstance(cargo, Cargo):
+            raise TypeError("Cargo deve ser um objeto da classe Cargo.")
         self._cargo = cargo
 
     @property
-    def salario_base(self):
-        return self._salario_base
+    def salario(self) -> float:
+        return self._salario
 
-    def registrar_servico(self):
-        return f"{self.nome} registrou um serviço como {self.cargo}."
+    @salario.setter
+    def salario(self, valor: float):
+        if not isinstance(valor, (int, float)) or valor < 0:
+            raise ValueError("Salário deve ser um número positivo.")
+        self._salario = float(valor)
 
-    def exibir_dados(self):
-        return (
-            f"Nome: {self.nome}\n"
-            f"CPF: {self.cpf}\n"
-            f"Telefone: {self.telefone}\n"
-            f"Idade: {self.idade}\n"
-            f"Email: {self.email}\n"
-            f"Cargo: {self.cargo}\n"
-            f"Salário Base: R$ {self.salario_base:.2f}"
-        )
+    def __str__(self) -> str:
 
-    def exibir_dados(self):
-        pass 
+        return (f"{super().__str__()}, Cargo: {self.cargo.tipo_cargo.capitalize()}, "
+                f"Salário: R\${self.salario:.2f}")

@@ -1,4 +1,3 @@
-#from entidades.recursos_humanos import Rh
 from telas.tela_recursos_humanos import TelaRh
 
 from controlers.controlador_cargo import ControladorCargo

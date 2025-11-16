@@ -65,4 +65,4 @@ class ControladorHotel:
             if opcao in opcoes:
                 opcoes[opcao]()
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
