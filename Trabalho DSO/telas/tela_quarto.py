@@ -1,6 +1,7 @@
 from telas.tela_abstrata import TelaAbstrata
 
 class TelaQuarto(TelaAbstrata):
+
     def tela_opcoes(self) -> int:
         print("\n------ MENU QUARTOS ------")
         print("1 - Cadastrar Quarto")
@@ -10,47 +11,55 @@ class TelaQuarto(TelaAbstrata):
         print("0 - Retornar")
         return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4])
 
-    def pega_dados_quarto(self, modo: str = None) -> dict:
+
+    def pega_dados_quarto(self, modo: str = None, tipo_existente: str = None) -> dict:
         print("\n--- DADOS DO QUARTO ---")
-        tipo = None
-        valor_diaria = None
+        dados = {}
 
         if modo != "alt":
             tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
+
             while tipo not in ["suite", "duplo", "simples"]:
                 self.mostra_mensagem("⚠️ Tipo inválido! Escolha entre 'suite', 'duplo' ou 'simples'.")
                 tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
 
-            # Informar valor fixo da diária
-            valores_fixos = {
-                "suite": 300.0,
-                "duplo": 180.0,
-                "simples": 100.0
-            }
-            valor_diaria = valores_fixos[tipo]
-            self.mostra_mensagem(f"ℹ️ Valor da diária para '{tipo}': R$ {valor_diaria:.2f}")
+            dados["tipo"] = tipo
 
-        numero = self.le_num_inteiro("Número base do quarto (ex: 101): ")
-        disponibilidade_str = self.le_string("Disponível? (sim/nao): ").lower()
-        disponibilidade = disponibilidade_str == "sim"
+            if tipo == "suite":
+                hidro_str = self.le_string("Possui hidromassagem? (sim/nao): ").lower()
 
-        dados = {
-            "tipo": tipo,
-            "numero": numero,
-            "valor_diaria": valor_diaria,
-            "disponibilidade": disponibilidade
-        }
+                while hidro_str not in ["sim", "nao", "não"]:
+                    self.mostra_mensagem("⚠️ Entrada inválida! Digite apenas 'sim' ou 'nao'.")
+                    hidro_str = self.le_string("Possui hidromassagem? (sim/nao): ").lower()
 
-        if tipo == "suite":
-            hidro_str = self.le_string("Possui hidromassagem? (sim/nao): ").lower()
-            dados["hidro"] = hidro_str == "sim"
-        else:
-            dados["hidro"] = False
+                dados["hidro"] = (hidro_str == "sim")
+
+        dados["numero"] = self.le_num_inteiro("Número do quarto (ex: 101): ")
+
+        if modo == "alt":
+            disponibilidade_str = self.le_string("Disponível? (sim/nao): ").lower()
+
+            while disponibilidade_str not in ["sim", "nao", "não"]:
+                self.mostra_mensagem("⚠️ Entrada inválida! Digite apenas 'sim' ou 'nao'.")
+                disponibilidade_str = self.le_string("Disponível? (sim/nao): ").lower()
+
+            dados["disponibilidade"] = disponibilidade_str
+
+            if tipo_existente == "suite":
+                hidro_str = self.le_string("Possui hidromassagem? (sim/nao): ").lower()
+
+                while hidro_str not in ["sim", "nao", "não"]:
+                    self.mostra_mensagem("⚠️ Entrada inválida! Digite apenas 'sim' ou 'nao'.")
+                    hidro_str = self.le_string("Possui hidromassagem? (sim/nao): ").lower()
+
+                dados["hidro"] = hidro_str
 
         return dados
 
+
     def seleciona_quarto(self) -> int:
         return self.le_num_inteiro("Digite o número do quarto: ")
+
 
     def mostra_lista(self, lista: list):
         print("\n--- LISTA DE QUARTOS ---")
@@ -60,6 +69,7 @@ class TelaQuarto(TelaAbstrata):
             for item in lista:
                 print(item)
         print()
+
 
     def mostra_mensagem(self, msg: str):
         print(msg)
