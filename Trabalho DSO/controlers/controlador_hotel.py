@@ -9,6 +9,7 @@ from controlers.controlador_quartos import ControladorQuarto
 from controlers.controlador_reserva import ControladorReserva
 from controlers.controlador_pagamento import ControladorPagamento
 from controlers.controlador_recursos_humanos import ControladorRh
+from controlers.controlador_servico_de_quarto import ControladorServicoDeQuarto
 
 class ControladorHotel:
     def __init__(self, hotel: Hotel):
