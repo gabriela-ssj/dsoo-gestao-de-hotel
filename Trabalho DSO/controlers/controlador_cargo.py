@@ -1,3 +1,4 @@
+
 from entidades.cargo import Cargo
 from telas.tela_cargo import TelaCargo
 from typing import List, Optional
