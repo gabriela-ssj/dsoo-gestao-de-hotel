@@ -1,5 +1,5 @@
 from telas.tela_abstrata import TelaAbstrata
-import FreeSimpleGUI as sg
+import PySimpleGUI as sg
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
@@ -65,7 +65,6 @@ class TelaReserva(TelaAbstrata):
     hospedes_val = ", ".join(dados_atuais.get('hospedes_cpfs', []))
     quartos_val = ", ".join(map(str, dados_atuais.get('quartos_ids', [])))
     
-    # Tratamento para garantir que dados_atuais.get('checkin') é um objeto datetime/date antes de formatar
     checkin_date_obj = dados_atuais.get('checkin')
     checkin_val = checkin_date_obj.strftime('%d/%m/%Y') if isinstance(checkin_date_obj, (datetime, datetime.date)) else ''
     
@@ -138,7 +137,7 @@ class TelaReserva(TelaAbstrata):
           "checkin_data": checkin_data,
           "checkout_data": checkout_data,
       }
-    return None # Se Cancelar ou fechar a janela
+    return None 
 
   def mostra_reservas(self, dados_reservas: List[Dict[str, Any]]):
     string_todas_reservas = "------------ LISTA DE RESERVAS --------------\n\n"
@@ -146,9 +145,7 @@ class TelaReserva(TelaAbstrata):
         string_todas_reservas += "Nenhuma reserva cadastrada."
     else:
         for i, dado in enumerate(dados_reservas):
-            # CORREÇÃO: Acessar a lista 'hospedes' e extrair o 'nome' de cada dicionário de hóspede
             hospedes_nomes = ", ".join([hospede.get('nome', 'N/A') for hospede in dado.get('hospedes', [])])
-            # CORREÇÃO: Acessar a lista 'quartos' e extrair o 'numero' de cada dicionário de quarto
             quartos_str = ", ".join([str(quarto.get('numero', 'N/A')) for quarto in dado.get('quartos', [])])
 
             string_todas_reservas += f"Reserva ID: {dado.get('id', 'N/A')} | Hóspedes: {hospedes_nomes} | Quartos: {quartos_str} | " \
@@ -158,7 +155,6 @@ class TelaReserva(TelaAbstrata):
             if dado.get('servicos_quarto'):
                 string_todas_reservas += "  Serviços de Quarto:\n"
                 for servico in dado['servicos_quarto']:
-                    # CORREÇÃO: Usar as chaves corretas 'tipo_servico' e 'quarto_numero'
                     string_todas_reservas += f"    - Tipo: {servico.get('tipo_servico', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}, Quarto: {servico.get('quarto_numero', 'N/A')}, Funcionário: {servico.get('funcionario_nome', 'N/A')}\n"
             
             if dado.get('pets'):
@@ -250,7 +246,7 @@ class TelaReserva(TelaAbstrata):
           "num_quarto": num_quarto,
           "cpf_funcionario": cpf_funcionario
       }
-    return None # Se Cancelar ou fechar a janela
+    return None 
   
   def pega_dados_pet(self) -> Optional[Dict[str, Any]]:
           sg.ChangeLookAndFeel('DarkTeal4')
@@ -313,9 +309,7 @@ class TelaReserva(TelaAbstrata):
           string_relatorio += "Nenhuma reserva encontrada para este hóspede."
       else:
           for i, dado in enumerate(dados_reservas):
-              # CORREÇÃO: Acessar a lista 'hospedes' e extrair o 'nome' de cada dicionário de hóspede
               hospedes_nomes = ", ".join([hospede.get('nome', 'N/A') for hospede in dado.get('hospedes', [])])
-              # CORREÇÃO: Acessar a lista 'quartos' e extrair o 'numero' de cada dicionário de quarto
               quartos_str = ", ".join([str(quarto.get('numero', 'N/A')) for quarto in dado.get('quartos', [])])
               
               string_relatorio += f"--- Reserva ID: {dado.get('id', 'N/A')} ---\n"
@@ -328,7 +322,6 @@ class TelaReserva(TelaAbstrata):
               if dado.get('servicos_quarto'):
                   string_relatorio += "    Serviços de Quarto:\n"
                   for servico in dado['servicos_quarto']:
-                      # CORREÇÃO: Usar as chaves corretas 'tipo_servico' e 'quarto_numero'
                       string_relatorio += f"      - Tipo: {servico.get('tipo_servico', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}, Quarto: {servico.get('quarto_numero', 'N/A')}\n"
               string_relatorio += "--------------------------------------\n"
       sg.Popup('Relatório por Hóspede', string_relatorio, font=("Helvica", 12))
@@ -356,7 +349,6 @@ class TelaReserva(TelaAbstrata):
           string_relatorio += "Nenhum serviço deste tipo encontrado."
       else:
           for i, servico in enumerate(dados_servicos):
-              # Essas chaves estão corretas, pois o ControladorReserva constrói o dicionário para este relatório
               string_relatorio += f"--- Serviço {i+1} ---\n"
               string_relatorio += f"  Reserva ID: {servico.get('reserva_id', 'N/A')}\n"
               string_relatorio += f"  Tipo: {servico.get('tipo', 'N/A')}\n"

@@ -1,7 +1,7 @@
 from telas.tela_abstrata import TelaAbstrata
-import FreeSimpleGUI as sg
+import PySimpleGUI as sg
 from typing import Optional, List, Dict, Any
-import re # Necessário para a validação de e-mail com regex
+import re 
 
 class TelaFuncionario(TelaAbstrata):
   def __init__(self):
@@ -13,7 +13,6 @@ class TelaFuncionario(TelaAbstrata):
     
     opcao = 0
     if button == 'Confirmar':
-        # Mapeia os valores dos Radio Buttons para as opções
         if values.get('1'):
             opcao = 1
         elif values.get('2'):
@@ -24,7 +23,7 @@ class TelaFuncionario(TelaAbstrata):
             opcao = 4
         elif values.get('0'):
             opcao = 0
-    elif button in (None, 'Cancelar'): # Trata o clique no 'Cancelar' ou fechar a janela
+    elif button in (None, 'Cancelar'): 
         opcao = 0
     
     self.close()
@@ -60,7 +59,6 @@ class TelaFuncionario(TelaAbstrata):
     dados_atuais = dados_atuais or {}
     cpf_val = dados_atuais.get('cpf', '')
     nome_val = dados_atuais.get('nome', '')
-    # 'tipo_cargo' é o nome da chave na entidade, mas 'cargo_nome' é o que pode ter vindo do input/exibição
     cargo_nome_val = dados_atuais.get('tipo_cargo', dados_atuais.get('cargo_nome', '')) 
     salario_val = str(dados_atuais.get('salario', ''))
     idade_val = str(dados_atuais.get('idade', ''))
@@ -70,7 +68,6 @@ class TelaFuncionario(TelaAbstrata):
     layout = [
       [sg.Text(f'-------- DADOS FUNCIONÁRIO ({modo.upper()}) ----------', font=("Helvica", 25))],
       [sg.Text('Nome:', size=(15, 1)), sg.InputText(nome_val, key='nome')], 
-      # CPF pode não ser alterado no modo de alteração, se o seu controlador tiver essa lógica
       [sg.Text('CPF (11 dígitos):', size=(15, 1)), sg.InputText(cpf_val, key='cpf', disabled=(modo == "alteracao"))], 
       [sg.Text('Nome do Cargo:', size=(15, 1)), sg.InputText(cargo_nome_val, key='cargo_nome')],
       [sg.Text('Salário:', size=(15, 1)), sg.InputText(salario_val, key='salario')],
@@ -93,16 +90,14 @@ class TelaFuncionario(TelaAbstrata):
       telefone = values['telefone'].strip()
       email = values['email'].strip()
 
-      # --- VALIDAÇÕES COMBINADAS DA VERSÃO DE CONSOLE E GUI ---
 
       if not nome:
         self.mostra_mensagem("Nome é obrigatório!")
         return None
-      if not all(c.isalpha() or c.isspace() for c in nome): # Validação de nome da console
+      if not all(c.isalpha() or c.isspace() for c in nome): 
           self.mostra_mensagem("⚠️ O nome deve conter apenas letras.")
           return None
 
-      # A validação de CPF não mudará para "alteracao" se o campo estiver desabilitado
       if modo == "cadastro" or (modo == "alteracao" and not values['cpf_val'] == dados_atuais.get('cpf', '')): # Apenas valida se for cadastro ou se o CPF foi alterado
         if not cpf or not cpf.isdigit() or len(cpf) != 11:
           self.mostra_mensagem("CPF inválido! Deve conter 11 dígitos numéricos.")
@@ -112,12 +107,10 @@ class TelaFuncionario(TelaAbstrata):
         self.mostra_mensagem("Nome do Cargo é obrigatório!")
         return None
       
-      # Validação de telefone (melhorada com o da console)
       if not telefone.isdigit() or not (8 <= len(telefone) <= 15):
         self.mostra_mensagem("Telefone inválido! Use apenas números (8 a 15 dígitos).")
         return None
       
-      # Validação de e-mail com regex (da console)
       padrao_email = r"^[\w\.-]+@[\w\.-]+\.\w+$"
       if not re.match(padrao_email, email):
         self.mostra_mensagem("E-mail inválido! Exemplo válido: nome@dominio.com")
@@ -133,7 +126,6 @@ class TelaFuncionario(TelaAbstrata):
       
       try:
         idade = int(idade_str)
-        # Validação de idade (melhorada com o da console)
         if idade < 16 or idade > 120:
             self.mostra_mensagem("Idade inválida! Digite um número inteiro entre 16 e 120.")
             return None
@@ -144,7 +136,7 @@ class TelaFuncionario(TelaAbstrata):
       return {
           "nome": nome,
           "cpf": cpf,
-          "tipo_cargo": cargo_nome, # Retorna como 'tipo_cargo' para consistência com o modelo
+          "tipo_cargo": cargo_nome, 
           "salario": salario,
           "idade": idade,
           "telefone": telefone,
