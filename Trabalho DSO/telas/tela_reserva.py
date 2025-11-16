@@ -1,5 +1,5 @@
 from telas.tela_abstrata import TelaAbstrata
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
