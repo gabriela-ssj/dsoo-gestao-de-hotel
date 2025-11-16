@@ -60,7 +60,6 @@ class TelaQuarto(TelaAbstrata):
     def seleciona_quarto(self) -> int:
         return self.le_num_inteiro("Digite o número do quarto: ")
 
-
     def mostra_lista(self, lista: list):
         print("\n--- LISTA DE QUARTOS ---")
         if not lista:
@@ -69,7 +68,6 @@ class TelaQuarto(TelaAbstrata):
             for item in lista:
                 print(item)
         print()
-
 
     def mostra_mensagem(self, msg: str):
         print(msg)
