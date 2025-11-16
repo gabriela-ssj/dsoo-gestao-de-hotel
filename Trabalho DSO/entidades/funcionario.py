@@ -3,11 +3,9 @@ from entidades.pessoa import Pessoa
 from typing import Optional
 
 class Funcionario(Pessoa):
-    def __init__(self, cpf: str,nome: str, idade: int, telefone: str, email: str, cargo: Cargo, salario: float):
-        
+    def __init__(self, cpf: str, nome: str, idade: int, telefone: str, email: str, cargo: Cargo, salario: float): # <<< AQUI!
         super().__init__(cpf, nome, idade, telefone, email)
-
-        if not isinstance(cargo, Cargo):
+        if not isinstance(cargo, Cargo): # OU isinstance(cargo, ICargo)
             raise TypeError("Cargo deve ser um objeto da classe Cargo.")
         if not isinstance(salario, (int, float)) or salario < 0:
             raise ValueError("Salário deve ser um número positivo.")
