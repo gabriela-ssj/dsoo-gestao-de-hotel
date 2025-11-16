@@ -1,5 +1,3 @@
-# telas/tela_reserva.py
-
 from telas.tela_abstrata import TelaAbstrata
 import FreeSimpleGUI as sg
 from typing import Optional, List, Dict, Any
@@ -66,8 +64,13 @@ class TelaReserva(TelaAbstrata):
     dados_atuais = dados_atuais or {}
     hospedes_val = ", ".join(dados_atuais.get('hospedes_cpfs', []))
     quartos_val = ", ".join(map(str, dados_atuais.get('quartos_ids', [])))
-    checkin_val = dados_atuais.get('checkin', '').strftime('%d/%m/%Y') if isinstance(dados_atuais.get('checkin'), datetime) else dados_atuais.get('checkin', '')
-    checkout_val = dados_atuais.get('checkout', '').strftime('%d/%m/%Y') if isinstance(dados_atuais.get('checkout'), datetime) else dados_atuais.get('checkout', '')
+    
+    # Tratamento para garantir que dados_atuais.get('checkin') é um objeto datetime/date antes de formatar
+    checkin_date_obj = dados_atuais.get('checkin')
+    checkin_val = checkin_date_obj.strftime('%d/%m/%Y') if isinstance(checkin_date_obj, (datetime, datetime.date)) else ''
+    
+    checkout_date_obj = dados_atuais.get('checkout')
+    checkout_val = checkout_date_obj.strftime('%d/%m/%Y') if isinstance(checkout_date_obj, (datetime, datetime.date)) else ''
 
     layout = [
       [sg.Text(f'-------- DADOS DA RESERVA ({modo.upper()}) ----------', font=("Helvica", 25))],
@@ -143,15 +146,20 @@ class TelaReserva(TelaAbstrata):
         string_todas_reservas += "Nenhuma reserva cadastrada."
     else:
         for i, dado in enumerate(dados_reservas):
+            # CORREÇÃO: Acessar a lista 'hospedes' e extrair o 'nome' de cada dicionário de hóspede
             hospedes_nomes = ", ".join([hospede.get('nome', 'N/A') for hospede in dado.get('hospedes', [])])
+            # CORREÇÃO: Acessar a lista 'quartos' e extrair o 'numero' de cada dicionário de quarto
             quartos_str = ", ".join([str(quarto.get('numero', 'N/A')) for quarto in dado.get('quartos', [])])
 
-            string_todas_reservas += f"Reserva ID: {dado.get('id', 'N/A')} | Hóspedes: {hospedes_nomes} | Quartos: {quartos_str} | " f"Check-in: {dado.get('checkin', 'N/A')} | Check-out: {dado.get('checkout', 'N/A')} | " f"Status: {dado.get('status', 'N/A')} | Valor Total: R$ {dado.get('valor_total', 0.0):.2f}\n"
+            string_todas_reservas += f"Reserva ID: {dado.get('id', 'N/A')} | Hóspedes: {hospedes_nomes} | Quartos: {quartos_str} | " \
+                                   f"Check-in: {dado.get('checkin', 'N/A')} | Check-out: {dado.get('checkout', 'N/A')} | " \
+                                   f"Status: {dado.get('status', 'N/A')} | Valor Total: R$ {dado.get('valor_total', 0.0):.2f}\n"
 
             if dado.get('servicos_quarto'):
                 string_todas_reservas += "  Serviços de Quarto:\n"
                 for servico in dado['servicos_quarto']:
-                    string_todas_reservas += f"    - Tipo: {servico.get('tipo', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}, Quarto: {servico.get('num_quarto', 'N/A')}, Funcionário: {servico.get('funcionario_nome', 'N/A')}\n"
+                    # CORREÇÃO: Usar as chaves corretas 'tipo_servico' e 'quarto_numero'
+                    string_todas_reservas += f"    - Tipo: {servico.get('tipo_servico', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}, Quarto: {servico.get('quarto_numero', 'N/A')}, Funcionário: {servico.get('funcionario_nome', 'N/A')}\n"
             
             if dado.get('pets'):
                 string_todas_reservas += "  Pets:\n"
@@ -249,8 +257,7 @@ class TelaReserva(TelaAbstrata):
           layout = [
             [sg.Text('-------- ADICIONAR PET ----------', font=("Helvica", 20))],
             [sg.Text('Nome do Pet:', size=(20, 1)), sg.InputText('', key='nome_pet')],
-            # Mude o texto e a key para 'especie' aqui para consistência
-            [sg.Text('Espécie do Pet (Ex: Cachorro, Gato):', size=(20, 1)), sg.InputText('', key='especie')], # <-- MUDANÇA AQUI: 'key' agora é 'especie'
+            [sg.Text('Espécie do Pet (Ex: Cachorro, Gato):', size=(20, 1)), sg.InputText('', key='especie')], 
             [sg.Button('Confirmar'), sg.Button('Cancelar')]
           ]
           self.__window = sg.Window('Adicionar Pet').Layout(layout)
@@ -306,8 +313,11 @@ class TelaReserva(TelaAbstrata):
           string_relatorio += "Nenhuma reserva encontrada para este hóspede."
       else:
           for i, dado in enumerate(dados_reservas):
-              hospedes_nomes = ", ".join(dado.get('hospedes_nomes', []))
-              quartos_str = ", ".join(map(str, dado.get('quartos_ids', [])))
+              # CORREÇÃO: Acessar a lista 'hospedes' e extrair o 'nome' de cada dicionário de hóspede
+              hospedes_nomes = ", ".join([hospede.get('nome', 'N/A') for hospede in dado.get('hospedes', [])])
+              # CORREÇÃO: Acessar a lista 'quartos' e extrair o 'numero' de cada dicionário de quarto
+              quartos_str = ", ".join([str(quarto.get('numero', 'N/A')) for quarto in dado.get('quartos', [])])
+              
               string_relatorio += f"--- Reserva ID: {dado.get('id', 'N/A')} ---\n"
               string_relatorio += f"  Hóspedes: {hospedes_nomes}\n"
               string_relatorio += f"  Quartos: {quartos_str}\n"
@@ -318,7 +328,8 @@ class TelaReserva(TelaAbstrata):
               if dado.get('servicos_quarto'):
                   string_relatorio += "    Serviços de Quarto:\n"
                   for servico in dado['servicos_quarto']:
-                      string_relatorio += f"      - Tipo: {servico.get('tipo', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}\n"
+                      # CORREÇÃO: Usar as chaves corretas 'tipo_servico' e 'quarto_numero'
+                      string_relatorio += f"      - Tipo: {servico.get('tipo_servico', 'N/A')}, Valor: R$ {servico.get('valor', 0.0):.2f}, Quarto: {servico.get('quarto_numero', 'N/A')}\n"
               string_relatorio += "--------------------------------------\n"
       sg.Popup('Relatório por Hóspede', string_relatorio, font=("Helvica", 12))
 
@@ -345,6 +356,7 @@ class TelaReserva(TelaAbstrata):
           string_relatorio += "Nenhum serviço deste tipo encontrado."
       else:
           for i, servico in enumerate(dados_servicos):
+              # Essas chaves estão corretas, pois o ControladorReserva constrói o dicionário para este relatório
               string_relatorio += f"--- Serviço {i+1} ---\n"
               string_relatorio += f"  Reserva ID: {servico.get('reserva_id', 'N/A')}\n"
               string_relatorio += f"  Tipo: {servico.get('tipo', 'N/A')}\n"

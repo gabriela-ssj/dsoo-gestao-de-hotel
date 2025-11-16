@@ -1,4 +1,3 @@
-
 class ReservaException(Exception):
     """Erros de regra de negócio da reserva."""
 

@@ -35,7 +35,6 @@ class ControladorFuncionario:
         """Método para retornar ao menu anterior."""
         pass 
 
-
     def cadastrar_funcionario(self):
         try:
             dados = self.__tela.pega_dados_funcionario()
@@ -46,14 +45,36 @@ class ControladorFuncionario:
             ValidacaoException.validar_idade_valida(int(dados["idade"]))
             ValidacaoException.validar_email(dados["email"])
 
-            cargo = self.__controlador_cargo.buscar_cargo(dados["tipo_cargo"])
+            tipo_cargo_str = dados["tipo_cargo"]
+            cargo = self.__controlador_cargo.buscar_cargo(tipo_cargo_str)
+            
+
+            salario_funcionario: float = 0.0
+            if 'salario' in dados and dados['salario']:
+                salario_funcionario = float(dados['salario'])
+            
             if not cargo:
                 self.__tela.mostra_mensagem(
-                    f"⚠️ Cargo '{dados['tipo_cargo']}' não encontrado. Criando automaticamente..."
+                    f"Cargo '{tipo_cargo_str}' não encontrado. Criando automaticamente..."
                 )
+
+                salario_base_para_cargo_novo = Cargo._salarios_por_cargo_map.get(tipo_cargo_str.lower(), 2000.0)
+                if salario_base_para_cargo_novo <= 0:
+                    raise ValidacaoException(f"Não foi possível determinar um salário base válido para o cargo '{tipo_cargo_str}'.")
+
                 cargo = self.__controlador_cargo.criar_cargo(
-                    dados["tipo_cargo"], 0
+                    tipo_cargo_str, salario_base_para_cargo_novo
                 )
+
+                if not ('salario' in dados and dados['salario']):
+                    salario_funcionario = cargo.salario_base
+
+            else:
+
+                if not ('salario' in dados and dados['salario']):
+                    salario_funcionario = cargo.salario_base
+            
+            ValidacaoException.validar_salario_valido(salario_funcionario)
 
             funcionario = Funcionario(
                 nome=dados["nome"],
@@ -61,80 +82,16 @@ class ControladorFuncionario:
                 idade=int(dados["idade"]),
                 telefone=dados["telefone"],
                 email=dados["email"],
-                cargo=cargo
+                cargo=cargo,
+                salario=salario_funcionario
             )
 
             self.__funcionarios.append(funcionario)
-            self.__tela.mostra_mensagem(f"✅ Funcionário {funcionario.nome} cadastrado com sucesso!")
+            self.__tela.mostra_mensagem(f"Funcionário {funcionario.nome} cadastrado com sucesso!")
 
         except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro: {e}")
-
-    def listar_funcionarios(self):
-        try:
-            ValidacaoException.se_vazio(
-                self.__funcionarios,
-                "Nenhum funcionário cadastrado."
-            )
-
-            lista = [
-                f"- {f.nome} | {f.cargo._tipo_cargo.capitalize()} | CPF: {f.cpf}"
-                for f in self.__funcionarios
-            ]
-            self.__tela.mostra_lista(lista)
-
-        except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f"⚠️ {e}")
-
-    def excluir_funcionario(self):
-        cpf = self.__tela.seleciona_funcionario()
-        antes = len(self.__funcionarios)
-
-        self.__funcionarios = [
-            f for f in self.__funcionarios if f.cpf != cpf
-        ]
-
-        if len(self.__funcionarios) < antes:
-            self.__tela.mostra_mensagem(f"🗑️ Funcionário {cpf} excluído.")
-        else:
-            self.__tela.mostra_mensagem("⚠️ Funcionário não encontrado.")
-
-    def alterar_funcionario(self):
-        try:
-            funcionario = self.buscar_funcionario()
-            ValidacaoException.se_none(funcionario, "Funcionário não encontrado.")
-
-            novos = self.__tela.pega_dados_funcionario()
-
-            ValidacaoException.validar_idade_valida(int(novos["idade"]))
-            ValidacaoException.validar_email(novos["email"])
-
-            cargo = self.__controlador_cargo.buscar_cargo(novos["tipo_cargo"])
-            if not cargo:
-                self.__tela.mostra_mensagem(
-                    f"⚠️ Cargo '{novos['tipo_cargo']}' não encontrado. Criando automaticamente..."
-                )
-                cargo = self.__controlador_cargo.criar_cargo(novos["tipo_cargo"], 0)
-
-            funcionario.nome = novos["nome"]
-            funcionario.cpf = novos["cpf"]
-            funcionario.idade = int(novos["idade"])
-            funcionario.telefone = novos["telefone"]
-            funcionario.email = novos["email"]
-            funcionario.cargo = cargo
-
-            self.__tela.mostra_mensagem("✅ Funcionário alterado com sucesso!")
-
-        except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f"⚠️ {e}")
-
-
-    def buscar_funcionario(self, cpf: str = None):
-        if not cpf:
-            cpf = self.__tela.seleciona_funcionario()
-
-        for f in self.__funcionarios:
-            if f.cpf == cpf:
-                return f
-
-        return None
+            self.__tela.mostra_mensagem(f'Erro: {e}')
+        except ValueError as e:
+            self.__tela.mostra_mensagem(f'Erro de formato nos dados: {e}')
+        except Exception as e:
+            self.__tela.mostra_mensagem(f'Erro inesperado ao cadastrar funcionário: {e}')

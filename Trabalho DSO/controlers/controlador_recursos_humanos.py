@@ -35,4 +35,4 @@ class ControladorRh:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")

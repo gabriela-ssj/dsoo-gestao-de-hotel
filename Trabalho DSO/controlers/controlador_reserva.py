@@ -28,12 +28,12 @@ class ControladorReserva:
             1: self.fazer_reserva,
             2: self.listar_reservas,
             3: self.cancelar_reserva,
-            4: self.alterar_reserva,  # Renomeado para consistência
-            5: self.adicionar_servico_quarto_reserva, # Renomeado para consistência
-            6: self.adicionar_pet_reserva, # Renomeado para consistência
-            7: self.mostrar_valor_total_reserva, # Renomeado para consistência
-            8: self.gerar_relatorio_hospede, # Renomeado para consistência
-            9: self.gerar_relatorio_tipo_servico, # Renomeado para consistência
+            4: self.alterar_reserva,
+            5: self.adicionar_servico_quarto_reserva,
+            6: self.adicionar_pet_reserva,
+            7: self.mostrar_valor_total_reserva,
+            8: self.gerar_relatorio_hospede,
+            9: self.gerar_relatorio_tipo_servico,
             0: self.retornar
         }
 
@@ -48,11 +48,11 @@ class ControladorReserva:
                 else:
                     self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma opção válida.")
             except ReservaException as e:
-                self.__tela.mostra_mensagem(f"❌ Erro de reserva: {e}")
+                self.__tela.mostra_mensagem(f"Erro de reserva: {e}")
             except ValidacaoException as e:
-                self.__tela.mostra_mensagem(f"⚠️ Erro de validação: {e}")
+                self.__tela.mostra_mensagem(f"Erro de validação: {e}")
             except Exception as e:
-                self.__tela.mostra_mensagem(f"🔥 Erro inesperado: {e}")
+                self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
 
     def retornar(self):
         pass
@@ -63,8 +63,8 @@ class ControladorReserva:
             if not dados_reserva:
                 raise ValidacaoException("Criação de reserva cancelada pelo usuário.")
 
-            cpfs_hospedes = dados_reserva["hospedes_cpfs"] # Chave do TelaReserva
-            numeros_quartos = dados_reserva["quartos_ids"] # Chave do TelaReserva
+            cpfs_hospedes = dados_reserva["hospedes_cpfs"]
+            numeros_quartos = dados_reserva["quartos_ids"]
             checkin_data = dados_reserva["checkin_data"]
             checkout_data = dados_reserva["checkout_data"]
 
@@ -80,7 +80,7 @@ class ControladorReserva:
 
             quartos_selecionados: List[Quarto] = []
             for num_quarto in numeros_quartos:
-                quarto = self.__controlador_quarto.buscar_quarto(num_quarto) # O buscar_quarto deve retornar o objeto Quarto
+                quarto = self.__controlador_quarto.buscar_quarto(num_quarto)
                 if not quarto:
                     raise ReservaException(f"Quarto {num_quarto} não existe.")
 
@@ -88,12 +88,11 @@ class ControladorReserva:
                     raise ReservaException(f"Quarto {num_quarto} está indisponível.")
 
                 quartos_selecionados.append(quarto)
-            
-            # Verificar se os quartos já estão reservados para as datas
+
             for quarto in quartos_selecionados:
+
                 if not self.__controlador_quarto.verificar_disponibilidade_periodo(quarto, checkin_data, checkout_data):
                     raise ReservaException(f"Quarto {quarto.numero} não está disponível no período de {checkin_data.strftime('%d/%m/%Y')} a {checkout_data.strftime('%d/%m/%Y')}.")
-
 
             nova_reserva = Reserva(
                 hospedes=hospedes_encontrados,
@@ -101,21 +100,16 @@ class ControladorReserva:
                 data_checkin=checkin_data,
                 data_checkout=checkout_data
             )
-            
-            # O método reservar_quartos na classe Reserva deve gerenciar a lógica de ocupação
-            # e potencialmente retornar um status ou levantar uma exceção em caso de falha.
-            # Se ele não retorna um booleano como 'conflicto', a chamada pode ser direta.
-            nova_reserva.reservar_quartos() # Supondo que agora ele lida com conflitos ou levanta exceção internamente
+
+            nova_reserva.reservar_quartos()
 
             self.__reservas.append(nova_reserva)
             self.__tela.mostra_mensagem(f"✅ Reserva ID {nova_reserva.id} criada com sucesso!")
-            # Removi o mostra_mensagem do get_all_data aqui para evitar output duplo em tela
-            # A mostra_reservas fará isso mais tarde, se necessário.
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao fazer reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao fazer reserva: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao criar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao criar reserva: {e}")
 
     def selecionar_reserva(self) -> Optional[Reserva]:
         """
@@ -133,7 +127,7 @@ class ControladorReserva:
                     if reserva.id == reserva_id:
                         return reserva
                 raise ReservaException("Reserva não encontrada com o ID fornecido.")
-            except ValueError: # Se o identificador não é um número, tenta pelo nome
+            except ValueError:
                 reservas_encontradas = [
                     r for r in self.__reservas
                     if r.hospedes and identificador.lower() in r.hospedes[0].nome.lower()
@@ -147,10 +141,10 @@ class ControladorReserva:
                     raise ReservaException("Nenhuma reserva encontrada para o nome do hóspede fornecido.")
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao selecionar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao selecionar reserva: {e}")
             return None
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao buscar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao buscar reserva: {e}")
             return None
 
     def listar_reservas(self):
@@ -165,27 +159,27 @@ class ControladorReserva:
         try:
             reserva = self.selecionar_reserva()
             if not reserva:
-                return # A mensagem de erro já foi exibida pelo selecionar_reserva
+                return
 
             hospedes_nomes = ", ".join([h.nome for h in reserva.hospedes])
             if self.__tela.confirma_cancelamento(reserva.id, hospedes_nomes):
                 reserva.status = "cancelada"
-                reserva.liberar_quartos() # Libera os quartos associados
+                reserva.liberar_quartos()
                 self.__tela.mostra_mensagem(f"✅ Reserva ID {reserva.id} cancelada com sucesso!")
             else:
                 raise ValidacaoException("Cancelamento da reserva não confirmado pelo usuário.")
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao cancelar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao cancelar reserva: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao cancelar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao cancelar reserva: {e}")
 
 
     def alterar_reserva(self):
         try:
             reserva = self.selecionar_reserva()
             if not reserva:
-                return # A mensagem de erro já foi exibida pelo selecionar_reserva
+                return
             
             hospedes_nomes = ", ".join([h.nome for h in reserva.hospedes])
             if not self.__tela.confirma_edicao(reserva.id, hospedes_nomes):
@@ -221,10 +215,12 @@ class ControladorReserva:
                 if not quarto:
                     raise ReservaException(f"Quarto com número {num_quarto} não encontrado. Alteração não pode ser concluída.")
                 
-                # Verifica disponibilidade para o novo quarto, a menos que já faça parte da reserva atual
                 if not quarto.disponibilidade and quarto not in reserva.quartos:
                     raise ReservaException(f"Quarto {num_quarto} não está disponível. Alteração não pode ser concluída.")
                 
+                if not self.__controlador_quarto.verificar_disponibilidade_periodo(quarto, nova_checkin_data, nova_checkout_data, reserva_sendo_editada=reserva):
+                    raise ReservaException(f"Quarto {quarto.numero} não está disponível no período de {nova_checkin_data.strftime('%d/%m/%Y')} a {nova_checkout_data.strftime('%d/%m/%Y')}.")
+
                 novos_quartos_encontrados.append(quarto)
 
             reserva.editar_reserva(
@@ -234,19 +230,19 @@ class ControladorReserva:
                 novos_hospedes=novos_hospedes_encontrados
             )
 
-            self.__tela.mostra_mensagem(f"✅ Reserva ID {reserva.id} alterada com sucesso! Novo valor: R\$ {reserva.valor_total:.2f}")
+            self.__tela.mostra_mensagem(f"Reserva ID {reserva.id} alterada com sucesso! Novo valor: R\$ {reserva.valor_total:.2f}")
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao alterar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao alterar reserva: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao alterar reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao alterar reserva: {e}")
 
 
     def adicionar_servico_quarto_reserva(self):
         try:
             reserva = self.selecionar_reserva()
             if not reserva:
-                return # A mensagem de erro já foi exibida pelo selecionar_reserva
+                return
 
             dados_servico = self.__tela.pega_dados_servico_quarto()
             if not dados_servico:
@@ -275,18 +271,18 @@ class ControladorReserva:
             )
             reserva.adicionar_servico_quarto(novo_servico)
             
-            self.__tela.mostra_mensagem(f"✅ Serviço '{novo_servico.tipo_servico}' adicionado à Reserva ID {reserva.id}. Novo valor total: R\$ {reserva.valor_total:.2f}")
+            self.__tela.mostra_mensagem(f"Serviço '{novo_servico.tipo_servico}' adicionado à Reserva ID {reserva.id}. Novo valor total: R\$ {reserva.valor_total:.2f}")
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao adicionar serviço de quarto: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao adicionar serviço de quarto: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao adicionar serviço de quarto: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao adicionar serviço de quarto: {e}")
 
     def adicionar_pet_reserva(self):
         try:
             reserva = self.selecionar_reserva()
             if not reserva:
-                return # A mensagem de erro já foi exibida pelo selecionar_reserva
+                return
             
             dados_pet = self.__tela.pega_dados_pet()
             if not dados_pet:
@@ -295,26 +291,25 @@ class ControladorReserva:
             novo_pet = Pet(nome_pet=dados_pet["nome_pet"], especie=dados_pet["especie"])
             reserva.adicionar_pet(novo_pet) 
             
-            self.__tela.mostra_mensagem(f"✅ Pet '{novo_pet.nome_pet}' adicionado à Reserva ID {reserva.id}. Novo valor total: R\$ {reserva.valor_total:.2f}")
+            self.__tela.mostra_mensagem(f"Pet '{novo_pet.nome_pet}' adicionado à Reserva ID {reserva.id}. Novo valor total: R\$ {reserva.valor_total:.2f}")
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao adicionar pet: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao adicionar pet: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao adicionar pet: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao adicionar pet: {e}")
 
     def mostrar_valor_total_reserva(self):
         try:
             reserva = self.selecionar_reserva()
             if not reserva:
-                return # A mensagem de erro já foi exibida pelo selecionar_reserva
+                return 
 
-            # A propriedade valor_total da Reserva já chama calcular_valor_total internamente
             self.__tela.mostra_valor_total(reserva.id, reserva.valor_total)
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao mostrar valor total da reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao mostrar valor total da reserva: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao mostrar valor total da reserva: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao mostrar valor total da reserva: {e}")
 
     def gerar_relatorio_hospede(self):
         try:
@@ -339,9 +334,9 @@ class ControladorReserva:
             self.__tela.mostra_relatorio_hospede(cpf_hospede, reservas_do_hospede)
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao gerar relatório por hóspede: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao gerar relatório por hóspede: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao gerar relatório por hóspede: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao gerar relatório por hóspede: {e}")
 
     def gerar_relatorio_tipo_servico(self):
         try:
@@ -356,6 +351,7 @@ class ControladorReserva:
             for reserva in self.__reservas:
                 for servico in reserva.servicos_quarto:
                     if servico.tipo_servico.lower() == tipo_servico.lower():
+                        
                         servicos_do_tipo.append({
                             "reserva_id": reserva.id,
                             "tipo": servico.tipo_servico,
@@ -372,9 +368,9 @@ class ControladorReserva:
             self.__tela.mostra_relatorio_servico(tipo_servico, servicos_do_tipo)
 
         except (ValidacaoException, ReservaException) as e:
-            self.__tela.mostra_mensagem(f"⚠️ Erro ao gerar relatório por tipo de serviço: {e}")
+            self.__tela.mostra_mensagem(f"Erro ao gerar relatório por tipo de serviço: {e}")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"🔥 Erro inesperado ao gerar relatório por tipo de serviço: {e}")
+            self.__tela.mostra_mensagem(f"Erro inesperado ao gerar relatório por tipo de serviço: {e}")
 
     @property
     def reservas(self) -> List[Reserva]:
