@@ -36,7 +36,7 @@ class ControladorQuarto:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
@@ -45,6 +45,7 @@ class ControladorQuarto:
         for quarto in self.__quartos:
             if quarto.numero == numero:
                 return quarto
+        return None 
         return None
 
     def cadastrar_quarto(self):
@@ -54,15 +55,19 @@ class ControladorQuarto:
             return
 
         if self.buscar_quarto(dados["numero"]):
-            self.__tela.mostra_mensagem("⚠️ Quarto já cadastrado.")
+            self.__tela.mostra_mensagem("Quarto já cadastrado.")
             return
 
         tipo = dados["tipo"]
         ClasseQuarto = self.__mapa_tipos.get(tipo)
 
         if not ClasseQuarto:
-            self.__tela.mostra_mensagem("⚠️ Tipo de quarto inválido.")
+            self.__tela.mostra_mensagem("Tipo de quarto inválido.")
             return
+        
+        valor_diaria = self.__valores_diaria.get(tipo)
+        self.__tela.mostra_mensagem(f"Valor da diária para tipo '{tipo}': R$ {valor_diaria:.2f}")
+        
 
         valor_diaria = self.__valores_diaria[tipo]
         disponibilidade = True  
@@ -76,8 +81,7 @@ class ControladorQuarto:
                 quarto = ClasseQuarto(dados["numero"], disponibilidade)
 
             self.__quartos.append(quarto)
-            self.__tela.mostra_mensagem(f"✅ Quarto {quarto.numero} cadastrado com sucesso.")
-
+            self.__tela.mostra_mensagem(f"Quarto {quarto.numero} cadastrado com sucesso.")
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
 
@@ -107,7 +111,7 @@ class ControladorQuarto:
         quarto = self.buscar_quarto(numero)
 
         if not quarto:
-            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
+            self.__tela.mostra_mensagem("Quarto não encontrado.")
             return
 
         tipo_existente = type(quarto).__name__.lower()
@@ -137,6 +141,6 @@ class ControladorQuarto:
 
         if quarto:
             self.__quartos.remove(quarto)
-            self.__tela.mostra_mensagem("✅ Quarto excluído.")
+            self.__tela.mostra_mensagem("Quarto excluído.")
         else:
-            self.__tela.mostra_mensagem("⚠️ Quarto não encontrado.")
+            self.__tela.mostra_mensagem("Quarto não encontrado.")

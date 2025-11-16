@@ -20,7 +20,7 @@ class TelaQuarto(TelaAbstrata):
             tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
 
             while tipo not in ["suite", "duplo", "simples"]:
-                self.mostra_mensagem("⚠️ Tipo inválido! Escolha entre 'suite', 'duplo' ou 'simples'.")
+                self.mostra_mensagem("Tipo inválido! Escolha entre 'suite', 'duplo' ou 'simples'.")
                 tipo = self.le_string("Tipo do quarto (suite, duplo, simples): ").lower()
 
             dados["tipo"] = tipo

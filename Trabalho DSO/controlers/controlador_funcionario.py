@@ -1,4 +1,7 @@
 from entidades.funcionario import Funcionario
+from telas.tela_funcionario import TelaFuncionario 
+from controlers.controlador_cargo import ControladorCargo 
+from typing import List, Optional, Dict, Any
 from controlers.controlador_cargo import ControladorCargo
 from telas.tela_funcionario import TelaFuncionario
 from controlers.ValidacaoException import ValidacaoException
@@ -7,35 +10,30 @@ from controlers.ValidacaoException import ValidacaoException
 class ControladorFuncionario:
 
     def __init__(self, controlador_cargo: ControladorCargo):
-        self.__funcionarios = []
-        self.__controlador_cargo = controlador_cargo
         self.__tela = TelaFuncionario()
-
-    @property
-    def funcionarios(self):
-        return self.__funcionarios
+        self.__funcionarios: List[Funcionario] = []
+        self.__controlador_cargo = controlador_cargo 
 
 
     def abre_tela(self):
         opcoes = {
             1: self.cadastrar_funcionario,
             2: self.listar_funcionarios,
-            3: self.excluir_funcionario,
-            4: self.alterar_funcionario,
+            3: self.alterar_funcionario,
+            4: self.excluir_funcionario,
             0: self.retornar
         }
 
         while True:
-            opcao = self.__tela.tela_opcoes()
+            opcao = self.__tela.tela_opcoes() 
             if opcao in opcoes:
                 opcoes[opcao]()
                 if opcao == 0:
                     break
-            else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
 
     def retornar(self):
-        self.__tela.mostra_mensagem("Retornando...")
+        """Método para retornar ao menu anterior."""
+        pass 
 
 
     def cadastrar_funcionario(self):

@@ -69,7 +69,9 @@ class ControladorHospede:
         hospede = self.busca_hospede() 
         
         if hospede:
-            novos_dados = self.__tela.pega_dados_hospede(hospede_existente=hospede) 
+            if hospede is None:
+                print("Hospede não encontrado ou operação cancelada.")
+            novos_dados = self.__tela.pega_dados_hospede(hospede_existente=hospede)
             if not novos_dados:
                 self.__tela.mostra_mensagem("Operação de alteração cancelada.")
                 return
@@ -142,7 +144,6 @@ class ControladorHospede:
                     return None
 
         return hospede_encontrado
-
 
     def excluir_hospede(self, hospede: Hospede):
         if hospede:

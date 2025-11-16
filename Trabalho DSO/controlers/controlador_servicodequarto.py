@@ -22,7 +22,7 @@ class ControladorServicoDeQuarto:
                 if opcao == 0:
                     break
             else:
-                self.__tela.mostra_mensagem("⚠️ Opção inválida.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
@@ -33,12 +33,12 @@ class ControladorServicoDeQuarto:
         funcionario = self.__controlador_funcionario.buscar_funcionario_por_nome(dados["nome_funcionario"])
 
         if not quarto or not funcionario:
-            self.__tela.mostra_mensagem("⚠️ Quarto ou funcionário não encontrado.")
+            self.__tela.mostra_mensagem("Quarto ou funcionário não encontrado.")
             return
 
         servico = ServicoDeQuarto(quarto, funcionario, dados["tipo_servico"], dados["valor"])
         self.__servicos.append(servico)
-        self.__tela.mostra_mensagem(f"✅ Serviço '{servico.tipo_servico}' solicitado para o quarto {quarto.numero}.")
+        self.__tela.mostra_mensagem(f"Serviço '{servico.tipo_servico}' solicitado para o quarto {quarto.numero}.")
 
     def listar_servicos(self):
         if not self.__servicos:
@@ -54,12 +54,12 @@ class ControladorServicoDeQuarto:
         numero_quarto = self.__tela.seleciona_servico()
         servico = next((s for s in self.__servicos if s.quarto.numero == numero_quarto), None)
         if not servico:
-            self.__tela.mostra_mensagem("⚠️ Serviço não encontrado.")
+            self.__tela.mostra_mensagem("Serviço não encontrado.")
             return
 
         novo_status = self.__tela.seleciona_status()
         try:
             servico.status = novo_status
-            self.__tela.mostra_mensagem(f"✅ Status alterado para '{novo_status}'.")
+            self.__tela.mostra_mensagem(f"Status alterado para '{novo_status}'.")
         except ValueError as e:
             self.__tela.mostra_mensagem(str(e))

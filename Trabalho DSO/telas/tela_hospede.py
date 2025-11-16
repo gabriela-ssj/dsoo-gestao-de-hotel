@@ -11,7 +11,7 @@ class TelaHospede(TelaAbstrata):
         print("0 - Retornar")
         return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5])
 
-    def pega_dados_hospede(self):
+    def pega_dados_hospede(self, hospede_existente=None):
         print("\n--- DADOS DO HÓSPEDE ---")
         cpf = self.valida_cpf()
         nome = input("Nome: ")
@@ -20,7 +20,7 @@ class TelaHospede(TelaAbstrata):
             try:
                 idade = int(input("Idade: "))
             except ValueError:
-                self.mostra_mensagem("⚠️ Idade inválida!")
+                self.mostra_mensagem("Idade inválida!")
         telefone = input("Telefone: ")
         email = input("Email: ")
         return {"cpf": cpf, "nome": nome, "idade": idade, "telefone": telefone, "email": email}

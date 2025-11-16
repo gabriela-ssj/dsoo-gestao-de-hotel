@@ -22,7 +22,6 @@ class TelaPet(TelaAbstrata):
         nome_pet = self.le_string("Nome do pet: ")
         return cpf_hospede, nome_pet
 
-
     def mostra_lista(self, lista):
         print("\n--- LISTA DE PETS ---")
         for item in lista:
