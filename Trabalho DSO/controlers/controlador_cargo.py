@@ -1,5 +1,3 @@
-# controlers/controlador_cargo.py
-
 from entidades.cargo import Cargo
 from telas.tela_cargo import TelaCargo
 from typing import List, Optional
@@ -23,7 +21,7 @@ class ControladorCargo:
         }
         while True:
             opcao = self.__tela.tela_opcoes()
-            if opcao is None: # Se a tela não retornar nada, não processa.
+            if opcao is None:
                 continue 
             
             funcao_escolhida = opcoes.get(opcao)
@@ -74,17 +72,10 @@ class ControladorCargo:
             return
 
         nome_cargo = dados["nome"]
-        # O salário pego da tela é para ser usado se a classe Cargo puder ter salários personalizados.
-        # Com sua classe Cargo atual, este 'salario_da_tela' será ignorado para o Cargo em si.
-        # Se você quer que o salário da tela seja considerado, a classe Cargo precisaria de um __init__ diferente
-        # ou de um setter para salario_base que pudesse ser chamado após a criação do Cargo.
-        salario_da_tela = dados["salario"] 
+        salario = dados["salario"]
 
         try:
-            # Chama o método que adiciona o cargo.
-            # O 'salario_da_tela' é passado, mas o Cargo.__init__ vai ignorá-lo e usar seu padrão.
-            # Se você quer que 'salario_da_tela' seja o salário real, você precisará modificar a classe Cargo.
-            self.adicionar_cargo_programaticamente(nome_cargo, salario_da_tela) 
+            self.adicionar_cargo_programaticamente(nome_cargo, salario)
             self.__tela.mostra_mensagem(f"Cargo '{nome_cargo.capitalize()}' criado com sucesso!")
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro ao criar cargo: {e}")
@@ -95,32 +86,18 @@ class ControladorCargo:
         """
         Adiciona um novo cargo à lista de forma programática.
         Lança ValidacaoException se o cargo já existe ou os dados são inválidos.
-        
-        IMPORTANTE: Com a sua classe Cargo atual, o 'salario' passado a este método
-        SERÁ IGNORADO pela instância de Cargo, que definirá seu próprio salario_base
-        com base no tipo_cargo. Se você quer que 'salario' seja usado,
-        a classe Cargo precisaria de um __init__ ou setter diferente.
         """
         if not isinstance(tipo_cargo, str) or not tipo_cargo.strip():
             raise ValidacaoException("Tipo de cargo deve ser uma string não vazia.")
-        # Se você quer validar o salário MESMO que ele seja ignorado pela entidade Cargo, mantenha a validação abaixo
-        if not isinstance(salario, (int, float)) or salario <= 0:
-            raise ValidacaoException("Salário deve ser um número positivo.")
 
         if self.buscar_cargo(tipo_cargo):
             raise ValidacaoException(f"Cargo '{tipo_cargo.capitalize()}' já existe.")
         
         try:
-            # CORREÇÃO PRINCIPAL AQUI: NÃO PASSE 'salario_base' para o construtor do Cargo.
-            # O Cargo define seu próprio salário com base no tipo_cargo.
-            novo_cargo = Cargo(tipo_cargo=tipo_cargo)
-            # Se você tivesse um setter para salario_base na classe Cargo (como sugeri no Cenário 1),
-            # e quisesse usar o 'salario' passado aqui, você faria:
-            # novo_cargo.salario_base = salario 
-            
+            novo_cargo = Cargo(tipo_cargo=tipo_cargo, salario_base=salario)
             self.__cargos.append(novo_cargo)
             return novo_cargo
-        except ValueError as e: # Captura ValueError que pode vir de Cargo.__init__
+        except ValueError as e:
             raise ValidacaoException(f"Erro de validação na entidade Cargo: {e}") from e
         except Exception as e:
             raise ValidacaoException(f"Erro inesperado ao criar cargo internamente: {e}") from e
@@ -130,11 +107,6 @@ class ControladorCargo:
         Retorna o salário base padrão para um determinado tipo de cargo.
         Se não encontrar, retorna um valor padrão (ex: 2000.0).
         """
-        # AQUI estava usando _salarios_por_cargo_map, mas a classe Cargo usa _salarios_por_cargo
-        # Você deve usar o dicionário da própria classe Cargo, não um atributo map que não existe lá.
-        # E o acesso deve ser via Cargo._salarios_por_cargo, não self.__cargos[0]._salarios_por_cargo
-        
-        # CORREÇÃO: Acessar o dicionário estático da classe Cargo
         salario = Cargo._salarios_por_cargo.get(tipo_cargo.lower(), 2000.0)
         
         if salario <= 0:
@@ -154,11 +126,6 @@ class ControladorCargo:
         cargo_encontrado = self.buscar_cargo(nome_cargo_para_alterar)
 
         if cargo_encontrado:
-            # Se a classe Cargo não tiver um setter para salario_base, você não poderá alterá-lo diretamente
-            # via cargo_encontrado.salario_base = novo_salario
-            # O salário é sempre definido pelo tipo_cargo.
-            # Então, ao alterar o nome do cargo, o salário também mudaria automaticamente.
-            
             novos_dados = self.__tela.pega_dados_cargo(
                 modo="alteracao",
                 nome_atual=cargo_encontrado.tipo_cargo,
@@ -169,25 +136,21 @@ class ControladorCargo:
                 return
 
             novo_nome = novos_dados["nome"]
-            novo_salario = novos_dados["salario"] # Este novo_salario será 'ignorado' se Cargo não tiver setter
+            novo_salario = novos_dados["salario"]
 
             try:
-                # Se o nome do cargo for alterado para um tipo existente, o salario_base será atualizado
-                # automaticamente via o setter de tipo_cargo na classe Cargo.
                 if novo_nome.lower() != cargo_encontrado.tipo_cargo.lower():
                     if self.buscar_cargo(novo_nome):
                         raise ValidacaoException(f"Já existe um cargo com o nome '{novo_nome.capitalize()}'.")
                     
-                    cargo_encontrado.tipo_cargo = novo_nome # Isso atualiza o tipo_cargo e salario_base
-                
-                # Se você realmente quer poder alterar o salário de um cargo individualmente,
-                # e a classe Cargo tivesse um setter para salario_base (como sugeri no Cenário 1), faria:
-                # cargo_encontrado.salario_base = novo_salario 
-                # Mas, com sua classe Cargo atual, esta linha seria um AttributeError se você tentasse atribuir.
-                # O salário é INTRÍNseco ao tipo_cargo.
+                    cargo_encontrado.tipo_cargo = novo_nome 
 
-                self.__tela.mostra_mensagem(f"Cargo alterado para '{novo_nome.capitalize()}' (Salário: R${cargo_encontrado.salario_base:.2f}).")
-            except ValueError as e: # Captura ValueError que pode vir de Cargo.tipo_cargo.setter
+                if cargo_encontrado.salario_base != novo_salario:
+                     cargo_encontrado.salario_base = novo_salario
+                
+                self.__tela.mostra_mensagem(f"Cargo alterado para '{cargo_encontrado.tipo_cargo.capitalize()}' (Salário: R${cargo_encontrado.salario_base:.2f}).")
+
+            except ValueError as e:
                 self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
             except ValidacaoException as e:
                 self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
@@ -222,9 +185,6 @@ class ControladorCargo:
         """
         Método auxiliar interno para adicionar cargos sem interação com a tela,
         usado principalmente para popular a lista inicial.
-        
-        IMPORTANTE: O 'salario' é passado para adicionar_cargo_programaticamente,
-        mas é ignorado pela instância de Cargo conforme sua implementação atual.
         """
         try:
             self.adicionar_cargo_programaticamente(nome, salario)
@@ -233,7 +193,6 @@ class ControladorCargo:
             print(f"Erro interno ao popular cargo '{nome}': {e}")
             return False
         except Exception as e:
-            # Captura exceções mais gerais aqui também, para depuração.
             print(f"Erro inesperado ao popular cargo '{nome}': {e}")
             return False
 
