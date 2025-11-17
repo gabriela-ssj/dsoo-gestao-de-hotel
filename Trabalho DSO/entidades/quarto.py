@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from entidades.hospede import Hospede
 from entidades.pet import Pet
+from datetime import date
 from typing import List
+
 
 class Quarto(ABC):
 
@@ -11,9 +13,11 @@ class Quarto(ABC):
         self.__valor_diaria = valor_diaria
         self.__disponibilidade = disponibilidade
         self.__capacidade_pessoas = capacidade_pessoas
+        
         self._hospedes: List[Hospede] = []
         self._pets: List[Pet] = []
 
+        self.reservas: List[dict] = []   
     @property
     def numero(self):
         return self.__numero
@@ -58,11 +62,32 @@ class Quarto(ABC):
     def pets(self) -> List[Pet]:
         return self._pets
 
+
+    def verificar_disponibilidade_periodo(self, checkin: date, checkout: date) -> bool:
+    
+        for r in self.reservas:
+            r_checkin = r["checkin"]
+            r_checkout = r["checkout"]
+
+            if not (checkout <= r_checkin or checkin >= r_checkout):
+                return False
+
+        return True
+
+
+    def adicionar_reserva(self, checkin: date, checkout: date):
+        
+        self.reservas.append({
+            "checkin": checkin,
+            "checkout": checkout
+        })
+
+
     def reservar_quarto(self) -> bool:
         if self.__disponibilidade:
             self.__disponibilidade = False
-            return True  # Sucesso na reserva
-        return False  # Quarto já ocupado
+            return True
+        return False
 
     def liberar_quarto(self) -> bool:
         self.__disponibilidade = True

@@ -21,7 +21,6 @@ class ControladorQuarto:
             "simples": 100.0
         }
 
-
     def abre_tela(self):
         opcoes = {
             1: self.cadastrar_quarto,
@@ -44,13 +43,11 @@ class ControladorQuarto:
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
-
     def buscar_quarto(self, numero: int) -> Quarto | None:
         for quarto in self.__quartos:
             if quarto.numero == numero:
                 return quarto
         return None
-
 
     def cadastrar_quarto(self):
         try:
@@ -89,7 +86,6 @@ class ControladorQuarto:
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
 
-
     def listar_quartos(self):
         if not self.__quartos:
             self.__tela.mostra_mensagem("Nenhum quarto cadastrado.")
@@ -111,7 +107,6 @@ class ControladorQuarto:
 
         self.__tela.mostra_lista(lista)
 
-
     def alterar_quarto(self):
         try:
             numero = self.__tela.seleciona_quarto()
@@ -123,7 +118,6 @@ class ControladorQuarto:
             tipo_existente = type(quarto).__name__.lower()
 
             novos_dados = self.__tela.pega_dados_quarto("alt", tipo_existente)
-
             ValidacaoException.se_none(novos_dados, "Dados inválidos.")
 
             disp_str = novos_dados["disponibilidade"].lower()
@@ -142,7 +136,6 @@ class ControladorQuarto:
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro de validação: {e}")
 
-
     def excluir_quarto(self):
         try:
             numero = self.__tela.seleciona_quarto()
@@ -156,3 +149,14 @@ class ControladorQuarto:
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
+
+    def verificar_disponibilidade_periodo(self, quarto, data_entrada, data_saida):
+        if not hasattr(quarto, "reservas"):
+            quarto.reservas = []
+
+        for reserva in quarto.reservas:
+            if (data_entrada <= reserva.data_saida) and \
+               (data_saida >= reserva.data_entrada):
+                return False
+
+        return True

@@ -1,7 +1,7 @@
 from telas.tela_abstrata import TelaAbstrata
 import FreeSimpleGUI as sg
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, date  
 
 class TelaReserva(TelaAbstrata):
   def __init__(self):
@@ -66,10 +66,10 @@ class TelaReserva(TelaAbstrata):
     quartos_val = ", ".join(map(str, dados_atuais.get('quartos_ids', [])))
     
     checkin_date_obj = dados_atuais.get('checkin')
-    checkin_val = checkin_date_obj.strftime('%d/%m/%Y') if isinstance(checkin_date_obj, (datetime, datetime.date)) else ''
-    
+    checkin_val = checkin_date_obj.strftime('%d/%m/%Y') if isinstance(checkin_date_obj, (datetime, date)) else ''  # CORRIGIDO
+
     checkout_date_obj = dados_atuais.get('checkout')
-    checkout_val = checkout_date_obj.strftime('%d/%m/%Y') if isinstance(checkout_date_obj, (datetime, datetime.date)) else ''
+    checkout_val = checkout_date_obj.strftime('%d/%m/%Y') if isinstance(checkout_date_obj, (datetime, date)) else ''  # CORRIGIDO
 
     layout = [
       [sg.Text(f'-------- DADOS DA RESERVA ({modo.upper()}) ----------', font=("Helvica", 25))],
