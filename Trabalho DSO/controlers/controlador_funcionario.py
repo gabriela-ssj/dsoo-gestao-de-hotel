@@ -1,6 +1,5 @@
 from entidades.funcionario import Funcionario
-
-from entidades.cargo import Cargo 
+from entidades.cargo import Cargo
 from telas.tela_funcionario import TelaFuncionario
 from controlers.controlador_cargo import ControladorCargo
 from controlers.ValidacaoException import ValidacaoException
@@ -32,27 +31,22 @@ class ControladorFuncionario:
         while True:
             opcao = self.__tela.tela_opcoes()
 
-            if not opcao: 
+            if not opcao and opcao != 0:
                 self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma das opções.")
                 continue
 
-            funcao_escolhida = opcoes.get(opcao)
+            funcao_escolhida = opcoes.get(str(opcao))
             if funcao_escolhida:
-                if opcao == '0':
+                if opcao == 0:
                     break
                 funcao_escolhida()
             else:
                 self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma das opções.")
 
     def retornar(self):
-        """Método para retornar ao menu anterior (simplesmente sai do loop)."""
         pass
 
     def _buscar_funcionario_por_cpf(self, cpf: str) -> Funcionario:
-        """
-        Busca um funcionário pelo CPF na lista interna.
-        Lança ValidacaoException se o funcionário não for encontrado.
-        """
         for funcionario in self.__funcionarios:
             if funcionario.cpf == cpf:
                 return funcionario
@@ -95,7 +89,7 @@ class ControladorFuncionario:
             )
 
             self.__funcionarios.append(funcionario)
-            self.__tela.mostra_mensagem(f"✅ Funcionário {funcionario.nome} cadastrado com sucesso!")
+            self.__tela.mostra_mensagem(f"Funcionário {funcionario.nome} cadastrado com sucesso!")
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f'Erro de validação: {e}')
@@ -105,7 +99,6 @@ class ControladorFuncionario:
             self.__tela.mostra_mensagem(f'Erro inesperado ao cadastrar funcionário: {e}')
 
     def listar_funcionarios(self):
-        """Lista todos os funcionários cadastrados na lista interna."""
         if not self.__funcionarios:
             self.__tela.mostra_mensagem("Nenhum funcionário cadastrado no momento.")
             return
@@ -114,7 +107,7 @@ class ControladorFuncionario:
         self.__tela.mostra_funcionarios(dados_para_exibir) 
 
     def alterar_funcionario(self):
-        """Permite alterar os dados de um funcionário existente."""
+
         try:
             cpf_para_alterar = self.__tela.seleciona_funcionario()
             ValidacaoException.se_none(cpf_para_alterar, "Alteração de funcionário cancelada.")
@@ -123,7 +116,7 @@ class ControladorFuncionario:
             
             novos_dados = self.__tela.pega_dados_funcionario(
                 modo="alteracao",
-                dados_atuais=funcionario_existente.to_dict() 
+                dados_atuais=funcionario_existente.to_dict()
             )
             ValidacaoException.se_none(novos_dados, "Alteração de funcionário cancelada pelo usuário.")
 
@@ -139,7 +132,7 @@ class ControladorFuncionario:
                 novo_cargo_obj = self.__controlador_cargo.buscar_cargo(novo_tipo_cargo_str)
                 if not novo_cargo_obj:
                     self.__tela.mostra_mensagem(
-                        f"⚠️ Novo Cargo '{novo_tipo_cargo_str.capitalize()}' não encontrado. Criando automaticamente com salário padrão."
+                        f"Novo Cargo '{novo_tipo_cargo_str.capitalize()}' não encontrado. Criando automaticamente com salário padrão."
                     )
                     salario_base_para_cargo_novo = self.__controlador_cargo.get_default_salario_for_cargo(novo_tipo_cargo_str)
 
@@ -155,7 +148,7 @@ class ControladorFuncionario:
             if novo_cargo_obj:
                 funcionario_existente.cargo = novo_cargo_obj 
 
-            self.__tela.mostra_mensagem(f"✅ Funcionário {funcionario_existente.nome} alterado com sucesso!")
+            self.__tela.mostra_mensagem(f"Funcionário {funcionario_existente.nome} alterado com sucesso!")
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f'Erro de validação: {e}')
@@ -165,7 +158,6 @@ class ControladorFuncionario:
             self.__tela.mostra_mensagem(f'Erro inesperado ao alterar funcionário: {e}')
 
     def excluir_funcionario(self):
-        """Permite excluir um funcionário da lista interna."""
         try:
             cpf_para_excluir = self.__tela.seleciona_funcionario()
             ValidacaoException.se_none(cpf_para_excluir, "Exclusão de funcionário cancelada.")
@@ -174,7 +166,7 @@ class ControladorFuncionario:
 
             if self.__tela.confirma_acao(f"Tem certeza que deseja excluir o funcionário {funcionario_a_excluir.nome} (CPF: {funcionario_a_excluir.cpf})?"):
                 self.__funcionarios.remove(funcionario_a_excluir)
-                self.__tela.mostra_mensagem(f"✅ Funcionário {funcionario_a_excluir.nome} excluído com sucesso!")
+                self.__tela.mostra_mensagem(f"Funcionário {funcionario_a_excluir.nome} excluído com sucesso!")
             else:
                 self.__tela.mostra_mensagem("Exclusão cancelada pelo usuário.")
 
@@ -184,10 +176,6 @@ class ControladorFuncionario:
             self.__tela.mostra_mensagem(f'Erro inesperado ao excluir funcionário: {e}')
 
     def buscar_funcionario_publico(self, cpf: str) -> Optional[Funcionario]:
-        """
-        Busca um funcionário pelo CPF. Retorna o objeto Funcionario ou None.
-        Este método pode ser exposto para outros controladores, se necessário.
-        """
         for f in self.__funcionarios:
             if f.cpf == cpf:
                 return f

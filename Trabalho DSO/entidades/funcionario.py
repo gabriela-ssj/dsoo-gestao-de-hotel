@@ -1,11 +1,11 @@
 from entidades.cargo import Cargo
 from entidades.pessoa import Pessoa
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class Funcionario(Pessoa):
     def __init__(self, cpf: str, nome: str, idade: int, telefone: str, email: str, cargo: Cargo, salario: float): # <<< AQUI!
         super().__init__(cpf, nome, idade, telefone, email)
-        if not isinstance(cargo, Cargo): # OU isinstance(cargo, ICargo)
+        if not isinstance(cargo, Cargo):
             raise TypeError("Cargo deve ser um objeto da classe Cargo.")
         if not isinstance(salario, (int, float)) or salario < 0:
             raise ValueError("Salário deve ser um número positivo.")
@@ -37,3 +37,14 @@ class Funcionario(Pessoa):
 
         return (f"{super().__str__()}, Cargo: {self.cargo.tipo_cargo.capitalize()}, "
                 f"Salário: R\${self.salario:.2f}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "cpf": self.cpf,
+            "nome": self.nome,
+            "idade": self.idade,
+            "telefone": self.telefone,
+            "email": self.email,
+            "tipo_cargo": self.cargo.tipo_cargo if self.cargo else None,
+            "salario": self.salario
+        }
