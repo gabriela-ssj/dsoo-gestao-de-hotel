@@ -9,25 +9,23 @@ class TelaFuncionario(TelaAbstrata):
 
   def tela_opcoes(self) -> int:
     self.init_opcoes()
-    button, values = self.open()
-    
-    opcao = 0
-    if button == 'Confirmar':
-        if values.get('1'):
-            opcao = 1
-        elif values.get('2'):
-            opcao = 2
-        elif values.get('3'):
-            opcao = 3
-        elif values.get('4'):
-            opcao = 4
-        elif values.get('0'):
-            opcao = 0
-    elif button in (None, 'Cancelar'): 
-        opcao = 0
-    
+    opcao_selecionada = 0
+
+    while True:
+        event, values = self.open()
+
+        if event in (None, 'Cancelar'):
+            opcao_selecionada = 0
+            break
+
+        if event == 'Confirmar':
+            for key in ['1', '2', '3', '4', '0']:
+                if values.get(key):
+                    opcao_selecionada = int(key)
+                    break
+
     self.close()
-    return opcao
+    return opcao_selecionada
 
   def init_opcoes(self):
     """
@@ -37,23 +35,17 @@ class TelaFuncionario(TelaAbstrata):
     layout = [
       [sg.Text('-------- FUNCIONÁRIOS ----------', font=("Helvica", 25))],
       [sg.Text('Escolha sua opção', font=("Helvica", 15))],
-      [sg.Radio('Cadastrar Funcionário', "RD1", key='1')],
-      [sg.Radio('Listar Funcionários', "RD1", key='2')],
-      [sg.Radio('Alterar Funcionário', "RD1", key='3')],
-      [sg.Radio('Excluir Funcionário', "RD1", key='4')],
-      [sg.Radio('Retornar', "RD1", key='0', default=True)],
+      [sg.Radio('Cadastrar Funcionário', "RD1", key='1', enable_events=True)], 
+      [sg.Radio('Listar Funcionários', "RD1", key='2', enable_events=True)],
+      [sg.Radio('Alterar Funcionário', "RD1", key='3', enable_events=True)],
+      [sg.Radio('Excluir Funcionário', "RD1", key='4', enable_events=True)],
+      [sg.Radio('Retornar', "RD1", key='0', default=True, enable_events=True)],
       [sg.Button('Confirmar'), sg.Button('Cancelar')]
     ]
     self.__window = sg.Window('Gerenciar Funcionários').Layout(layout)
 
   def pega_dados_funcionario(self, modo: str = "cadastro", dados_atuais: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
-    """
-    Coleta os dados de um funcionário do usuário via interface gráfica.
-    No modo "alteracao", preenche os campos com os dados existentes.
-    :param modo: "cadastro" ou "alteracao"
-    :param dados_atuais: Dicionário com os dados atuais do funcionário para alteração.
-    :return: Dicionário com os dados do funcionário ou None se cancelar.
-    """
+
     sg.ChangeLookAndFeel('DarkTeal4')
 
     dados_atuais = dados_atuais or {}
@@ -90,7 +82,6 @@ class TelaFuncionario(TelaAbstrata):
       telefone = values['telefone'].strip()
       email = values['email'].strip()
 
-
       if not nome:
         self.mostra_mensagem("Nome é obrigatório!")
         return None
@@ -98,7 +89,7 @@ class TelaFuncionario(TelaAbstrata):
           self.mostra_mensagem("⚠️ O nome deve conter apenas letras.")
           return None
 
-      if modo == "cadastro" or (modo == "alteracao" and not values['cpf_val'] == dados_atuais.get('cpf', '')): # Apenas valida se for cadastro ou se o CPF foi alterado
+      if modo == "cadastro":
         if not cpf or not cpf.isdigit() or len(cpf) != 11:
           self.mostra_mensagem("CPF inválido! Deve conter 11 dígitos numéricos.")
           return None
@@ -157,7 +148,7 @@ class TelaFuncionario(TelaAbstrata):
             string_todos_funcionarios += f"--- Funcionário {i+1} ---\n"
             string_todos_funcionarios += f"Nome: {dado.get('nome', 'N/A')}\n"
             string_todos_funcionarios += f"CPF: {dado.get('cpf', 'N/A')}\n"
-            string_todos_funcionarios += f"Cargo: {dado.get('tipo_cargo', 'N/A')}\n" # Usar 'tipo_cargo' para exibir
+            string_todos_funcionarios += f"Cargo: {dado.get('tipo_cargo', 'N/A')}\n"
             string_todos_funcionarios += f"Salário: R\${dado.get('salario', 0.0):.2f}\n"
             string_todos_funcionarios += f"Idade: {dado.get('idade', 'N/A')}\n"
             string_todos_funcionarios += f"Telefone: {dado.get('telefone', 'N/A')}\n"
@@ -192,12 +183,11 @@ class TelaFuncionario(TelaAbstrata):
             return None
     return None
 
-  def confirma_exclusao(self, nome_funcionario: str, cpf_funcionario: str) -> bool:
+  def confirma_acao(self, mensagem: str) -> bool:
       """
-      Exibe um popup de confirmação de exclusão e retorna True se confirmado, False caso contrário.
+      Exibe um popup de confirmação de ação e retorna True se confirmado, False caso contrário.
       """
-      mensagem = f"Tem certeza que deseja excluir o funcionário '{nome_funcionario}' (CPF: {cpf_funcionario})?"
-      confirmacao = sg.popup_yes_no(mensagem, title="Confirmar Exclusão", font=("Helvica", 12))
+      confirmacao = sg.popup_yes_no(mensagem, title="Confirmar Ação", font=("Helvica", 12))
       return confirmacao == 'Yes'
 
   def mostra_mensagem(self, msg: str):

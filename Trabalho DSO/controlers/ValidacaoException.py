@@ -41,3 +41,8 @@ class ValidacaoException(Exception):
     def validar_email(email):
         if "@" not in email or "." not in email:
             raise ValidacaoException("Email inválido.")
+
+    @staticmethod
+    def validar_salario_valido(salario):
+        if not isinstance(salario, (int, float)) or salario < 0:
+            raise ValidacaoException("Salário inválido. Digite um número positivo.")
