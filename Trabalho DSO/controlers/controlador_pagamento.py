@@ -41,7 +41,7 @@ class ControladorPagamento:
         if not reserva_id:
             return
 
-        reserva: Optional[Reserva] = self.__controlador_reserva._selecionar_reserva(reserva_id)
+        reserva: Optional[Reserva] = self.__controlador_reserva.selecionar_reserva(reserva_id)
         if not reserva:
             self.__tela.mostra_mensagem(f"Reserva com ID {reserva_id} não encontrada.")
             return

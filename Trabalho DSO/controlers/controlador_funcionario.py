@@ -13,7 +13,7 @@ class ControladorFuncionario:
 
         self.__funcionarios: List[Funcionario] = []
         self.__controlador_cargo = controlador_cargo
-        self.__tela = TelaFuncionario()
+        self.__tela = TelaFuncionario() 
 
     @property
     def funcionarios(self) -> List[Funcionario]:
@@ -29,7 +29,7 @@ class ControladorFuncionario:
         }
 
         while True:
-            opcao = self.__tela.tela_opcoes()
+            opcao = self.__tela.tela_opcoes() 
 
             if not opcao and opcao != 0:
                 self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma das opções.")
@@ -64,7 +64,7 @@ class ControladorFuncionario:
 
             tipo_cargo_str = dados["tipo_cargo"]
             cargo = self.__controlador_cargo.buscar_cargo(tipo_cargo_str)
-            
+
             if not cargo:
                 self.__tela.mostra_mensagem(
                     f"Cargo '{tipo_cargo_str.capitalize()}' não encontrado. Criando automaticamente com salário padrão."
@@ -77,14 +77,13 @@ class ControladorFuncionario:
                 )
             
             salario_funcionario = float(dados["salario"]) 
-
             funcionario = Funcionario(
                 nome=dados["nome"],
                 cpf=dados["cpf"],
                 idade=int(dados["idade"]),
                 telefone=dados["telefone"],
                 email=dados["email"],
-                cargo=cargo,
+                cargo=cargo, 
                 salario=salario_funcionario
             )
 
@@ -107,7 +106,6 @@ class ControladorFuncionario:
         self.__tela.mostra_funcionarios(dados_para_exibir) 
 
     def alterar_funcionario(self):
-
         try:
             cpf_para_alterar = self.__tela.seleciona_funcionario()
             ValidacaoException.se_none(cpf_para_alterar, "Alteração de funcionário cancelada.")
@@ -119,7 +117,6 @@ class ControladorFuncionario:
                 dados_atuais=funcionario_existente.to_dict()
             )
             ValidacaoException.se_none(novos_dados, "Alteração de funcionário cancelada pelo usuário.")
-
             ValidacaoException.validar_campo_vazio(novos_dados["nome"], "nome")
             ValidacaoException.validar_idade_valida(int(novos_dados["idade"]))
             ValidacaoException.validar_email(novos_dados["email"])
@@ -139,7 +136,7 @@ class ControladorFuncionario:
                     novo_cargo_obj = self.__controlador_cargo.adicionar_cargo_programaticamente(
                         novo_tipo_cargo_str, salario_base_para_cargo_novo
                     )
- 
+    
             funcionario_existente.nome = novos_dados["nome"]
             funcionario_existente.idade = int(novos_dados["idade"])
             funcionario_existente.telefone = novos_dados["telefone"]
@@ -175,7 +172,7 @@ class ControladorFuncionario:
         except Exception as e:
             self.__tela.mostra_mensagem(f'Erro inesperado ao excluir funcionário: {e}')
 
-    def buscar_funcionario_publico(self, cpf: str) -> Optional[Funcionario]:
+    def buscar_funcionario(self, cpf: str) -> Optional[Funcionario]:
         for f in self.__funcionarios:
             if f.cpf == cpf:
                 return f
