@@ -25,9 +25,10 @@ class SistemaHotel:
     def alterar_hotel(self, nome: str, novos_dados: dict) -> bool:
         hotel = self.buscar_hotel(nome)
         if hotel:
-            for chave, valor in novos_dados.items():
-                if hasattr(hotel, chave):
-                    setattr(hotel, chave, valor)
+            if 'nome' in novos_dados:
+                hotel.nome = novos_dados['nome']
+                return True
+            
             return True
         return False
 
@@ -39,3 +40,4 @@ class SistemaHotel:
 
     def buscar_hotel(self, nome: str) -> Optional[Hotel]:
         return next((h for h in self.__hoteis if h.nome == nome), None)
+    

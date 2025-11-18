@@ -26,6 +26,10 @@ class ControladorReserva:
         self.__controlador_quarto = controlador_quarto
         self.__controlador_funcionario = controlador_funcionario
 
+    @property
+    def reservas(self) -> List[Reserva]:
+        return self.__reservas
+
     def abre_tela(self):
         lista_opcoes = {
             1: self.fazer_reserva,
@@ -59,8 +63,72 @@ class ControladorReserva:
     def retornar(self):
         pass
 
+    # --- MÉTODOS DE BUSCA E INTERAÇÃO ---
+
+    def selecionar_reserva(self, id_reserva: int) -> Optional[Reserva]:
+        """
+        Busca e retorna um objeto Reserva pelo ID EXATO fornecido.
+        Usado por outros controladores (como Pagamento).
+        """
+        try:
+            if id_reserva is None:
+                raise ValidacaoException("ID da reserva não pode ser nulo.")
+
+            id_num = int(id_reserva)
+            for r in self.__reservas:
+                if r.id == id_num:
+                    return r
+            
+            # Se a busca falhar, lança a exceção
+            raise ReservaException(f"Nenhuma reserva encontrada com o ID {id_num}.")
+
+        except ValueError:
+            raise ValidacaoException(f"ID '{id_reserva}' inválido. Deve ser um número inteiro.")
+        except (ReservaException, ValidacaoException) as e:
+            # Propaga exceções para o controlador chamador (ex: ControladorPagamento)
+            raise e
+
+    def _obter_reserva_por_tela(self) -> Optional[Reserva]:
+        """
+        Lida com a interação da tela para selecionar uma reserva (ID ou Nome).
+        Usado apenas internamente por este controlador.
+        """
+        while True:
+            try:
+                identificador = self.__tela.seleciona_reserva()
+                if not identificador:
+                    return None
+                
+                # 1. Tenta buscar por ID
+                try:
+                    id_num = int(identificador)
+                    reserva = next((r for r in self.__reservas if r.id == id_num), None)
+                    if reserva:
+                        return reserva
+                    raise ReservaException("Nenhuma reserva encontrada com esse ID.")
+                except ValueError:
+                    pass # Não é um ID numérico, tenta por nome
+                
+                # 2. Busca por nome (usando o primeiro hóspede)
+                filtro = identificador.lower()
+                resultados = [r for r in self.__reservas if filtro in r.hospedes[0].nome.lower()]
+
+                if len(resultados) == 1:
+                    return resultados[0]
+                if len(resultados) > 1:
+                    raise ReservaException("Mais de uma reserva encontrada. Use o ID.")
+                raise ReservaException("Nenhuma reserva encontrada para esse nome.")
+            
+            except (ReservaException, ValidacaoException) as e:
+                self.__tela.mostra_mensagem(str(e))
+                # Continua o loop para dar chance ao usuário de tentar novamente
+                return None
+
+
+    # --- MÉTODOS CRUD E SERVIÇOS ---
 
     def fazer_reserva(self):
+        # ... (seu código de fazer_reserva permanece o mesmo)
         try:
             dados = self.__tela.pega_dados_reserva()
             if not dados:
@@ -105,42 +173,11 @@ class ControladorReserva:
             self.__reservas.append(reserva)
 
             self.__tela.mostra_mensagem(
-                f"✅ Reserva ID {reserva.id} criada com sucesso!"
+                f"Reserva ID {reserva.id} criada com sucesso!"
             )
 
         except (ReservaException, ValidacaoException) as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
-
-
-    def selecionar_reserva(self) -> Optional[Reserva]:
-        try:
-            identificador = self.__tela.seleciona_reserva()
-            if not identificador:
-                raise ValidacaoException("Busca cancelada.")
-
-            try:
-                id_num = int(identificador)
-                for r in self.__reservas:
-                    if r.id == id_num:
-                        return r
-                raise ReservaException("Nenhuma reserva encontrada com esse ID.")
-            except ValueError:
-                pass
-
-            filtro = identificador.lower()
-            resultados = [r for r in self.__reservas
-                          if filtro in r.hospedes[0].nome.lower()]
-
-            if len(resultados) == 1:
-                return resultados[0]
-            if len(resultados) > 1:
-                raise ReservaException("Mais de uma reserva encontrada. Use o ID.")
-            raise ReservaException("Nenhuma reserva encontrada para esse nome.")
-
-        except (ReservaException, ValidacaoException) as e:
-            self.__tela.mostra_mensagem(str(e))
-            return None
-
 
     def listar_reservas(self):
         if not self.__reservas:
@@ -150,9 +187,10 @@ class ControladorReserva:
         dados = [r.get_all_data() for r in self.__reservas]
         self.__tela.mostra_reservas(dados)
 
- 
+    
     def cancelar_reserva(self):
-        reserva = self.selecionar_reserva()
+        # 🌟 CORRIGIDO: Usa o método de interação com a tela
+        reserva = self._obter_reserva_por_tela() 
         if not reserva:
             return
 
@@ -168,7 +206,8 @@ class ControladorReserva:
 
     def alterar_reserva(self):
         try:
-            reserva = self.selecionar_reserva()
+            # 🌟 CORRIGIDO: Usa o método de interação com a tela
+            reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return
 
@@ -220,7 +259,7 @@ class ControladorReserva:
 
     def adicionar_servico_quarto_reserva(self):
         try:
-            reserva = self.selecionar_reserva()
+            reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return
 
@@ -255,7 +294,7 @@ class ControladorReserva:
 
     def adicionar_pet_reserva(self):
         try:
-            reserva = self.selecionar_reserva()
+            reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return
 
@@ -275,7 +314,7 @@ class ControladorReserva:
 
 
     def mostrar_valor_total_reserva(self):
-        reserva = self.selecionar_reserva()
+        reserva = self._obter_reserva_por_tela() 
         if reserva:
             self.__tela.mostra_valor_total(reserva.id, reserva.valor_total)
 
@@ -326,7 +365,3 @@ class ControladorReserva:
 
         except (ReservaException, ValidacaoException) as e:
             self.__tela.mostra_mensagem(str(e))
-
-    @property
-    def reservas(self) -> List[Reserva]:
-        return self.__reservas
