@@ -63,8 +63,6 @@ class ControladorReserva:
     def retornar(self):
         pass
 
-    # --- MÉTODOS DE BUSCA E INTERAÇÃO ---
-
     def selecionar_reserva(self, id_reserva: int) -> Optional[Reserva]:
         """
         Busca e retorna um objeto Reserva pelo ID EXATO fornecido.
@@ -78,14 +76,13 @@ class ControladorReserva:
             for r in self.__reservas:
                 if r.id == id_num:
                     return r
-            
-            # Se a busca falhar, lança a exceção
+
             raise ReservaException(f"Nenhuma reserva encontrada com o ID {id_num}.")
 
         except ValueError:
             raise ValidacaoException(f"ID '{id_reserva}' inválido. Deve ser um número inteiro.")
         except (ReservaException, ValidacaoException) as e:
-            # Propaga exceções para o controlador chamador (ex: ControladorPagamento)
+        
             raise e
 
     def _obter_reserva_por_tela(self) -> Optional[Reserva]:
@@ -98,8 +95,7 @@ class ControladorReserva:
                 identificador = self.__tela.seleciona_reserva()
                 if not identificador:
                     return None
-                
-                # 1. Tenta buscar por ID
+
                 try:
                     id_num = int(identificador)
                     reserva = next((r for r in self.__reservas if r.id == id_num), None)
@@ -107,9 +103,8 @@ class ControladorReserva:
                         return reserva
                     raise ReservaException("Nenhuma reserva encontrada com esse ID.")
                 except ValueError:
-                    pass # Não é um ID numérico, tenta por nome
-                
-                # 2. Busca por nome (usando o primeiro hóspede)
+                    pass
+
                 filtro = identificador.lower()
                 resultados = [r for r in self.__reservas if filtro in r.hospedes[0].nome.lower()]
 
@@ -121,14 +116,10 @@ class ControladorReserva:
             
             except (ReservaException, ValidacaoException) as e:
                 self.__tela.mostra_mensagem(str(e))
-                # Continua o loop para dar chance ao usuário de tentar novamente
+
                 return None
 
-
-    # --- MÉTODOS CRUD E SERVIÇOS ---
-
     def fazer_reserva(self):
-        # ... (seu código de fazer_reserva permanece o mesmo)
         try:
             dados = self.__tela.pega_dados_reserva()
             if not dados:
@@ -189,7 +180,6 @@ class ControladorReserva:
 
     
     def cancelar_reserva(self):
-        # 🌟 CORRIGIDO: Usa o método de interação com a tela
         reserva = self._obter_reserva_por_tela() 
         if not reserva:
             return
@@ -206,7 +196,6 @@ class ControladorReserva:
 
     def alterar_reserva(self):
         try:
-            # 🌟 CORRIGIDO: Usa o método de interação com a tela
             reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return

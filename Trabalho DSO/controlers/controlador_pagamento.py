@@ -67,15 +67,25 @@ class ControladorPagamento:
                 return
 
         if pagamento_existente.status == "pendente":
+
+            valor_devido_restante = pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago
+
             valor_a_pagar = self.__tela.pega_valor_pagamento()
             if valor_a_pagar is None:
                 self.__tela.mostra_mensagem("Valor inválido. Operação cancelada.")
                 return
 
+            if valor_a_pagar > valor_devido_restante:
+                self.__tela.mostra_mensagem(
+                    f"Pagamento rejeitado: O valor pago (R$ {valor_a_pagar:.2f}) excede o restante devido (R$ {valor_devido_restante:.2f}). "
+                    "Por favor, insira o valor exato."
+                )
+                return
+
             try:
                 pagamento_confirmado = pagamento_existente.pagar(valor_a_pagar)
                 self.__tela.mostra_mensagem(
-                    f"Valor de R\$ {valor_a_pagar:.2f} recebido para Reserva ID {reserva_id}.")
+                    f"Valor de R$ {valor_a_pagar:.2f} recebido para Reserva ID {reserva_id}.")
 
                 if pagamento_confirmado:
                     reserva.status = "paga"
@@ -83,7 +93,7 @@ class ControladorPagamento:
                         f"Pagamento para Reserva ID {reserva_id} confirmado! Status da reserva atualizado para 'paga'.")
                 else:
                     self.__tela.mostra_mensagem(
-                        f"Pagamento parcial para Reserva ID {reserva_id}. Restante a pagar: R\$ {max(0, pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago):.2f}")
+                        f"Pagamento parcial para Reserva ID {reserva_id}. Restante a pagar: R$ {max(0, pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago):.2f}")
             except ValueError as e:
                 self.__tela.mostra_mensagem(f"Erro ao processar pagamento: {e}")
             except Exception as e:

@@ -9,6 +9,7 @@ from controlers.controlador_quartos import ControladorQuarto
 from controlers.controlador_reserva import ControladorReserva
 from controlers.controlador_pagamento import ControladorPagamento
 from controlers.controlador_recursos_humanos import ControladorRh
+from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
 
 class ControladorHotel:
     def __init__(self, hotel: Hotel):
@@ -18,6 +19,12 @@ class ControladorHotel:
         self.__controlador_cargo = ControladorCargo()
         self.__controlador_funcionario = ControladorFuncionario(self.__controlador_cargo)
         self.__controlador_quarto = ControladorQuarto()
+
+        self.__controlador_servico_de_quarto = ControladorServicoDeQuarto(
+            self.__controlador_quarto,
+            self.__controlador_funcionario
+        )
+        
         self.__controlador_reserva = ControladorReserva(
             self.__controlador_hospede,
             self.__controlador_quarto,
@@ -27,7 +34,6 @@ class ControladorHotel:
         self.__controlador_pagamento = ControladorPagamento(self.__controlador_reserva)
         self.__controlador_rh = ControladorRh(self.__controlador_cargo, self.__controlador_funcionario)
 
-    # RELATÓRIO
     def relatorio_quartos_mais_reservados(self):
         todas_reservas = self.__controlador_reserva.reservas
         total_reservas = len(todas_reservas)
@@ -45,7 +51,6 @@ class ControladorHotel:
             relatorio.append(f"Quarto {numero}: {total} reservas ({porcentagem:.1f}%)")
         self.__tela.mostra_lista(relatorio)
 
-    # FLUXO DE TELAS
     def retornar(self):
         self.tela_aberta = False
 
@@ -58,6 +63,7 @@ class ControladorHotel:
             4: self.__controlador_pagamento.abre_tela,
             5: self.__controlador_rh.abre_tela,
             6: self.relatorio_quartos_mais_reservados,
+            7: self.__controlador_servico_de_quarto.abre_tela, 
             0: self.retornar
         }
         while self.tela_aberta:

@@ -10,11 +10,9 @@ class TelaFuncionario(TelaAbstrataGUI):
         self.__window = None 
 
     def mostra_mensagem(self, msg: str):
-        """Exibe uma mensagem em um popup do FreeSimpleGUI."""
         sg.popup_ok(msg, font=("Helvica", 12))
 
     def close(self):
-        """Fecha a janela atual do FreeSimpleGUI."""
         if self.__window:
             self.__window.close() 
         self.__window = None
@@ -61,7 +59,6 @@ class TelaFuncionario(TelaAbstrataGUI):
         self.__window = sg.Window('Gerenciar Funcionários', layout, finalize=True)
 
     def pega_dados_funcionario(self, modo: str = "cadastro", dados_atuais: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
-
         sg.ChangeLookAndFeel('DarkTeal4')
 
         dados_atuais = dados_atuais or {}
@@ -153,9 +150,6 @@ class TelaFuncionario(TelaAbstrataGUI):
         return None
 
     def mostra_funcionarios(self, dados_funcionarios: List[Dict[str, Any]]):
-        """
-        Exibe uma lista de funcionários em um popup do FreeSimpleGUI.
-        """
         string_todos_funcionarios = "-------- LISTA DE FUNCIONÁRIOS ----------\n\n"
         if not dados_funcionarios:
             string_todos_funcionarios += "Nenhum funcionário cadastrado."
@@ -174,9 +168,6 @@ class TelaFuncionario(TelaAbstrataGUI):
         self.mostra_mensagem(string_todos_funcionarios)
 
     def seleciona_funcionario(self) -> Optional[str]:
-        """
-        Solicita ao usuário o CPF de um funcionário.
-        """
         sg.ChangeLookAndFeel('DarkBlue3')
         layout = [
             [sg.Text('-------- SELECIONAR FUNCIONÁRIO ----------', font=("Helvica", 20))],
@@ -199,8 +190,5 @@ class TelaFuncionario(TelaAbstrataGUI):
         return None
 
     def confirma_acao(self, mensagem: str) -> bool:
-        """
-        Exibe um popup de confirmação de ação e retorna True se confirmado.
-        """
         confirmacao = sg.popup_yes_no(mensagem, title="Confirmar Ação", font=("Helvica", 12))
         return confirmacao == 'Yes'

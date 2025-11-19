@@ -1,10 +1,8 @@
 
 class ValidacaoException(Exception):
-    """Exceções e validadores reutilizáveis para regras de negócio."""
 
     def __init__(self, mensagem):
         super().__init__(mensagem)
-
 
     @staticmethod
     def se_none(valor, mensagem):

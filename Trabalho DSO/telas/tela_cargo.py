@@ -1,91 +1,165 @@
+from telas.tela_abstrata_gui import TelaAbstrataGUI
+import FreeSimpleGUI as sg
 from typing import Dict, Any, Optional, List
 
-class TelaCargo:
-    def __init__(self):
-        pass
 
-    def tela_opcoes(self) -> str:
-        """Exibe as opções do menu de cargos e retorna a escolha do usuário como string."""
-        print("-------- MENU CARGOS ----------")
-        print("1 - Listar Cargos Disponíveis")
-        print("2 - Criar Cargo")
-        print("3 - Alterar Cargo")
-        print("4 - Excluir Cargo")
-        print("0 - Retornar")
+class TelaCargo(TelaAbstrataGUI): 
+
+    def __init__(self):
+        self.__window = None 
+
+    def mostra_mensagem(self, msg: str):
+        sg.popup_ok(msg, font=("Helvica", 12))
+
+    def close(self):
+        if self.__window:
+            self.__window.close() 
+        self.__window = None
+
+    def open(self):
+        if self.__window:
+            button, values = self.__window.read() 
+            return button, values
+        return None, None
+
+    def tela_opcoes(self) -> int:
+        self.init_opcoes()
+        opcao_selecionada = 0
+
+        while True:
+            event, values = self.open() 
+
+            if event in (None, 'Cancelar'):
+                opcao_selecionada = 0
+                break
+
+            if event == 'Confirmar':
+                for key in ['1', '2', '3', '4', '0']:
+                    if values.get(key):
+                        opcao_selecionada = int(key)
+                        break
+                break 
         
-        opcao = input("Escolha a opção: ").strip()
-        return opcao
+        self.close()
+        return opcao_selecionada
+
+    def init_opcoes(self):
+        sg.ChangeLookAndFeel('DarkBlue3')
+        layout = [
+            [sg.Text('-------- GESTÃO DE CARGOS ----------', font=("Helvica", 25))],
+            [sg.Text('Escolha sua opção', font=("Helvica", 15))],
+            [sg.Radio('Listar Cargos Disponíveis', "RD1", key='1', enable_events=True)], 
+            [sg.Radio('Criar Cargo', "RD1", key='2', enable_events=True)],
+            [sg.Radio('Alterar Cargo', "RD1", key='3', enable_events=True)],
+            [sg.Radio('Excluir Cargo', "RD1", key='4', enable_events=True)],
+            [sg.Radio('Retornar', "RD1", key='0', default=True, enable_events=True)],
+            [sg.Button('Confirmar', size=(10, 1)), sg.Button('Cancelar', size=(10, 1))]
+        ]
+        self.__window = sg.Window('Gerenciar Cargos', layout, finalize=True)
 
     def pega_dados_cargo(self, modo: str = "cadastro", nome_atual: Optional[str] = None, salario_atual: Optional[float] = None) -> Optional[Dict[str, Any]]:
-        """
-        Coleta os dados de um cargo do usuário.
-        No modo "alteracao", permite manter o valor atual se o campo for deixado vazio.
-        """
-        dados = {}
+        sg.ChangeLookAndFeel('DarkTeal4')
+
+        nome_display = nome_atual if nome_atual else ""
+        salario_display = f"{salario_atual:.2f}".replace('.', ',') if salario_atual is not None else ""
         
-        if modo == "cadastro":
-            nome_prompt = "Digite o nome do cargo: "
-            salario_prompt = "Digite o salario: "
-        else:
-            nome_display = nome_atual.capitalize() if nome_atual else ""
-            salario_display = f"{salario_atual:.2f}" if salario_atual is not None else ""
-            nome_prompt = f"Digite o novo nome do cargo (Atual: {nome_display}): "
-            salario_prompt = f"Digite o novo salário (Atual: R\${salario_display}): "
+        titulo = f'-------- DADOS DO CARGO ({modo.upper()}) ----------'
+        nome_label = f"Nome do Cargo ({'Atual: ' + nome_display if modo == 'alteracao' and nome_display else 'Obrigatório'}):"
+        salario_label = f"Salário (R$) ({'Atual: R$' + salario_display if modo == 'alteracao' and salario_display else 'Obrigatório'}):"
 
-        nome = input(nome_prompt).strip()
-        if not nome:
-            if modo == "alteracao":
-                nome = nome_atual
-            else:
-                self.mostra_mensagem("Nome do cargo é obrigatório. Operação cancelada.")
-                return None
+        layout = [
+            [sg.Text(titulo, font=("Helvica", 25))],
+            [sg.Text(nome_label, size=(25, 1)), sg.InputText(nome_display, key='nome')], 
+            [sg.Text(salario_label, size=(25, 1)), sg.InputText(salario_display, key='salario')],
+            [sg.Button('Confirmar'), sg.Button('Cancelar')]
+        ]
+        self.__window = sg.Window('Dados do Cargo', layout, finalize=True)
 
-        salario = None
-        while salario is None:
-            salario_str = input(salario_prompt).strip()
-            if not salario_str:
+        button, values = self.open()
+        self.close()
+
+        if button == 'Confirmar':
+            nome = values['nome'].strip()
+            salario_str = values['salario'].strip().replace(',', '.')
+
+            if not nome:
                 if modo == "alteracao":
-                    salario = salario_atual
-                    break
+                    nome = nome_atual
                 else:
-                    self.mostra_mensagem("Salário é obrigatório na criação. Operação cancelada.")
+                    self.mostra_mensagem("Nome do cargo é obrigatório no cadastro!")
                     return None
+
+            salario = None
+            if not salario_str:
+                if modo == "alteracao" and salario_atual is not None:
+                    salario = salario_atual
+                else:
+                    self.mostra_mensagem("Salário é obrigatório no cadastro!")
+                    return None
+            else:
+                try:
+                    salario = float(salario_str)
+                    if salario <= 0:
+                        self.mostra_mensagem("Salário inválido! Digite um número positivo.")
+                        return None
+                except ValueError:
+                    self.mostra_mensagem("Salário inválido! Digite um número real positivo (use ponto ou vírgula).")
+                    return None
+
+            return {
+                "nome": nome,
+                "salario": salario
+            }
             
-            try:
-                salario = float(salario_str.replace(',', '.'))
-                if salario <= 0:
-                    raise ValueError("Salário deve ser um número positivo.")
-            except ValueError as e:
-                self.mostra_mensagem(f"Valor inválido: {e}. Por favor, digite um número positivo válido.")
+        return None
+
+    def seleciona_cargo(self) -> Optional[str]:
+        sg.ChangeLookAndFeel('DarkBlue3')
+        layout = [
+            [sg.Text('-------- SELECIONAR CARGO ----------', font=("Helvica", 20))],
+            [sg.Text('Digite o nome do cargo:', font=("Helvica", 12))],
+            [sg.InputText('', key='nome_selecionado')],
+            [sg.Button('Confirmar'), sg.Button('Cancelar')]
+        ]
+        self.__window = sg.Window('Selecionar Cargo', layout, finalize=True)
+
+        button, values = self.open()
+        self.close()
+
+        if button == 'Confirmar' and values['nome_selecionado'].strip():
+            return values['nome_selecionado'].strip()
+        return None
+
+    def mostra_lista(self, lista_cargos: List[Dict[str, Any]]):
+        headings = ['Nome', 'Salário (R$)']
+
+        data = []
+        for cargo in lista_cargos:
+            salario_formatado = f"R$ {cargo.get('salario', 0.0):.2f}"
+            data.append([cargo.get('nome', 'N/A'), salario_formatado])
         
-        dados["nome"] = nome
-        dados["salario"] = salario
-        return dados
-
-    def seleciona_cargo(self) -> str:
-        """Solicita ao usuário o nome de um cargo para seleção."""
-        nome = input("Digite o nome do cargo: ").strip()
-        return nome
-
-    def mostra_mensagem(self, mensagem: str):
-        """Exibe uma mensagem para o usuário."""
-        print(mensagem)
-
-    def mostra_lista(self, lista: List[str]):
-        """Exibe uma lista de itens para o usuário."""
-        if not lista:
-            print("--- Lista vazia ---")
+        if not data:
+            self.mostra_mensagem("Nenhum cargo cadastrado.")
             return
-        for item in lista:
-            print(item)
+
+        sg.ChangeLookAndFeel('LightGreen')
+        layout = [
+            [sg.Text('-------- LISTA DE CARGOS ----------', font=("Helvica", 25))],
+            [sg.Table(values=data, 
+                      headings=headings, 
+                      auto_size_columns=True, 
+                      display_row_numbers=False, 
+                      justification='left', 
+                      num_rows=min(25, len(data)), 
+                      key='-TABLE-',
+                      row_height=25)],
+            [sg.Button('Fechar')]
+        ]
+        
+        self.__window = sg.Window('Lista de Cargos', layout, finalize=True)
+        self.open() 
+        self.close()
 
     def confirma_acao(self, mensagem: str) -> bool:
-        """Solicita confirmação do usuário via console."""
-        while True:
-            resposta = input(f"{mensagem} (sim/nao): ").strip().lower()
-            if resposta == "sim":
-                return True
-            elif resposta == "nao":
-                return False
-            else:
-                print("Resposta inválida. Por favor, digite 'sim' ou 'nao'.")
+        confirmacao = sg.popup_yes_no(mensagem, title="Confirmar Ação", font=("Helvica", 12))
+        return confirmacao == 'Yes'

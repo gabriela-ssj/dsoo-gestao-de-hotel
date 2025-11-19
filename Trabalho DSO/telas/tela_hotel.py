@@ -9,8 +9,9 @@ class TelaHotel(TelaAbstrata):
         print("4 - Pagamentos")
         print("5 - Recursos Humanos")
         print("6 - Relatório: Quartos mais reservados")
+        print("7 - Gerenciar Serviços de Quarto")
         print("0 - Retornar ao menu anterior")
-        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5, 6])
+        return self.le_num_inteiro("Escolha a opção: ", [0, 1, 2, 3, 4, 5, 6,7])
 
     def mostra_lista(self, lista):
         print("\n--- LISTA ---")
