@@ -73,10 +73,10 @@ class TelaReserva(TelaAbstrata):
 
     layout = [
       [sg.Text(f'-------- DADOS DA RESERVA ({modo.upper()}) ----------', font=("Helvica", 25))],
-      [sg.Text('CPFs do(s) Hóspede(s) (separados por vírgula):', size=(30, 1)), sg.InputText(hospedes_val, key='hospedes_cpfs')],
-      [sg.Text('Numero do(s) Quarto(s) (separados por vírgula):', size=(30, 1)), sg.InputText(quartos_val, key='quartos_ids')],
-      [sg.Text('Data Check-in (DD/MM/AAAA):', size=(30, 1)), sg.InputText(checkin_val, key='checkin_data')],
-      [sg.Text('Data Check-out (DD/MM/AAAA):', size=(30, 1)), sg.InputText(checkout_val, key='checkout_data')],
+      [sg.Text('CPFs do(s) Hóspede(s) (separados por vírgula):', size=(50, 1)), sg.InputText(hospedes_val, key='hospedes_cpfs')],
+      [sg.Text('Numero do(s) Quarto(s) (separados por vírgula):', size=(50, 1)), sg.InputText(quartos_val, key='quartos_ids')],
+      [sg.Text('Data Check-in (DD/MM/AAAA):', size=(50, 1)), sg.InputText(checkin_val, key='checkin_data')],
+      [sg.Text('Data Check-out (DD/MM/AAAA):', size=(50, 1)), sg.InputText(checkout_val, key='checkout_data')],
       [sg.Button('Confirmar'), sg.Button('Cancelar')]
     ]
     self.__window = sg.Window('Dados da Reserva').Layout(layout)
@@ -252,8 +252,8 @@ class TelaReserva(TelaAbstrata):
           sg.ChangeLookAndFeel('DarkTeal4')
           layout = [
             [sg.Text('-------- ADICIONAR PET ----------', font=("Helvica", 20))],
-            [sg.Text('Nome do Pet:', size=(20, 1)), sg.InputText('', key='nome_pet')],
-            [sg.Text('Espécie do Pet (Ex: Cachorro, Gato):', size=(20, 1)), sg.InputText('', key='especie')], 
+            [sg.Text('Nome do Pet:', size=(40, 1)), sg.InputText('', key='nome_pet')],
+            [sg.Text('Espécie do Pet (Ex: Cachorro, Gato):', size=(40, 1)), sg.InputText('', key='especie')], 
             [sg.Button('Confirmar'), sg.Button('Cancelar')]
           ]
           self.__window = sg.Window('Adicionar Pet').Layout(layout)

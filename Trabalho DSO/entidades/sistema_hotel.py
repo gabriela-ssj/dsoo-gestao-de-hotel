@@ -40,4 +40,3 @@ class SistemaHotel:
 
     def buscar_hotel(self, nome: str) -> Optional[Hotel]:
         return next((h for h in self.__hoteis if h.nome == nome), None)
-    

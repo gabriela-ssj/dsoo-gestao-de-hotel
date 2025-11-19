@@ -55,10 +55,9 @@ class ControladorSistemaHotel:
             if nome_hotel in self.__controladorasHoteis:
                 controlador_hotel_existente = self.__controladorasHoteis[nome_hotel]
                 if controlador_hotel_existente._ControladorHotel__hotel is hotel_entidade:
-                    #reutiliza o controlador existente
+
                     controlador_hotel_existente.abre_tela()
                 else:
-                    #entidade mudou, recria o controlador
                     novo_controlador_hotel = ControladorHotel(hotel_entidade)
                     self.__controladorasHoteis[nome_hotel] = novo_controlador_hotel
                     novo_controlador_hotel.abre_tela()

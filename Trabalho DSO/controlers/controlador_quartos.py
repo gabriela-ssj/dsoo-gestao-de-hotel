@@ -2,6 +2,7 @@ from entidades.quartos import Suite, Duplo, Simples
 from entidades.quarto import Quarto
 from telas.tela_quarto import TelaQuarto
 from controlers.ValidacaoException import ValidacaoException
+from typing import Optional, Dict, Any, List
 
 
 class ControladorQuarto:
@@ -31,35 +32,54 @@ class ControladorQuarto:
         }
 
         while True:
-            opcao = self.__tela.tela_opcoes()
+            try:
+                opcao = self.__tela.tela_opcoes()
 
-            if opcao in opcoes:
-                opcoes[opcao]()
-                if opcao == 0:
-                    break
-            else:
-                self.__tela.mostra_mensagem("Opção inválida.")
+                if opcao in opcoes:
+                    opcoes[opcao]()
+                    if opcao == 0:
+                        break
+                else:
+                    self.__tela.mostra_mensagem("Opção inválida.")
+            except Exception as e:
+                self.__tela.mostra_mensagem(f"Um erro ocorreu no sistema: {e}")
 
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
     def buscar_quarto(self, numero: int) -> Quarto | None:
+        try:
+            ValidacaoException.validar_campo_vazio(str(numero), "Número do Quarto")
+        except ValidacaoException:
+
+            return None
+
         for quarto in self.__quartos:
             if quarto.numero == numero:
                 return quarto
         return None
 
+    def _get_hospede_nome(self, quarto: Quarto) -> str:
+
+        if quarto.disponibilidade:
+            return "Vago"
+        else:
+            return "Ocupado"
+
     def cadastrar_quarto(self):
         try:
-            dados = self.__tela.pega_dados_quarto()
-            ValidacaoException.se_none(dados, "Dados inválidos.")
+            dados: Optional[Dict[str, Any]] = self.__tela.pega_dados_quarto(modo=None)
+            
+            if dados is None:
+                 self.__tela.mostra_mensagem("Cadastro de quarto cancelado.")
+                 return
 
-            numero = dados["numero"]
+            numero: int = dados["numero"]
 
             if self.buscar_quarto(numero):
                 raise ValidacaoException(f"O quarto nº {numero} já está cadastrado.")
 
-            tipo = dados["tipo"]
+            tipo = dados["tipo"].lower()
             ClasseQuarto = self.__mapa_tipos.get(tipo)
 
             if not ClasseQuarto:
@@ -69,7 +89,7 @@ class ControladorQuarto:
             disponibilidade = True
 
             if tipo == "suite":
-                hidro = dados.get("hidro", False)
+                hidro: bool = dados.get("hidro", False)
                 quarto = ClasseQuarto(numero, disponibilidade, hidro)
             else:
                 quarto = ClasseQuarto(numero, disponibilidade)
@@ -78,7 +98,7 @@ class ControladorQuarto:
             self.__quartos.append(quarto)
 
             self.__tela.mostra_mensagem(
-                f"Quarto {quarto.numero} cadastrado com sucesso."
+                f"Quarto {quarto.numero} ({tipo.upper()}) cadastrado com sucesso."
             )
 
         except ValidacaoException as e:
@@ -91,61 +111,82 @@ class ControladorQuarto:
             self.__tela.mostra_mensagem("Nenhum quarto cadastrado.")
             return
 
-        lista = []
+        dados_para_tabela: List[Dict[str, Any]] = []
 
-        for q in self.__quartos:
-            tipo = type(q).__name__
-            status = "Disponível" if q.disponibilidade else "Ocupado"
+        for quarto in self.__quartos:
+            tipo = type(quarto).__name__.lower()
+            
+            quarto_dict = {
+                'numero': quarto.numero,
+                'tipo': tipo,
+                'disponibilidade': quarto.disponibilidade,
+                'hospede_nome': self._get_hospede_nome(quarto),
 
-            hidro = ""
-            if isinstance(q, Suite):
-                hidro = f" | Hidro: {'Sim' if q.hidro else 'Não'}"
+                'hidro': False 
+            }
 
-            lista.append(
-                f"{tipo} nº {q.numero} | Diária: R${q.valor_diaria:.2f} | {status}{hidro}"
-            )
+            if isinstance(quarto, Suite):
+                quarto_dict['hidro'] = quarto.hidro
 
-        self.__tela.mostra_lista(lista)
+            dados_para_tabela.append(quarto_dict)
+
+        self.__tela.mostra_lista(dados_para_tabela)
 
     def alterar_quarto(self):
         try:
             numero = self.__tela.seleciona_quarto()
+            
+            if numero is None:
+                self.__tela.mostra_mensagem("Alteração de quarto cancelada.")
+                return
+
             quarto = self.buscar_quarto(numero)
 
             if not quarto:
-                raise ValidacaoException("Quarto não encontrado.")
+                raise ValidacaoException(f"Quarto nº {numero} não encontrado.")
 
             tipo_existente = type(quarto).__name__.lower()
 
-            novos_dados = self.__tela.pega_dados_quarto("alt", tipo_existente)
-            ValidacaoException.se_none(novos_dados, "Dados inválidos.")
+            dados_atuais = {
+                "numero": quarto.numero,
+                "tipo": tipo_existente,
+                "disponibilidade": quarto.disponibilidade,
+                "hidro": quarto.hidro if isinstance(quarto, Suite) else False
+            }
 
-            disp_str = novos_dados["disponibilidade"].lower()
-            if disp_str not in ["sim", "nao", "não"]:
-                raise ValidacaoException("Disponibilidade deve ser 'sim' ou 'nao'.")
-            quarto.disponibilidade = (disp_str == "sim")
+            novos_dados: Optional[Dict[str, Any]] = self.__tela.pega_dados_quarto("alt", dados_atuais)
+            
+            if novos_dados is None:
+                self.__tela.mostra_mensagem("Alteração de quarto cancelada.")
+                return
+
+            quarto.disponibilidade = novos_dados["disponibilidade"]
 
             if isinstance(quarto, Suite):
-                hidro_str = novos_dados["hidro"].lower()
-                if hidro_str not in ["sim", "nao", "não"]:
-                    raise ValidacaoException("Hidro deve ser 'sim' ou 'nao'.")
-                quarto.hidro = (hidro_str == "sim")
+                quarto.hidro = novos_dados["hidro"]
 
-            self.__tela.mostra_mensagem("Quarto alterado com sucesso.")
+            self.__tela.mostra_mensagem(f"Quarto {quarto.numero} alterado com sucesso.")
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro de validação: {e}")
+        except Exception as e:
+             self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
 
     def excluir_quarto(self):
         try:
             numero = self.__tela.seleciona_quarto()
+            
+            if numero is None:
+                self.__tela.mostra_mensagem("Exclusão de quarto cancelada.")
+                return
+
             quarto = self.buscar_quarto(numero)
 
             if not quarto:
-                raise ValidacaoException("Quarto não encontrado.")
-
+                raise ValidacaoException(f"Quarto nº {numero} não encontrado.")
+            
             self.__quartos.remove(quarto)
-            self.__tela.mostra_mensagem("Quarto excluído com sucesso.")
+            self.__tela.mostra_mensagem(f"Quarto {quarto.numero} excluído com sucesso.")
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")

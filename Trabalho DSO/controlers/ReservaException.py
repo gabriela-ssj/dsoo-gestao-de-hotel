@@ -1,6 +1,5 @@
 class ReservaException(Exception):
-    """Erros de regra de negócio da reserva."""
-
+    
     @staticmethod
     def quarto_indisponivel(numero):
         raise ReservaException(f"Quarto {numero} não está disponível para reserva.")
