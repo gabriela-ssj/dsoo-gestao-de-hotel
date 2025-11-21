@@ -88,7 +88,6 @@ class TelaRh(TelaAbstrataGUI):
                  self.mostra_mensagem(item)
             return
 
-
         sg.ChangeLookAndFeel('GrayGrayGray')
         layout = [
             [sg.Text('--- LISTA DE DADOS RH ---', font=("Helvica", 25))],

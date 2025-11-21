@@ -22,8 +22,13 @@ class ControladorSistema:
             1: self.gerenciar_hoteis,
             0: self.encerra_sistema
         }
+        
         while True:
             opcao = self.__tela.tela_opcoes()
+
+            if opcao is None:
+                opcao = 0
+            
             if opcao in opcoes:
                 opcoes[opcao]()
             else:

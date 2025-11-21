@@ -251,6 +251,12 @@ class ControladorReserva:
             reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return
+            
+            if reserva.status == "paga":
+                raise ReservaException(
+                    f"ERRO: Não é permitido adicionar serviços na Reserva ID {reserva.id} "
+                    "porque ela já foi finalizada e está com status 'paga'."
+                )
 
             dados = self.__tela.pega_dados_servico_quarto()
             if not dados:
@@ -286,6 +292,12 @@ class ControladorReserva:
             reserva = self._obter_reserva_por_tela() 
             if not reserva:
                 return
+            
+            if reserva.status == "paga":
+                raise ReservaException(
+                    f"ERRO: Não é permitido adicionar Pet na Reserva ID {reserva.id} "
+                    "porque ela já foi finalizada e está com status 'paga'."
+                )
 
             dados = self.__tela.pega_dados_pet()
             if not dados:

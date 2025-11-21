@@ -119,8 +119,8 @@ class Reserva:
         self.calcular_valor_total()
 
     def editar_reserva(self, nova_data_checkin: Optional[date] = None, nova_data_checkout: Optional[date] = None,
-                       novos_quartos: Optional[List[Quarto]] = None, novos_hospedes: Optional[List[Hospede]] = None,
-                       novos_pets: Optional[List[Pet]] = None):
+                         novos_quartos: Optional[List[Quarto]] = None, novos_hospedes: Optional[List[Hospede]] = None,
+                         novos_pets: Optional[List[Pet]] = None):
         
         if nova_data_checkin:
             if not isinstance(nova_data_checkin, date):
@@ -160,6 +160,24 @@ class Reserva:
 
         self.calcular_valor_total()
 
+    def calcular_valor_diarias_e_pets(self) -> float:
+        """ Calcula o valor base da hospedagem (diárias + taxa pet), excluindo serviços de quarto. """
+        dias = self._calcular_dias()
+        total_diarias_e_pets = 0.0
+
+        for quarto in self.__quartos:
+            num_adultos_reserva = sum(1 for hospede in self.__hospedes if hospede.is_adulto())
+            if num_adultos_reserva > 0: 
+                total_diarias_e_pets += quarto.valor_diaria * dias
+
+        total_diarias_e_pets += sum(pet.calcular_taxa_pet(50.0) for pet in self.__pets)
+        
+        return total_diarias_e_pets
+
+    def get_valor_servicos_adicionais(self) -> float:
+        """ Retorna apenas o valor total acumulado dos serviços de quarto. """
+        return sum(s.valor for s in self.__servicos_quarto if s.valor is not None)
+
     def calcular_valor_total(self):
         dias = self._calcular_dias()
         total = 0.0
@@ -187,6 +205,10 @@ class Reserva:
     
     def get_all_data(self) -> dict:
         hospedes_data = []
+        quartos_data = []
+        servicos_data = []
+        pets_data = []
+
         for hospede in self.__hospedes:
             hospedes_data.append({
                 "nome": hospede.nome,
@@ -196,7 +218,6 @@ class Reserva:
                 "email": hospede.email
             })
 
-        quartos_data = []
         for quarto in self.__quartos:
             quarto_info = {
                 "numero": quarto.numero,
@@ -209,7 +230,6 @@ class Reserva:
                 quarto_info["hidro"] = quarto.hidro
             quartos_data.append(quarto_info)
 
-        servicos_data = []
         for servico in self.__servicos_quarto:
             servicos_data.append({
                 "tipo_servico": servico.tipo_servico,
@@ -220,7 +240,6 @@ class Reserva:
                 "funcionario_cpf": servico.funcionario.cpf if servico.funcionario else None
             })
 
-        pets_data = []
         for pet in self.__pets:
             pets_data.append({
                 "nome_pet": pet.nome_pet,
@@ -234,7 +253,7 @@ class Reserva:
             "checkin": self.__data_checkin.strftime("%d/%m/%Y"),
             "checkout": self.__data_checkout.strftime("%d/%m/%Y"),
             "status": self.__status,
-            "valor_total": round(self.valor_total, 2), # Acessa a propriedade que já recalcula
+            "valor_total": round(self.valor_total, 2),
             "servicos_quarto": servicos_data,
             "pets": pets_data,
             "dias_reservados": self._calcular_dias()
