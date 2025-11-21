@@ -2,8 +2,9 @@ from entidades.quartos import Suite, Duplo, Simples
 from entidades.quarto import Quarto
 from telas.tela_quarto import TelaQuarto
 from controlers.ValidacaoException import ValidacaoException
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from daos.quarto_dao import QuartoDAO
+from daos.reserva_dao import ReservaDAO
 
 
 class ControladorQuarto:
@@ -22,7 +23,6 @@ class ControladorQuarto:
             "duplo": 200.0,
             "simples": 100.0
         }
-
 
     def abre_tela(self):
         opcoes = {
@@ -48,7 +48,6 @@ class ControladorQuarto:
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
-
     def buscar_quarto(self, numero: int) -> Quarto | None:
         try:
             ValidacaoException.validar_campo_vazio(str(numero), "Número do Quarto")
@@ -56,11 +55,6 @@ class ControladorQuarto:
             return None
 
         return self.__quarto_dao.get(numero)
-
-
-    def _get_hospede_nome(self, quarto: Quarto) -> str:
-        return "Vago" if quarto.disponibilidade else "Ocupado"
-
 
     def cadastrar_quarto(self):
         try:
@@ -80,15 +74,15 @@ class ControladorQuarto:
             if not ClasseQuarto:
                 raise ValidacaoException("Tipo de quarto inválido.")
 
-            disponibilidade = True
             valor_diaria = self.__valores_diaria[tipo]
 
             if tipo == "suite":
-                quarto = ClasseQuarto(numero, disponibilidade, dados.get("hidro", False))
+                quarto = ClasseQuarto(numero, True, dados.get("hidro", False))
             else:
-                quarto = ClasseQuarto(numero, disponibilidade)
+                quarto = ClasseQuarto(numero, True)
 
             quarto.valor_diaria = valor_diaria
+
 
             self.__quarto_dao.add(quarto)
 
@@ -100,7 +94,6 @@ class ControladorQuarto:
             self.__tela.mostra_mensagem(f"Erro: {e}")
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
-
 
     def listar_quartos(self):
         quartos = self.__quarto_dao.get_all()
@@ -117,8 +110,7 @@ class ControladorQuarto:
             quarto_dict = {
                 'numero': quarto.numero,
                 'tipo': tipo,
-                'disponibilidade': quarto.disponibilidade,
-                'hospede_nome': self._get_hospede_nome(quarto),
+                'disponibilidade': True,
                 'hidro': quarto.hidro if isinstance(quarto, Suite) else False
             }
 
@@ -142,7 +134,7 @@ class ControladorQuarto:
             dados_atuais = {
                 "numero": quarto.numero,
                 "tipo": tipo_existente,
-                "disponibilidade": quarto.disponibilidade,
+                "disponibilidade": True,
                 "hidro": quarto.hidro if isinstance(quarto, Suite) else False
             }
 
@@ -151,20 +143,16 @@ class ControladorQuarto:
                 self.__tela.mostra_mensagem("Alteração cancelada.")
                 return
 
-            quarto.disponibilidade = novos_dados["disponibilidade"]
-
             if isinstance(quarto, Suite):
                 quarto.hidro = novos_dados["hidro"]
 
             self.__quarto_dao.update(quarto)
-
             self.__tela.mostra_mensagem("Quarto alterado com sucesso.")
 
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
         except Exception as e:
             self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
-
 
     def excluir_quarto(self):
         try:
@@ -183,12 +171,32 @@ class ControladorQuarto:
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro: {e}")
 
-    def verificar_disponibilidade_periodo(self, quarto, data_entrada, data_saida):
-        if not hasattr(quarto, "reservas"):
-            quarto.reservas = []
+    def verificar_disponibilidade_periodo(self, quarto_or_numero, data_entrada, data_saida, reserva_sendo_editada=None):
+        """
+        Verifica se o quarto (objeto ou número) está livre no período informado.
+        Consulta todas as reservas via ReservaDAO (não usa quarto.reservas).
+        Retorna True se disponível, False se houver conflito.
+        """
+        try:
+            if hasattr(quarto_or_numero, "numero"):
+                numero_quarto = quarto_or_numero.numero
+            else:
+                numero_quarto = int(quarto_or_numero)
 
-        for reserva in quarto.reservas:
-            if (data_entrada <= reserva.data_saida) and \
-               (data_saida >= reserva.data_entrada):
-                return False
-        return True
+            reserva_dao = ReservaDAO()
+            todas_reservas = list(reserva_dao.get_all())  
+
+            for reserva in todas_reservas:
+                if reserva_sendo_editada and reserva.id == getattr(reserva_sendo_editada, "id", None):
+                    continue
+
+                if not any(getattr(q, "numero", None) == numero_quarto for q in reserva.quartos):
+                    continue
+
+                if (data_entrada < reserva.data_checkout) and (data_saida > reserva.data_checkin):
+                    return False
+
+            return True
+
+        except Exception:
+            return False

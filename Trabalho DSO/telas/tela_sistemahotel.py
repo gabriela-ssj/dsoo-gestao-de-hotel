@@ -24,6 +24,7 @@ class TelaSistemaHotel(TelaAbstrataGUI):
             return button, values
         return None, None
 
+
     def tela_opcoes(self) -> int:
         """ 
         Exibe a tela de opções do Sistema de Hotéis e retorna a opção selecionada.
@@ -65,6 +66,7 @@ class TelaSistemaHotel(TelaAbstrataGUI):
         
         self.__window = sg.Window('Gerenciar Hotéis', layout, finalize=True)
 
+
     def pega_dados_hotel(self) -> Optional[Dict[str, str]]:
         """ Coleta o nome do hotel para inclusão ou alteração. """
         sg.ChangeLookAndFeel('DarkTeal4')
@@ -83,6 +85,7 @@ class TelaSistemaHotel(TelaAbstrataGUI):
             nome = values['nome_hotel'].strip()
             return {"nome": nome}
         return None
+
 
     def seleciona_hotel(self) -> Optional[str]:
         """ Solicita o nome do hotel para acessar, alterar ou excluir. """
@@ -103,19 +106,29 @@ class TelaSistemaHotel(TelaAbstrataGUI):
             return values['nome_selecionado'].strip()
         return None
 
-    def mostra_lista(self, lista: List[str]):
-        """ Exibe a lista de hotéis em um campo de texto não editável. """
+
+    def mostra_lista(self, lista: List[Any]):
+        """ Exibe lista de hotéis aceitando strings OU dicionários. """
         
         if not lista:
             conteudo = "Nenhum hotel cadastrado."
         else:
             conteudo = "--- HOTÉIS CADASTRADOS ---\n\n"
-            conteudo += "\n".join(lista)
+
+            linhas_formatadas = []
+            for item in lista:
+                if isinstance(item, dict):
+                    bloco = "\n".join(f"{k}: {v}" for k, v in item.items())
+                    linhas_formatadas.append(bloco + "\n" + "-"*30)
+                else:
+                    linhas_formatadas.append(str(item))
+
+            conteudo += "\n".join(linhas_formatadas)
 
         sg.ChangeLookAndFeel('LightBlue4')
         layout = [
             [sg.Text('Lista de Hotéis', font=("Helvica", 16))],
-            [sg.Multiline(conteudo, size=(50, 10), disabled=True)],
+            [sg.Multiline(conteudo, size=(50, 12), disabled=True)],
             [sg.Button('OK')]
         ]
         
