@@ -1,14 +1,13 @@
 from entidades.cargo import Cargo
 from telas.tela_cargo import TelaCargo
-from typing import List, Optional, Dict, Any
-
-from controlers.ValidacaoException import ValidacaoException 
-
+from typing import Optional, Dict, Any, List
+from controlers.ValidacaoException import ValidacaoException
+from daos.cargo_dao import CargoDAO
 
 class ControladorCargo:
     def __init__(self):
         self.__tela = TelaCargo()
-        self.__cargos: List[Cargo] = []
+        self.__cargo_dao = CargoDAO()
         self.populaCargos()
 
     def abre_tela(self):
@@ -19,44 +18,36 @@ class ControladorCargo:
             4: self.excluir_cargo_via_tela,
             0: self.retornar
         }
-        
+
         while True:
-            opcao = self.__tela.tela_opcoes()  
-            
+            opcao = self.__tela.tela_opcoes()
+
             funcao_escolhida = opcoes.get(opcao)
-            
+
             if funcao_escolhida:
                 if opcao == 0:
                     break
                 funcao_escolhida()
             else:
                 self.__tela.mostra_mensagem("Opção inválida.")
-    
 
-    def get_quantidade_cargos(self) -> int: 
-        return len(self.__cargos)
+    def get_quantidade_cargos(self) -> int:
+        return len(self.__cargo_dao.get_all())
 
     def buscar_cargo(self, tipo_cargo: str) -> Optional[Cargo]:
-        for cargo in self.__cargos:
-            if cargo.tipo_cargo.lower() == tipo_cargo.lower():
-                return cargo
-        return None
+        return self.__cargo_dao.get(tipo_cargo)
 
     def retornar(self):
-        pass 
+        pass
 
     def listar_cargos_disponiveis(self):
-        if not self.__cargos:
+        cargos = list(self.__cargo_dao.get_all().values())
+
+        if not cargos:
             self.__tela.mostra_mensagem("Nenhum cargo cadastrado.")
             return
 
-        dados_cargos: List[Dict[str, Any]] = []
-        for cargo in self.__cargos:
-            dados_cargos.append({
-                "nome": cargo.tipo_cargo.capitalize(), 
-                "salario": cargo.salario_base
-            })
-            
+        dados_cargos = [{"nome": c.tipo_cargo.capitalize(), "salario": c.salario_base} for c in cargos]
         self.__tela.mostra_lista(dados_cargos)
 
     def criar_cargo_via_tela(self):
@@ -72,24 +63,17 @@ class ControladorCargo:
             self.__tela.mostra_mensagem(f"Cargo '{nome_cargo.capitalize()}' criado com sucesso!")
         except ValidacaoException as e:
             self.__tela.mostra_mensagem(f"Erro ao criar cargo: {e}")
-        except Exception as e:
-            self.__tela.mostra_mensagem(f"Erro inesperado ao criar cargo: {e}")
 
     def adicionar_cargo_programaticamente(self, tipo_cargo: str, salario: float) -> Cargo:
-        if not isinstance(tipo_cargo, str) or not tipo_cargo.strip():
+        if not tipo_cargo.strip():
             raise ValidacaoException("Tipo de cargo deve ser uma string não vazia.")
 
         if self.buscar_cargo(tipo_cargo):
             raise ValidacaoException(f"Cargo '{tipo_cargo.capitalize()}' já existe.")
-        
-        try:
-            novo_cargo = Cargo(tipo_cargo=tipo_cargo, salario_base=salario)
-            self.__cargos.append(novo_cargo)
-            return novo_cargo
-        except ValueError as e:
-            raise ValidacaoException(f"Erro de validação na entidade Cargo: {e}") from e
-        except Exception as e:
-            raise ValidacaoException(f"Erro inesperado ao criar cargo internamente: {e}") from e
+
+        novo_cargo = Cargo(tipo_cargo=tipo_cargo, salario_base=salario)
+        self.__cargo_dao.add(novo_cargo)
+        return novo_cargo
 
     def alterar_cargo_via_tela(self):
         nome_cargo_para_alterar = self.__tela.seleciona_cargo()
@@ -105,65 +89,58 @@ class ControladorCargo:
                 nome_atual=cargo_encontrado.tipo_cargo.capitalize(),
                 salario_atual=cargo_encontrado.salario_base
             )
+
             if novos_dados is None:
-                self.__tela.mostra_mensagem("Alteração de cargo cancelada.")
+                self.__tela.mostra_mensagem("Alteração cancelada.")
                 return
 
             novo_nome = novos_dados["nome"]
             novo_salario = novos_dados["salario"]
 
-            try:
+            if novo_nome.lower() != cargo_encontrado.tipo_cargo.lower():
+                if self.buscar_cargo(novo_nome):
+                    self.__tela.mostra_mensagem(f"Já existe um cargo '{novo_nome.capitalize()}'.")
+                    return
 
-                if novo_nome.lower() != cargo_encontrado.tipo_cargo.lower():
-                    if self.buscar_cargo(novo_nome):
-                        raise ValidacaoException(f"Já existe um cargo com o nome '{novo_nome.capitalize()}'.")
+                self.__cargo_dao.remove(cargo_encontrado.tipo_cargo)
+                cargo_encontrado.tipo_cargo = novo_nome
 
-                    cargo_encontrado.tipo_cargo = novo_nome 
+            cargo_encontrado.salario_base = novo_salario
 
-                if cargo_encontrado.salario_base != novo_salario:
-                     cargo_encontrado.salario_base = novo_salario
-                
-                self.__tela.mostra_mensagem(f"Cargo alterado para '{cargo_encontrado.tipo_cargo.capitalize()}' (Salário: R${cargo_encontrado.salario_base:.2f}).")
+            self.__cargo_dao.update(cargo_encontrado)
 
-            except ValueError as e:
-                self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
-            except ValidacaoException as e:
-                self.__tela.mostra_mensagem(f"Erro de validação ao alterar cargo: {e}")
-            except Exception as e:
-                self.__tela.mostra_mensagem(f"Erro inesperado ao alterar cargo: {e}")
+            self.__tela.mostra_mensagem(
+                f"Cargo alterado para '{cargo_encontrado.tipo_cargo.capitalize()}' (R${cargo_encontrado.salario_base:.2f})."
+            )
         else:
-            self.__tela.mostra_mensagem(f"Cargo '{nome_cargo_para_alterar.capitalize()}' não encontrado.")
+            self.__tela.mostra_mensagem(f"Cargo '{nome_cargo_para_alterar}' não encontrado.")
 
     def excluir_cargo_via_tela(self):
-        nome_cargo_para_excluir = self.__tela.seleciona_cargo()
-        if not nome_cargo_para_excluir:
-            self.__tela.mostra_mensagem("Exclusão de cargo cancelada.")
+        nome = self.__tela.seleciona_cargo()
+
+        if not nome:
+            self.__tela.mostra_mensagem("Exclusão cancelada.")
             return
 
-        cargo_encontrado = self.buscar_cargo(nome_cargo_para_excluir)
+        cargo = self.buscar_cargo(nome)
+        if not cargo:
+            self.__tela.mostra_mensagem(f"Cargo '{nome}' não encontrado.")
+            return
 
-        if cargo_encontrado:
-            confirmacao = self.__tela.confirma_acao(f"Tem certeza que deseja excluir o cargo '{nome_cargo_para_excluir.capitalize()}'?")
-            if confirmacao:
-                self.__cargos.remove(cargo_encontrado)
-                self.__tela.mostra_mensagem(f"Cargo '{nome_cargo_para_excluir.capitalize()}' excluído.")
-            else:
-                self.__tela.mostra_mensagem("Operação de exclusão cancelada.")
+        confirmacao = self.__tela.confirma_acao(
+            f"Tem certeza que deseja excluir o cargo '{nome.capitalize()}'?"
+        )
+
+        if confirmacao:
+            self.__cargo_dao.remove(nome)
+            self.__tela.mostra_mensagem(f"Cargo '{nome.capitalize()}' excluído.")
         else:
-            self.__tela.mostra_mensagem(f"Cargo '{nome_cargo_para_excluir.capitalize()}' não encontrado.")
-
-    def _adicionar_cargo_diretamente(self, nome: str, salario: float) -> bool:
-        try:
-            self.adicionar_cargo_programaticamente(nome, salario)
-            return True
-        except ValidacaoException:
-
-            return False
-        except Exception as e:
-            print(f"Erro inesperado ao popular cargo '{nome}': {e}")
-            return False
+            self.__tela.mostra_mensagem("Operação cancelada.")
 
     def populaCargos(self):
+        if len(self.__cargo_dao.get_all()) > 0:
+            return  
+
         cargos_iniciais = [
             ("gerente", 5000.0),
             ("recepcionista", 2500.0),
@@ -172,5 +149,9 @@ class ControladorCargo:
             ("limpeza", 2000.0),
             ("serviços gerais", 2100.0),
         ]
+
         for nome, salario in cargos_iniciais:
-            self._adicionar_cargo_diretamente(nome, salario)
+            try:
+                self.adicionar_cargo_programaticamente(nome, salario)
+            except:
+                pass
