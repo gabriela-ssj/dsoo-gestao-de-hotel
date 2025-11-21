@@ -1,103 +1,112 @@
-from entidades.sistema_hotel import SistemaHotel
 from entidades.hotel import Hotel
+from entidades.sistema_hotel import SistemaHotel
 from controlers.controlador_hotel import ControladorHotel
 from telas.tela_sistemahotel import TelaSistemaHotel
-from typing import Dict, Optional
+from daos.hotel_dao import HotelDAO
+from daos.sistema_hotel_dao import SistemaHotelDAO
+
 
 class ControladorSistemaHotel:
-    def __init__(self):
-        self.__controladorasHoteis: Dict[str, ControladorHotel] = {}
-        self.__sistema_hotel = SistemaHotel()
+
+    def __init__(self, controlador_sistema=None):
+        self.__hotel_DAO = HotelDAO()
         self.__tela = TelaSistemaHotel()
-        self.tela_aberta = False
+        self.__controlador_sistema = controlador_sistema
+        self.__controladorasHoteis = {}
+
+    def pega_hotel_por_nome(self, nome: str):
+        nome = nome.strip().lower()
+        for hotel in self.__hotel_DAO.get_all():
+            if hotel.nome == nome:
+                return hotel
+        return None
 
     def incluir_hotel(self):
         dados = self.__tela.pega_dados_hotel()
+
         if not dados or not dados.get("nome"):
-            self.__tela.mostra_mensagem("Inclusão cancelada ou dados inválidos.")
+            self.__tela.mostra_mensagem("Dados inválidos.")
             return
 
-        nome_normalizado = dados["nome"].strip().lower()
-        hotel = Hotel(nome_normalizado)
-        if self.__sistema_hotel.incluir_hotel(hotel):
-            self.__tela.mostra_mensagem("Hotel incluído com sucesso.")
-        else:
-            self.__tela.mostra_mensagem("Já existe um hotel com esse nome.")
+        nome = dados["nome"].strip().lower()
 
-    def excluir_hotel(self):
-        input_hotel = self.__tela.seleciona_hotel()
-        if not input_hotel:
-            self.__tela.mostra_mensagem("Operação cancelada.")
+        if self.pega_hotel_por_nome(nome):
+            self.__tela.mostra_mensagem("Já existe um hotel com esse nome!")
             return
 
-        nome = input_hotel.strip().lower()
-        
-        if self.__sistema_hotel.excluir_hotel(nome):
-            self.__tela.mostra_mensagem("Hotel excluído com sucesso.")
-        else:
-            self.__tela.mostra_mensagem("Hotel não encontrado.")
+        hotel = Hotel(nome)
+        self.__hotel_DAO.add(hotel)
+        self.__tela.mostra_mensagem("Hotel incluído com sucesso.")
 
     def alterar_hotel(self):
-        input_hotel = self.__tela.seleciona_hotel()
-        if not input_hotel:
-            self.__tela.mostra_mensagem("Operação cancelada.")
+        self.listar_hoteis()
+        nome = self.__tela.seleciona_hotel()
+
+        hotel = self.pega_hotel_por_nome(nome)
+        if hotel is None:
+            self.__tela.mostra_mensagem("Hotel não encontrado.")
             return
 
-        nome = input_hotel.strip().lower()
-        hotel = self.__sistema_hotel.buscar_hotel(nome)
-        
-        if hotel:
-            novos_dados = self.__tela.pega_dados_hotel()
+        novos_dados = self.__tela.pega_dados_hotel()
+        if not novos_dados or not novos_dados.get("nome"):
+            self.__tela.mostra_mensagem("Nome inválido.")
+            return
 
-            if not novos_dados or not novos_dados.get("nome"):
-                 self.__tela.mostra_mensagem("Alteração cancelada ou nome inválido.")
-                 return
-                 
-            novos_dados["nome"] = novos_dados["nome"].strip().lower()
-            self.__sistema_hotel.alterar_hotel(nome, novos_dados)
-            self.__tela.mostra_mensagem("Hotel alterado com sucesso.")
-        else:
+        novo_nome = novos_dados["nome"].strip().lower()
+
+        existente = self.pega_hotel_por_nome(novo_nome)
+        if existente and existente != hotel:
+            self.__tela.mostra_mensagem("Já existe outro hotel com esse nome.")
+            return
+
+        hotel.nome = novo_nome
+        self.__hotel_DAO.update(hotel)
+        self.__tela.mostra_mensagem("Hotel alterado com sucesso.")
+
+    def excluir_hotel(self):
+        self.listar_hoteis()
+        nome = self.__tela.seleciona_hotel()
+
+        hotel = self.pega_hotel_por_nome(nome)
+        if hotel is None:
             self.__tela.mostra_mensagem("Hotel não encontrado.")
+            return
+
+        self.__hotel_DAO.remove(hotel.nome)
+        self.__tela.mostra_mensagem("Hotel excluído com sucesso.")
 
     def listar_hoteis(self):
-        lista = self.__sistema_hotel.listar_hoteis()
-        if lista:
-            self.__tela.mostra_lista(lista)
-        else:
+        dados_hoteis = []
+        for hotel in self.__hotel_DAO.get_all():
+            dados_hoteis.append({"nome": hotel.nome})
+
+        if not dados_hoteis:
             self.__tela.mostra_mensagem("Nenhum hotel cadastrado.")
+        else:
+            self.__tela.mostra_lista(dados_hoteis)
 
     def acessar_hotel(self):
-        input_hotel = self.__tela.seleciona_hotel()
-        if not input_hotel:
-            self.__tela.mostra_mensagem("Operação cancelada.")
+        self.listar_hoteis()
+        nome = self.__tela.seleciona_hotel()
+
+        hotel = self.pega_hotel_por_nome(nome)
+        if hotel is None:
+            self.__tela.mostra_mensagem("Hotel não encontrado.")
             return
 
-        nome_hotel = input_hotel.strip().lower()
-
-        hotel_entidade = self.__sistema_hotel.buscar_hotel(nome_hotel)
-
-        if hotel_entidade:
-            if nome_hotel in self.__controladorasHoteis:
-                controlador_hotel_existente = self.__controladorasHoteis[nome_hotel]
-                
-                if getattr(controlador_hotel_existente, '_ControladorHotel__hotel', None) is hotel_entidade:
-                    controlador_hotel_existente.abre_tela()
-                else:
-                    novo_controlador_hotel = ControladorHotel(hotel_entidade)
-                    self.__controladorasHoteis[nome_hotel] = novo_controlador_hotel
-                    novo_controlador_hotel.abre_tela()
-            else:
-                novo_controlador_hotel = ControladorHotel(hotel_entidade)
-                self.__controladorasHoteis[nome_hotel] = novo_controlador_hotel
-                novo_controlador_hotel.abre_tela()
+        if hotel.nome in self.__controladorasHoteis:
+            ctrl = self.__controladorasHoteis[hotel.nome]
         else:
-            self.__tela.mostra_mensagem("Hotel não encontrado.")
+            ctrl = ControladorHotel(hotel)
+            self.__controladorasHoteis[hotel.nome] = ctrl
+
+        ctrl.abre_tela()
 
     def retornar(self):
-        self.tela_aberta = False
+        if self.__controlador_sistema:
+            self.__controlador_sistema.abre_tela()
 
     def abre_tela(self):
-        self.tela_aberta = True
         opcoes = {
             1: self.incluir_hotel,
             2: self.alterar_hotel,
@@ -106,9 +115,11 @@ class ControladorSistemaHotel:
             5: self.acessar_hotel,
             0: self.retornar
         }
-        while self.tela_aberta:
-            opcao = self.__tela.tela_opcoes()
-            if opcao in opcoes:
-                opcoes[opcao]()
+
+        continua = True
+        while continua:
+            escolha = self.__tela.tela_opcoes()
+            if escolha in opcoes:
+                opcoes[escolha]()
             else:
                 self.__tela.mostra_mensagem("Opção inválida.")
