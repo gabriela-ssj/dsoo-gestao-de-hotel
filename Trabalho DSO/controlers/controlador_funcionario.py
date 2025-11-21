@@ -3,7 +3,8 @@ from entidades.cargo import Cargo
 from telas.tela_funcionario import TelaFuncionario
 from controlers.controlador_cargo import ControladorCargo
 from controlers.ValidacaoException import ValidacaoException
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+from daos.funcionario_dao import FuncionarioDAO
 
 
 class ControladorFuncionario:
@@ -11,13 +12,13 @@ class ControladorFuncionario:
         if not isinstance(controlador_cargo, ControladorCargo):
             raise TypeError("ControladorFuncionario deve ser inicializado com um objeto ControladorCargo.")
 
-        self.__funcionarios: List[Funcionario] = []
+        self.__dao = FuncionarioDAO()
         self.__controlador_cargo = controlador_cargo
-        self.__tela = TelaFuncionario() 
+        self.__tela = TelaFuncionario()
 
     @property
     def funcionarios(self) -> List[Funcionario]:
-        return list(self.__funcionarios)
+        return list(self.__dao.get_all().values())
 
     def abre_tela(self):
         opcoes = {
@@ -29,11 +30,7 @@ class ControladorFuncionario:
         }
 
         while True:
-            opcao = self.__tela.tela_opcoes() 
-
-            if not opcao and opcao != 0:
-                self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma das opções.")
-                continue
+            opcao = self.__tela.tela_opcoes()
 
             funcao_escolhida = opcoes.get(str(opcao))
             if funcao_escolhida:
@@ -41,139 +38,120 @@ class ControladorFuncionario:
                     break
                 funcao_escolhida()
             else:
-                self.__tela.mostra_mensagem("Opção inválida. Por favor, escolha uma das opções.")
+                self.__tela.mostra_mensagem("Opção inválida.")
 
     def retornar(self):
         pass
 
     def _buscar_funcionario_por_cpf(self, cpf: str) -> Funcionario:
-        for funcionario in self.__funcionarios:
-            if funcionario.cpf == cpf:
-                return funcionario
-        raise ValidacaoException(f"Funcionário com CPF {cpf} não encontrado.")
+        funcionario = self.__dao.get(cpf)
+        if not funcionario:
+            raise ValidacaoException(f"Funcionário com CPF {cpf} não encontrado.")
+        return funcionario
 
     def cadastrar_funcionario(self):
         try:
             dados = self.__tela.pega_dados_funcionario(modo="cadastro")
-            ValidacaoException.se_none(dados, "Cadastro de funcionário cancelado pelo usuário.")
-            ValidacaoException.validar_cpf_unico(self.__funcionarios, dados["cpf"])
+
+            ValidacaoException.se_none(dados, "Operação cancelada.")
+            ValidacaoException.validar_cpf_unico(self.funcionarios, dados["cpf"])
             ValidacaoException.validar_campo_vazio(dados["nome"], "nome")
             ValidacaoException.validar_idade_valida(int(dados["idade"]))
             ValidacaoException.validar_email(dados["email"])
             ValidacaoException.validar_salario_valido(float(dados["salario"]))
 
-            tipo_cargo_str = dados["tipo_cargo"]
-            cargo = self.__controlador_cargo.buscar_cargo(tipo_cargo_str)
-
+            cargo = self.__controlador_cargo.buscar_cargo(dados["tipo_cargo"])
             if not cargo:
-                self.__tela.mostra_mensagem(
-                    f"Cargo '{tipo_cargo_str.capitalize()}' não encontrado. Criando automaticamente com salário padrão."
-                )
-
-                salario_base_para_cargo_novo = self.__controlador_cargo.get_default_salario_for_cargo(tipo_cargo_str)
-
+                salario_padrao = self.__controlador_cargo.get_default_salario_for_cargo(dados["tipo_cargo"])
                 cargo = self.__controlador_cargo.adicionar_cargo_programaticamente(
-                    tipo_cargo_str, salario_base_para_cargo_novo
+                    dados["tipo_cargo"], salario_padrao
                 )
-            
-            salario_funcionario = float(dados["salario"]) 
+
             funcionario = Funcionario(
                 nome=dados["nome"],
                 cpf=dados["cpf"],
                 idade=int(dados["idade"]),
                 telefone=dados["telefone"],
                 email=dados["email"],
-                cargo=cargo, 
-                salario=salario_funcionario
+                cargo=cargo,
+                salario=float(dados["salario"])
             )
 
-            self.__funcionarios.append(funcionario)
+            self.__dao.add(funcionario)
             self.__tela.mostra_mensagem(f"Funcionário {funcionario.nome} cadastrado com sucesso!")
 
-        except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f'Erro de validação: {e}')
-        except ValueError as e:
-            self.__tela.mostra_mensagem(f'Erro de formato nos dados: {e}. Verifique se idade e salário são números válidos.')
         except Exception as e:
-            self.__tela.mostra_mensagem(f'Erro inesperado ao cadastrar funcionário: {e}')
+            self.__tela.mostra_mensagem(f"Erro ao cadastrar funcionário: {e}")
+
 
     def listar_funcionarios(self):
-        if not self.__funcionarios:
-            self.__tela.mostra_mensagem("Nenhum funcionário cadastrado no momento.")
+        funcionarios = self.funcionarios
+
+        if not funcionarios:
+            self.__tela.mostra_mensagem("Nenhum funcionário cadastrado.")
             return
 
-        dados_para_exibir = [f.to_dict() for f in self.__funcionarios]
-        self.__tela.mostra_funcionarios(dados_para_exibir) 
+        dados = [f.to_dict() for f in funcionarios]
+        self.__tela.mostra_funcionarios(dados)
+
 
     def alterar_funcionario(self):
         try:
-            cpf_para_alterar = self.__tela.seleciona_funcionario()
-            ValidacaoException.se_none(cpf_para_alterar, "Alteração de funcionário cancelada.")
+            cpf = self.__tela.seleciona_funcionario()
+            ValidacaoException.se_none(cpf, "Operação cancelada.")
 
-            funcionario_existente = self._buscar_funcionario_por_cpf(cpf_para_alterar)
-            
+            funcionario = self._buscar_funcionario_por_cpf(cpf)
+
             novos_dados = self.__tela.pega_dados_funcionario(
                 modo="alteracao",
-                dados_atuais=funcionario_existente.to_dict()
+                dados_atuais=funcionario.to_dict()
             )
-            ValidacaoException.se_none(novos_dados, "Alteração de funcionário cancelada pelo usuário.")
+            ValidacaoException.se_none(novos_dados, "Operação cancelada.")
+
             ValidacaoException.validar_campo_vazio(novos_dados["nome"], "nome")
             ValidacaoException.validar_idade_valida(int(novos_dados["idade"]))
             ValidacaoException.validar_email(novos_dados["email"])
             ValidacaoException.validar_salario_valido(float(novos_dados["salario"]))
 
-            novo_tipo_cargo_str = novos_dados.get('tipo_cargo')
-            novo_cargo_obj: Optional[Cargo] = None
+            cargo_atual = funcionario.cargo
+            novo_cargo = cargo_atual
 
-            if novo_tipo_cargo_str and novo_tipo_cargo_str.lower() != funcionario_existente.cargo.tipo_cargo.lower():
-                novo_cargo_obj = self.__controlador_cargo.buscar_cargo(novo_tipo_cargo_str)
-                if not novo_cargo_obj:
-                    self.__tela.mostra_mensagem(
-                        f"Novo Cargo '{novo_tipo_cargo_str.capitalize()}' não encontrado. Criando automaticamente com salário padrão."
+            if novos_dados["tipo_cargo"].lower() != cargo_atual.tipo_cargo.lower():
+                novo_cargo = self.__controlador_cargo.buscar_cargo(novos_dados["tipo_cargo"])
+                if not novo_cargo:
+                    salario_padrao = self.__controlador_cargo.get_default_salario_for_cargo(
+                        novos_dados["tipo_cargo"]
                     )
-                    salario_base_para_cargo_novo = self.__controlador_cargo.get_default_salario_for_cargo(novo_tipo_cargo_str)
-
-                    novo_cargo_obj = self.__controlador_cargo.adicionar_cargo_programaticamente(
-                        novo_tipo_cargo_str, salario_base_para_cargo_novo
+                    novo_cargo = self.__controlador_cargo.adicionar_cargo_programaticamente(
+                        novos_dados["tipo_cargo"], salario_padrao
                     )
-    
-            funcionario_existente.nome = novos_dados["nome"]
-            funcionario_existente.idade = int(novos_dados["idade"])
-            funcionario_existente.telefone = novos_dados["telefone"]
-            funcionario_existente.email = novos_dados["email"]
-            funcionario_existente.salario = float(novos_dados["salario"])
-            if novo_cargo_obj:
-                funcionario_existente.cargo = novo_cargo_obj 
 
-            self.__tela.mostra_mensagem(f"Funcionário {funcionario_existente.nome} alterado com sucesso!")
+            funcionario.nome = novos_dados["nome"]
+            funcionario.idade = int(novos_dados["idade"])
+            funcionario.telefone = novos_dados["telefone"]
+            funcionario.email = novos_dados["email"]
+            funcionario.salario = float(novos_dados["salario"])
+            funcionario.cargo = novo_cargo
 
-        except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f'Erro de validação: {e}')
-        except ValueError as e:
-            self.__tela.mostra_mensagem(f'Erro de formato nos dados: {e}. Verifique se idade e salário são números válidos.')
+            self.__dao.update(funcionario)
+            self.__tela.mostra_mensagem("Funcionário alterado com sucesso!")
+
         except Exception as e:
-            self.__tela.mostra_mensagem(f'Erro inesperado ao alterar funcionário: {e}')
+            self.__tela.mostra_mensagem(f"Erro ao alterar funcionário: {e}")
 
     def excluir_funcionario(self):
         try:
-            cpf_para_excluir = self.__tela.seleciona_funcionario()
-            ValidacaoException.se_none(cpf_para_excluir, "Exclusão de funcionário cancelada.")
+            cpf = self.__tela.seleciona_funcionario()
+            ValidacaoException.se_none(cpf, "Operação cancelada.")
 
-            funcionario_a_excluir = self._buscar_funcionario_por_cpf(cpf_para_excluir)
+            funcionario = self._buscar_funcionario_por_cpf(cpf)
 
-            if self.__tela.confirma_acao(f"Tem certeza que deseja excluir o funcionário {funcionario_a_excluir.nome} (CPF: {funcionario_a_excluir.cpf})?"):
-                self.__funcionarios.remove(funcionario_a_excluir)
-                self.__tela.mostra_mensagem(f"Funcionário {funcionario_a_excluir.nome} excluído com sucesso!")
-            else:
-                self.__tela.mostra_mensagem("Exclusão cancelada pelo usuário.")
+            if self.__tela.confirma_acao(f"Deseja excluir {funcionario.nome}?"):
+                self.__dao.remove(cpf)
+                self.__tela.mostra_mensagem("Funcionário removido!")
 
-        except ValidacaoException as e:
-            self.__tela.mostra_mensagem(f'Erro de validação: {e}')
         except Exception as e:
-            self.__tela.mostra_mensagem(f'Erro inesperado ao excluir funcionário: {e}')
+            self.__tela.mostra_mensagem(f"Erro ao excluir funcionário: {e}")
 
-    def buscar_funcionario(self, cpf: str) -> Optional[Funcionario]:
-        for f in self.__funcionarios:
-            if f.cpf == cpf:
-                return f
-        return None
+    def buscar_funcionario(self, cpf: str):
+        return self.__dao.get(cpf)
