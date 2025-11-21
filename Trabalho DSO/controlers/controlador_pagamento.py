@@ -66,13 +66,19 @@ class ControladorPagamento:
                 self.__tela.mostra_mensagem(f"Erro ao criar pagamento: {e}")
                 return
 
+        try:
+            pagamento_existente.atualizar_valor_total()
+        except Exception as e:
+            self.__tela.mostra_mensagem(f"Erro ao atualizar o valor total da reserva: {e}")
+            return
+
         if pagamento_existente.status == "pendente":
 
             valor_devido_restante = pagamento_existente.valor_total_reserva - pagamento_existente.valor_pago
 
             valor_a_pagar = self.__tela.pega_valor_pagamento()
             if valor_a_pagar is None:
-                self.__tela.mostra_mensagem("Valor inválido. Operação cancelada.")
+                self.__tela.mostra_mensagem("Valor inválido ou operação cancelada.")
                 return
 
             if valor_a_pagar > valor_devido_restante:
@@ -141,5 +147,18 @@ class ControladorPagamento:
             self.__tela.mostra_mensagem(f"Nenhum registro de pagamento encontrado para Reserva ID {reserva_id}.")
             return
 
-        comprovante = pagamento_alvo.gerar_comprovante()
-        self.__tela.mostra_comprovante(comprovante)
+        try:
+            pagamento_alvo.atualizar_valor_total()
+        except Exception as e:
+            self.__tela.mostra_mensagem(f"Erro ao atualizar valor para comprovante: {e}")
+            return
+        
+        try:
+            comprovante_dados = pagamento_alvo.gerar_comprovante()
+            self.__tela.mostra_comprovante(comprovante_dados)
+            
+        except Exception as e:
+            self.__tela.mostra_mensagem(
+                f"Erro inesperado ao exibir o comprovante: {e}. "
+                "Verifique o método 'gerar_comprovante' na entidade Pagamento (se está retornando um dicionário)."
+            )
