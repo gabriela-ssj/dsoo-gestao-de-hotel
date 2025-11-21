@@ -1,11 +1,12 @@
 from entidades.servico_de_quarto import ServicoDeQuarto
 from telas.tela_servicodequarto import TelaServicoDeQuarto
+from daos.servicodequarto_dao import ServicoDeQuartoDAO
 from typing import Optional, Dict, Any, List
 
 
 class ControladorServicoDeQuarto:
     def __init__(self, controlador_quarto, controlador_funcionario):
-        self.__servicos: list[ServicoDeQuarto] = []
+        self.__dao = ServicoDeQuartoDAO()
         self.__tela = TelaServicoDeQuarto()
         self.__controlador_quarto = controlador_quarto
         self.__controlador_funcionario = controlador_funcionario
@@ -33,7 +34,7 @@ class ControladorServicoDeQuarto:
         dados: Optional[Dict[str, Any]] = self.__tela.pega_dados_servico()
         
         if dados is None:
-            self.__tela.mostra_mensagem("Solicitação de serviço cancelada ou dados de entrada inválidos.")
+            self.__tela.mostra_mensagem("Solicitação cancelada.")
             return
             
         try:
@@ -44,32 +45,42 @@ class ControladorServicoDeQuarto:
             funcionario = self.__controlador_funcionario.buscar_funcionario(cpf)
 
             if not quarto:
-                self.__tela.mostra_mensagem(f"Quarto {numero_quarto} não encontrado.")
+                self.__tela.mostra_mensagem("Quarto não encontrado.")
                 return
 
             if not funcionario:
-                self.__tela.mostra_mensagem(f"Funcionário com CPF {cpf} não encontrado.")
+                self.__tela.mostra_mensagem("Funcionário não encontrado.")
                 return
 
-            servico = ServicoDeQuarto(quarto, funcionario, dados["tipo_servico"], dados["valor"])
-            self.__servicos.append(servico)
-            self.__tela.mostra_mensagem(f"Serviço '{servico.tipo_servico}' solicitado para o quarto {quarto.numero} e será atendido por {funcionario.nome}.")
+            servico = ServicoDeQuarto(
+                quarto,
+                funcionario,
+                dados["tipo_servico"],
+                dados["valor"]
+            )
+
+            self.__dao.add(servico)
+
+            self.__tela.mostra_mensagem(
+                f"Serviço '{servico.tipo_servico}' registrado para o quarto {quarto.numero}."
+            )
 
         except ValueError:
-            self.__tela.mostra_mensagem("Erro: O número do quarto e o CPF devem ser valores numéricos válidos.")
+            self.__tela.mostra_mensagem("Erro: número do quarto / CPF inválidos.")
         except Exception as e:
-            self.__tela.mostra_mensagem(f"Erro inesperado ao solicitar serviço: {e}")
-
+            self.__tela.mostra_mensagem(f"Erro inesperado: {e}")
 
     def listar_servicos(self):
-        if not self.__servicos:
+        servicos = self.__dao.get_all()
+
+        if not servicos:
             self.__tela.mostra_mensagem("Nenhum serviço registrado.")
             return
-            
-        lista_para_gui: List[Dict[str, Any]] = []
 
-        for s in self.__servicos:
-            lista_para_gui.append({
+        lista_gui: List[Dict[str, Any]] = []
+
+        for s in servicos:
+            lista_gui.append({
                 "numero_quarto": s.quarto.numero,
                 "nome_funcionario": s.funcionario.nome,
                 "tipo_servico": s.tipo_servico,
@@ -77,29 +88,38 @@ class ControladorServicoDeQuarto:
                 "status": s.status
             })
 
-        self.__tela.mostra_lista(lista_para_gui)
+        self.__tela.mostra_lista(lista_gui)
 
     def alterar_status_servico(self):
         numero_quarto_str = self.__tela.seleciona_servico()
-        
+
         if numero_quarto_str is None:
-            self.__tela.mostra_mensagem("Busca de serviço cancelada.")
+            self.__tela.mostra_mensagem("Operação cancelada.")
             return
 
-        servico = next((s for s in self.__servicos if str(s.quarto.numero) == numero_quarto_str), None)
-        
+        try:
+            numero_quarto = int(numero_quarto_str)
+        except ValueError:
+            self.__tela.mostra_mensagem("Número inválido.")
+            return
+
+        servico = self.__dao.get(numero_quarto)
+
         if not servico:
-            self.__tela.mostra_mensagem(f"Serviço não encontrado para o quarto {numero_quarto_str}.")
+            self.__tela.mostra_mensagem("Serviço não encontrado.")
             return
 
         novo_status = self.__tela.seleciona_status()
-        
+
         if novo_status is None:
-            self.__tela.mostra_mensagem("Alteração de status cancelada.")
+            self.__tela.mostra_mensagem("Alteração cancelada.")
             return
-            
+
         try:
             servico.status = novo_status
-            self.__tela.mostra_mensagem(f"Status do serviço no quarto {servico.quarto.numero} alterado para '{novo_status.capitalize()}'.")
+            self.__dao.update(servico)
+            self.__tela.mostra_mensagem(
+                f"Status alterado para '{novo_status.capitalize()}'."
+            )
         except ValueError as e:
             self.__tela.mostra_mensagem(str(e))
