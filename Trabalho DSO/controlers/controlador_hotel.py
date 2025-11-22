@@ -9,6 +9,7 @@ from controlers.controlador_reserva import ControladorReserva
 from controlers.controlador_pagamento import ControladorPagamento
 from controlers.controlador_recursos_humanos import ControladorRh
 from controlers.controlador_servicodequarto import ControladorServicoDeQuarto
+from daos.reserva_dao import ReservaDAO
 
 
 class ControladorHotel:
@@ -16,24 +17,29 @@ class ControladorHotel:
     def __init__(self, hotel: Hotel):
         self.__hotel = hotel
         self.__tela = TelaHotel()
+        self.__reserva_dao = ReservaDAO()
         self.__controlador_hospede = ControladorHospede()
         self.__controlador_cargo = ControladorCargo()
         self.__controlador_funcionario = ControladorFuncionario(self.__controlador_cargo)
-        self.__controlador_quarto = ControladorQuarto()
+
+        self.__controlador_quarto = ControladorQuarto(self.__reserva_dao)
 
         self.__controlador_servico_de_quarto = ControladorServicoDeQuarto(
             self.__controlador_quarto,
             self.__controlador_funcionario
         )
-        
+
         self.__controlador_reserva = ControladorReserva(
             self.__controlador_hospede,
             self.__controlador_quarto,
-            self.__controlador_funcionario
+            self.__controlador_funcionario,
+            self.__reserva_dao   
         )
 
         self.__controlador_pagamento = ControladorPagamento(self.__controlador_reserva)
         self.__controlador_rh = ControladorRh(self.__controlador_cargo, self.__controlador_funcionario)
+
+        self.tela_aberta = False
 
 
     def relatorio_quartos_mais_reservados(self):
@@ -41,18 +47,21 @@ class ControladorHotel:
         total_reservas = len(todas_reservas)
 
         if not total_reservas:
-            self.__tela.mostra_mensagem("Nenhuma reserva para gerar relatório.")
+            self.__tela.mostra_mensagem("Nenhuma reserva registrada.")
             return
 
         contador = Counter()
+
         for reserva in todas_reservas:
             for quarto in reserva.quartos:
                 contador[quarto.numero] += 1
 
         relatorio = []
         for numero, total in contador.items():
-            porcentagem = (total / total_reservas) * 100
-            relatorio.append(f"Quarto {numero}: {total} reservas ({porcentagem:.1f}%)")
+            percentual = (total / total_reservas) * 100
+            relatorio.append(
+                f"Quarto {numero}: {total} reservas ({percentual:.1f}%)"
+            )
 
         self.__tela.mostra_lista(relatorio)
 
@@ -76,6 +85,7 @@ class ControladorHotel:
 
         while self.tela_aberta:
             opcao = self.__tela.tela_opcoes()
+
             if opcao in opcoes:
                 opcoes[opcao]()
             else:

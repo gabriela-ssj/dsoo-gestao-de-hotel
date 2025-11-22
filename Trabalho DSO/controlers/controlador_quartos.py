@@ -2,15 +2,16 @@ from entidades.quartos import Suite, Duplo, Simples
 from entidades.quarto import Quarto
 from telas.tela_quarto import TelaQuarto
 from controlers.ValidacaoException import ValidacaoException
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from daos.quarto_dao import QuartoDAO
 from daos.reserva_dao import ReservaDAO
 
 
 class ControladorQuarto:
-    def __init__(self):
+    def __init__(self, reserva_dao: ReservaDAO = None):
         self.__tela = TelaQuarto()
         self.__quarto_dao = QuartoDAO()
+        self.__reserva_dao = reserva_dao if reserva_dao is not None else ReservaDAO()
 
         self.__mapa_tipos = {
             "suite": Suite,
@@ -48,7 +49,7 @@ class ControladorQuarto:
     def retornar(self):
         self.__tela.mostra_mensagem("Retornando ao menu anterior...")
 
-    def buscar_quarto(self, numero: int) -> Quarto | None:
+    def buscar_quarto(self, numero: int) -> Optional[Quarto]:
         try:
             ValidacaoException.validar_campo_vazio(str(numero), "Número do Quarto")
         except ValidacaoException:
@@ -83,6 +84,8 @@ class ControladorQuarto:
 
             quarto.valor_diaria = valor_diaria
 
+            if not hasattr(quarto, "reservas") or quarto.reservas is None:
+                quarto.reservas = []
 
             self.__quarto_dao.add(quarto)
 
@@ -110,7 +113,7 @@ class ControladorQuarto:
             quarto_dict = {
                 'numero': quarto.numero,
                 'tipo': tipo,
-                'disponibilidade': True,
+                'disponibilidade': quarto.disponibilidade if hasattr(quarto, 'disponibilidade') else True,
                 'hidro': quarto.hidro if isinstance(quarto, Suite) else False
             }
 
@@ -134,7 +137,7 @@ class ControladorQuarto:
             dados_atuais = {
                 "numero": quarto.numero,
                 "tipo": tipo_existente,
-                "disponibilidade": True,
+                "disponibilidade": quarto.disponibilidade if hasattr(quarto, 'disponibilidade') else True,
                 "hidro": quarto.hidro if isinstance(quarto, Suite) else False
             }
 
@@ -145,6 +148,9 @@ class ControladorQuarto:
 
             if isinstance(quarto, Suite):
                 quarto.hidro = novos_dados["hidro"]
+
+            if "disponibilidade" in novos_dados:
+                quarto.disponibilidade = novos_dados["disponibilidade"]
 
             self.__quarto_dao.update(quarto)
             self.__tela.mostra_mensagem("Quarto alterado com sucesso.")
@@ -173,24 +179,23 @@ class ControladorQuarto:
 
     def verificar_disponibilidade_periodo(self, quarto_or_numero, data_entrada, data_saida, reserva_sendo_editada=None):
         """
-        Verifica se o quarto (objeto ou número) está livre no período informado.
-        Consulta todas as reservas via ReservaDAO (não usa quarto.reservas).
-        Retorna True se disponível, False se houver conflito.
+        Verifica disponibilidade consultando **TODAS** as reservas do DAO.
+        Agora usa SEMPRE o mesmo DAO compartilhado pelo sistema (self.__reserva_dao).
+        Retorna True se disponível (sem sobreposição), False se houver conflito.
         """
         try:
-            if hasattr(quarto_or_numero, "numero"):
-                numero_quarto = quarto_or_numero.numero
-            else:
-                numero_quarto = int(quarto_or_numero)
+            numero_quarto = (
+                quarto_or_numero.numero if hasattr(quarto_or_numero, "numero")
+                else int(quarto_or_numero)
+            )
 
-            reserva_dao = ReservaDAO()
-            todas_reservas = list(reserva_dao.get_all())  
+            todas_reservas = list(self.__reserva_dao.get_all())
 
             for reserva in todas_reservas:
-                if reserva_sendo_editada and reserva.id == getattr(reserva_sendo_editada, "id", None):
+                if reserva_sendo_editada and getattr(reserva, "id", None) == getattr(reserva_sendo_editada, "id", None):
                     continue
 
-                if not any(getattr(q, "numero", None) == numero_quarto for q in reserva.quartos):
+                if numero_quarto not in [getattr(q, "numero", None) for q in reserva.quartos]:
                     continue
 
                 if (data_entrada < reserva.data_checkout) and (data_saida > reserva.data_checkin):
@@ -198,5 +203,6 @@ class ControladorQuarto:
 
             return True
 
-        except Exception:
+        except Exception as e:
+            print("ERRO DISPONIBILIDADE:", e)
             return False

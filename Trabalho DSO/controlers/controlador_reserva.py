@@ -5,7 +5,7 @@ from entidades.funcionario import Funcionario
 from entidades.servico_de_quarto import ServicoDeQuarto
 from entidades.pet import Pet
 from telas.tela_reserva import TelaReserva
-from typing import Optional
+from typing import Optional, List
 from controlers.controlador_hospede import ControladorHospede
 from controlers.controlador_quartos import ControladorQuarto
 from controlers.controlador_funcionario import ControladorFuncionario
@@ -19,19 +19,19 @@ class ControladorReserva:
         self,
         controlador_hospede: ControladorHospede,
         controlador_quarto: ControladorQuarto,
-        controlador_funcionario: ControladorFuncionario
+        controlador_funcionario: ControladorFuncionario,
+        reserva_dao: ReservaDAO = None
     ):
+
         self.__tela = TelaReserva()
         self.__controlador_hospede = controlador_hospede
         self.__controlador_quarto = controlador_quarto
         self.__controlador_funcionario = controlador_funcionario
-
-        self.__reserva_dao = ReservaDAO()
+        self.__reserva_dao = reserva_dao if reserva_dao is not None else ReservaDAO()
 
     @property
-    def reservas(self):
-        """Retorna todas as reservas persistidas."""
-        return self.__reserva_dao.get_all()
+    def reservas(self) -> List[Reserva]:
+        return list(self.__reserva_dao.get_all().values())
 
     def abre_tela(self):
         opcoes = {
@@ -89,13 +89,13 @@ class ControladorReserva:
         try:
             id_num = int(identificador)
             return self.__reserva_dao.get(id_num)
-        except ValueError:
+        except Exception:
             pass
 
         nome = identificador.lower()
         resultados = [
             r for r in self.__reserva_dao.get_all().values()
-            if nome in r.hospedes[0].nome.lower()
+            if len(r.hospedes) > 0 and nome in r.hospedes[0].nome.lower()
         ]
 
         if len(resultados) == 1:
@@ -119,21 +119,18 @@ class ControladorReserva:
             checkin = dados["checkin_data"]
             checkout = dados["checkout_data"]
 
-            hospedes = []
+            hospedes: List[Hospede] = []
             for cpf in cpfs:
                 hosp = self.__controlador_hospede.busca_hospede(cpf)
                 if not hosp:
                     raise ReservaException(f"Hóspede {cpf} não encontrado.")
                 hospedes.append(hosp)
 
-            quartos = []
+            quartos: List[Quarto] = []
             for num in numeros:
                 quarto = self.__controlador_quarto.buscar_quarto(num)
                 if not quarto:
                     raise ReservaException(f"Quarto {num} não existe.")
-
-                if not quarto.disponibilidade:
-                    raise ReservaException(f"Quarto {num} está indisponível.")
 
                 if not self.__controlador_quarto.verificar_disponibilidade_periodo(
                     quarto, checkin, checkout
@@ -149,7 +146,10 @@ class ControladorReserva:
                 data_checkout=checkout
             )
 
-            reserva.reservar_quartos()
+            for q in quartos:
+                if not hasattr(q, "reservas") or q.reservas is None:
+                    q.reservas = []
+                q.reservas.append(reserva)
 
             self.__reserva_dao.add(reserva)
 
@@ -159,7 +159,7 @@ class ControladorReserva:
             self.__tela.mostra_mensagem(f"Erro: {e}")
 
     def listar_reservas(self):
-        reservas = list(self.__reserva_dao.get_all().values())
+        reservas = list(self.__reserva_dao.get_all())
         if not reservas:
             self.__tela.mostra_mensagem("Nenhuma reserva cadastrada.")
             return
@@ -175,6 +175,10 @@ class ControladorReserva:
         nomes = ", ".join(h.nome for h in reserva.hospedes)
 
         if self.__tela.confirma_cancelamento(reserva.id, nomes):
+            for q in reserva.quartos:
+                if hasattr(q, "reservas") and q.reservas is not None:
+                    q.reservas = [r for r in q.reservas if getattr(r, "id", None) != reserva.id]
+
             reserva.status = "cancelada"
             reserva.liberar_quartos()
             self.__reserva_dao.update(reserva)
@@ -199,22 +203,21 @@ class ControladorReserva:
             if not dados:
                 raise ValidacaoException("Alteração cancelada.")
 
-            novos_hosp = []
+            novos_hosp: List[Hospede] = []
             for cpf in dados["hospedes_cpfs"]:
                 h = self.__controlador_hospede.busca_hospede(cpf)
                 if not h:
                     raise ReservaException(f"Hóspede {cpf} não encontrado.")
                 novos_hosp.append(h)
 
-            novos_quartos = []
+            novos_quartos: List[Quarto] = []
             for num in dados["quartos_ids"]:
                 q = self.__controlador_quarto.buscar_quarto(num)
                 if not q:
                     raise ReservaException(f"Quarto {num} não existe.")
 
                 ok = self.__controlador_quarto.verificar_disponibilidade_periodo(
-                    q, dados["checkin_data"], dados["checkout_data"],
-                    reserva_sendo_editada=reserva
+                    q, dados["checkin_data"], dados["checkout_data"], reserva_sendo_editada=reserva
                 )
 
                 if not ok:
@@ -222,12 +225,21 @@ class ControladorReserva:
 
                 novos_quartos.append(q)
 
+            for q in reserva.quartos:
+                if hasattr(q, "reservas") and q.reservas is not None:
+                    q.reservas = [r for r in q.reservas if getattr(r, "id", None) != reserva.id]
+
             reserva.editar_reserva(
                 nova_data_checkin=dados["checkin_data"],
                 nova_data_checkout=dados["checkout_data"],
                 novos_hospedes=novos_hosp,
                 novos_quartos=novos_quartos
             )
+
+            for q in novos_quartos:
+                if not hasattr(q, "reservas") or q.reservas is None:
+                    q.reservas = []
+                q.reservas.append(reserva)
 
             self.__reserva_dao.update(reserva)
 
@@ -245,9 +257,7 @@ class ControladorReserva:
                 return
 
             if reserva.status == "paga":
-                raise ReservaException(
-                    f"Reserva ID {reserva.id} já está paga — não é possível alterar."
-                )
+                raise ReservaException("Reserva já paga — não é possível alterar.")
 
             dados = self.__tela.pega_dados_servico_quarto()
             if not dados:
@@ -259,7 +269,7 @@ class ControladorReserva:
 
             quarto = next((q for q in reserva.quartos if q.numero == dados["num_quarto"]), None)
             if not quarto:
-                raise ReservaException("Esse quarto não pertence à reserva.")
+                raise ReservaException("Quarto não pertence à reserva.")
 
             servico = ServicoDeQuarto(
                 tipo_servico=dados["tipo_servico"],
@@ -269,12 +279,8 @@ class ControladorReserva:
             )
 
             reserva.adicionar_servico_quarto(servico)
-
             self.__reserva_dao.update(reserva)
-
-            self.__tela.mostra_mensagem(
-                f"Serviço adicionado! Total atualizado: R$ {reserva.valor_total:.2f}"
-            )
+            self.__tela.mostra_mensagem(f"Serviço adicionado! Total atualizado: R$ {reserva.valor_total:.2f}")
 
         except (ReservaException, ValidacaoException) as e:
             self.__tela.mostra_mensagem(str(e))
@@ -286,7 +292,7 @@ class ControladorReserva:
                 return
 
             if reserva.status == "paga":
-                raise ReservaException(f"Reserva ID {reserva.id} já está paga.")
+                raise ReservaException("Reserva já paga.")
 
             dados = self.__tela.pega_dados_pet()
             if not dados:
@@ -294,12 +300,8 @@ class ControladorReserva:
 
             pet = Pet(nome_pet=dados["nome_pet"], especie=dados["especie"])
             reserva.adicionar_pet(pet)
-
             self.__reserva_dao.update(reserva)
-
-            self.__tela.mostra_mensagem(
-                f"Pet adicionado! Total: R$ {reserva.valor_total:.2f}"
-            )
+            self.__tela.mostra_mensagem(f"Pet adicionado! Total: R$ {reserva.valor_total:.2f}")
 
         except (ReservaException, ValidacaoException) as e:
             self.__tela.mostra_mensagem(str(e))
