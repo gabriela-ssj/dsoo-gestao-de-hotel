@@ -31,7 +31,7 @@ class ControladorReserva:
 
     @property
     def reservas(self) -> List[Reserva]:
-        return list(self.__reserva_dao.get_all().values())
+        return list(self.__reserva_dao.get_all())
 
     def abre_tela(self):
         opcoes = {
